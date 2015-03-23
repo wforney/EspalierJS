@@ -1,9 +1,10 @@
 define(["./espalier.core"], function(core) {
-	"use strict";
+    "use strict";
 
-	var espalier = {
-		showWarning: core.showWarning
-	};
+    var espalier = {
+        showWarning: core.showWarning,
+        showInfo: core.showInfo
+    };
 
-	return espalier;
+    return espalier;
 });

@@ -1,6 +1,5 @@
 ﻿
-define(["jquery", "./templates/bootstrapTemplates"], function($,
-  bootstrapTemplates) {
+define(["./templates/bootstrapTemplates", "./lib/jquery-2.1.3"], function(bootstrapTemplates) {
   "use strict";
 
   var messageDisplayer = function(args) {
