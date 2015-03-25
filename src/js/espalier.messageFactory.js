@@ -1,5 +1,4 @@
-﻿
-define(["./templates/bootstrapTemplates", "./lib/jquery-2.1.3"], function(bootstrapTemplates) {
+﻿define(["./templates/bootstrapTemplates", "./lib/jquery-2.1.3"], function(bootstrapTemplates) {
   "use strict";
 
   var messageDisplayer = function(args) {
@@ -50,7 +49,7 @@ define(["./templates/bootstrapTemplates", "./lib/jquery-2.1.3"], function(bootst
 
     $.extend(messageSettings, messageArgs);
 
-    if (messageSettings.length == 0) {
+    if (messageSettings.message.length == 0) {
       console.log("No message to display.");
       return;
     }

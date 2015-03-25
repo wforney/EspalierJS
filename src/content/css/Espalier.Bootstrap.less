@@ -1,0 +1,33 @@
+@import "Variables.less";
+form {
+    div.form-group {
+        input.form-control,
+        select.form-control,
+        textarea.form-control {
+            border-radius: .15em;
+        }
+        textarea {
+            vertical-align: top;
+            resize: vertical;
+            height: 5em;
+        }
+        &.has-error {
+            input, select, textarea {
+                border-radius: 0;
+                border-top-left-radius: .15em;
+                border-top-right-radius: .15em;
+                border-color: @color-error-dark;
+                border-bottom-style: dotted;
+            }
+            textarea {
+                margin-bottom: -1px;
+            }
+            .message-container {
+                border-bottom-left-radius: .15em;
+                border-bottom-right-radius: .15em;
+                border-color: @color-error-dark;
+                border-top: none;
+            }
+        }
+    }
+}

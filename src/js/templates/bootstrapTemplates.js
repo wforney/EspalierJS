@@ -9,7 +9,7 @@ define(["jquery"], function($) {
 
 			var closeButton = $("<a />");
 			closeButton.attr("href", "javascript: void(0);");
-			closeButton.addClass("closeMessageClass");
+			closeButton.addClass(data.closeMessageClass);
 
 			root.append(closeButton);
 

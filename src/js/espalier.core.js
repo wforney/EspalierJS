@@ -71,29 +71,12 @@ define(["jquery", "./espalier.messageFactory"], function($, messageFactory) {
         hideWaitScreen: function() {
             alert("hide the wait screen.");
         },
-        bindErrors: function(form) {
-            $.each($("input, textarea, select", form), function(index, control) {
-                var lowerCaseId = control.id.toLowerCase();
-                control = $(control);
-                var group = control.closest(".control-group");
-
-                var notesError = messageFactory.create({
-                    appendTo: group,
-                    messageAttachment: messageFactory.messageAttachment.Flow,
-                    onRemoved: function() {
-                        group.removeClass("has-error");
-                    },
-                    onAdded: function() {
-                        group.addClass("has-error");
-                        group.velocity("callout.tada", {
-                            duration: 500
-                        });
-                    }
-                });
-
-                control.data("message", notesError);
-                control.attr(lowerCaseId, "");
-            });
+        isEmptyOrSpaces: function(str) {
+            return str === undefined || str === null || str.match(/^\s*$/) !== null;
+        },
+        isEmail: function(str) {
+            var emailRegex = /^(([\w-]+\.)+[\w-]+|([a-zA-Z]{1}|[\w-]{2,}))@((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|([a-zA-Z]+[\w-]+\.)+[a-zA-Z]{2,4})$/;
+            return core.isEmptyOrSpaces(str) || str.match(emailRegex);
         }
     };
 
