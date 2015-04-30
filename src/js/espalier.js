@@ -57,7 +57,7 @@ define(["./espalier.core", "./espalier.validation", "./espalier.messageFactory",
                     }
 
                     var controlMessage = messageFactory.create({
-                        appendTo: group,
+                        attachTo: group,
                         messageAttachment: messageFactory.messageAttachment.Flow,
                         onRemoved: function() {
                             group.removeClass("has-error");

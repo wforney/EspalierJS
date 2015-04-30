@@ -2,7 +2,9 @@ define(["jquery", "./espalier.messageFactory"], function($, messageFactory) {
     "use strict";
 
     var events = {};
-    var mainMessage = messageFactory.create();
+    var mainMessage = messageFactory.create({ 
+        attachTo: $("body")
+    });
 
     var core = {
         sendRequest: function(args) {

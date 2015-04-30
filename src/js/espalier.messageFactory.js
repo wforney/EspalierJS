@@ -1,9 +1,9 @@
-﻿define(["./templates/bootstrapTemplates", "./lib/jquery-2.1.3"], function(bootstrapTemplates) {
+﻿define(["./templates/bootstrapTemplates"], function(bootstrapTemplates) {
   "use strict";
 
   var messageDisplayer = function(args) {
     this.settings = {
-      appendTo: $("body"),
+      attachTo: null,
       messageContainerClass: "message-container",
       closeMessageClass: "close-message",
       infoMessageClass: "info-message",
@@ -18,6 +18,10 @@
     var scope = this;
 
     $.extend(this.settings, args);
+
+    if(!this.settings.attachTo) {
+      throw("MessageFactory requires an attachTo argument.");
+    }
 
     this.remove = function() {
       if (scope.message) {
@@ -49,7 +53,7 @@
 
     $.extend(messageSettings, messageArgs);
 
-    if (messageSettings.message.length == 0) {
+    if (messageSettings.message.length === 0) {
       console.log("No message to display.");
       return;
     }
@@ -91,12 +95,11 @@
       closeMessageClass: this.settings.closeMessageClass,
       messageAttachmentClass: messageAttachmentClass,
       moreThanOne: (typeof messageArgs.message !== 'string' &&
-        messageArgs.message
-        .length > 1)
+        messageArgs.message.length > 1)
     });
 
     this.message = $(this.message);
-    this.settings.appendTo.append(this.message);
+    this.settings.attachTo.append(this.message);
     this.settings.onAdded(this.message);
     this.message.on("click", "." + this.settings.closeMessageClass, this.remove);
   };
