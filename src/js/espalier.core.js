@@ -8,7 +8,7 @@ define(["jquery", "./espalier.messageFactory"], function($, messageFactory) {
 
     var core = {
         sendRequest: function(args) {
-            ftrHelper.showWaitScreen();
+            core.showWaitScreen();
             $(".notificationMessage").remove();
 
             var ajaxSettings = {
@@ -18,7 +18,7 @@ define(["jquery", "./espalier.messageFactory"], function($, messageFactory) {
                 },
                 statusCode: {
                     500: function(error) {
-                        ftrHelper.showMessage({
+                        core.showMessage({
                             message: error.responseJSON.Message,
                             cssClass: "error"
                         });
@@ -37,7 +37,7 @@ define(["jquery", "./espalier.messageFactory"], function($, messageFactory) {
                     }
                 },
                 complete: function(response) {
-                    ftrHelper.hideWaitScreen();
+                    core.hideWaitScreen();
 
                     if (response.status === 200) {
                         if (args.event) {

@@ -1,3 +1,6 @@
+/// <reference path="../../../typings/jquery/jquery.d.ts"/>
+/// <reference path="../../../typings/jasmine/jasmine.d.ts"/>
+/// <reference path="../../../typings/jasmine-jquery/jasmine-jquery.d.ts"/>
 describe("Message factory", function(){
 	var messageFactory;
 
@@ -12,17 +15,40 @@ describe("Message factory", function(){
 		expect(messageFactory.create).toThrow();
 	});
 
-	it("places a message in the specified container", function() {
-		loadFixtures("MessageFactoryFixture.html");
-
-		var message = messageFactory.create({
-			attachTo: $("#top-div")
+	describe("creates a message displayer", function() {
+		var message;
+		var topDiv;
+		
+		beforeEach(function(){
+			loadFixtures("MessageFactoryFixture.html");
+			topDiv = $("#top-div");
+			message = messageFactory.create({
+				attachTo: topDiv
+			});
 		});
 
-		message.show({
-			message: "Hello there"
+		it("and it shouldn't have added anything to the DOM yet...", function() {
+			expect($(".message-container")).not.toExist();
 		});
-
-		expect($(".message-container")).toExist();
+		
+		describe("when show is called", function() {
+			beforeEach(function(){
+				message.show({
+					message: "Hello there"
+				});
+			});
+			
+			it("the message is added to the DOM", function(){
+				expect($(".message-container")).toExist();
+			});
+			
+			it("and the close button removes the message from the DOM.", function(){
+				var button = $("." + message.settings.closeMessageClass, topDiv);
+				expect(button).toExist();
+				button.click();
+				
+				expect($(".message-container")).not.toExist();
+			});
+		});
 	});
 });
