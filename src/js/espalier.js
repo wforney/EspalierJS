@@ -1,5 +1,5 @@
 /// <reference path="../../typings/jquery/jquery.d.ts"/>
-define(["./espalier.core", "./espalier.validation", "./espalier.messageFactory", "velocity-ui"],
+define(["./espalier.core", "./espalier.validation", "./espalier.messageFactory"],
     function(core, validation, messageFactory) {
         "use strict";
 

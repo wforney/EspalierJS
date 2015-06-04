@@ -1,7 +1,6 @@
-define(["jquery", "./espalier.messageFactory"], function($, messageFactory) {
+define(["./espalier.messageFactory"], function(messageFactory) {
     "use strict";
-
-    var events = {};
+    
     var mainMessage = messageFactory.create({ 
         attachTo: $("body")
     });
