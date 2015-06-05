@@ -6,6 +6,7 @@ define(["./espalier.core", "./espalier.validation", "./espalier.messageFactory"]
         var espalier = {
             showWarning: core.showWarning,
             showInfo: core.showInfo,
+            sendRequest: core.sendRequest,
             wire: function(form) {
                 form = $(form);
                 form.attr("novalidate", "");

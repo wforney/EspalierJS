@@ -1,7 +1,7 @@
 ﻿define(["./templates/bootstrapTemplates"], function(bootstrapTemplates) {
   "use strict";
 
-  var messageDisplayer = function(args) {
+  var MessageDisplayer = function(args) {
     this.settings = {
       attachTo: null,
       messageContainerClass: "message-container",
@@ -32,7 +32,7 @@
     };
   };
 
-  messageDisplayer.prototype.show = function(messageArgs) {
+  MessageDisplayer.prototype.show = function(messageArgs) {
     var messageTypeClass, messageSettings, messageAttachmentClass;
 
     //NOTE: There should only be one message displayed per instance.
@@ -102,11 +102,12 @@
     this.settings.attachTo.append(this.message);
     this.settings.onAdded(this.message);
     this.message.on("click", "." + this.settings.closeMessageClass, this.remove);
+    return this.message;
   };
 
   var factory = {
     create: function(args) {
-      return new messageDisplayer(args);
+      return new MessageDisplayer(args);
     },
     messageType: {
       Info: "Info",
