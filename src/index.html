@@ -1,56 +1,118 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>EspalierJS - A well-pruned JavaScript forms library.</title>
-    <link rel="stylesheet" href="Content/css/Site.css" />
-    <link rel="stylesheet" href="Content/css/MessageFactory.css" />
-</head>
-
-<body>
-    <div class="main-content">
-        <div class="container-fluid body-content">
-            <div class="wrapper">
-                <form id="standard-form">
-                    <div class="form-group">
-                        <label for="exampleInputEmail1">Email address</label>
-                        <input required type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+    
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width" />
+        <title>EspalierJS - A well-pruned JavaScript forms library.</title>
+        <link rel="stylesheet" href="Content/css/Site.css" />
+        <link rel="stylesheet" href="bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css" />
+    </head>
+    
+    <body>
+        <div class="main-content">
+            <div class="container-fluid body-content">
+                <div class="wrapper">
+                    <h2>Forms have validation messages</h2>
+                    <form id="standard-form">
+                        <div class="form-group">
+                            <label for="exampleInputEmail1">Email address</label>
+                            <input required type="email" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputPassword1">Password</label>
+                            <input required type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleInputFile">File input</label>
+                            <input type="file" id="exampleInputFile">
+                            <p class="help-block">Example block-level help text here.</p>
+                        </div>
+                        <div class="checkbox">
+                            <label>
+                                <input required type="checkbox" id="exampleCheckBox">Check me out</label>
+                        </div>
+                        <button type="submit" class="btn btn-default">Submit</button>
+                    </form>
+                    <div>
+                        <h2>Tables have Pages</h2>
+                        <div id="demo-table"></div>
                     </div>
-                    <div class="form-group">
-                        <label for="exampleInputPassword1">Password</label>
-                        <input required type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-                    </div>
-                    <div class="form-group">
-                        <label for="exampleInputFile">File input</label>
-                        <input type="file" id="exampleInputFile">
-                        <p class="help-block">Example block-level help text here.</p>
-                    </div>
-                    <div class="checkbox">
-                        <label>
-                            <input required type="checkbox" id="exampleCheckBox"> Check me out
-                        </label>
-                    </div>
-                    <button type="submit" class="btn btn-default">Submit</button>
-                </form>
+                </div>
             </div>
         </div>
-    </div>
+        <script type="text/javascript" src="js/lib/jquery-2.1.3.js"></script>
+        <script type="text/javascript" src="js/lib/velocity.js"></script>
+        <script type="text/javascript" src="js/lib/velocity.ui.js"></script>
+        <script type="text/javascript" src="bower_components/handlebars/handlebars.js"></script>
+        <script type="text/javascript" src="bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"></script>
+        <script type="text/javascript" src="js/lib/require.js"></script>
+        <script type="text/javascript" src="js/lib/require.config.js"></script>
+        <script type="text/template" id="test-row-template">
+            <tr>
+            	<td>{{col1}}</td>
+            	<td>{{col2}}</td>
+            </tr>
+        </script>
+        <script type="text/javascript">
+            var espalier;
 
-    <script type="text/javascript" src="js/lib/require.js"></script>
-    <script type="text/javascript" src="js/lib/require.config.js"></script>
-
-    <script type="text/javascript">
-
-    (function() {
-        require(["js/espalier"], function(espalier) {
-            espalier.showInfo("It seems the libraries have loaded!");
-            espalier.wire("#standard-form");
-        });
-    })();
-
-    </script>
-</body>
+            (function() {
+                require(["js/espalier"], function(esp) {
+                    espalier = esp;
+                    espalier.showInfo("It seems the libraries have loaded!");
+                    espalier.wire("#standard-form");
+                    
+                    $(".datepicker").datepicker();
+                    
+                    var table = espalier.table({
+        				container: $("#demo-table"),
+        				rowTemplate: Handlebars.compile($("#test-row-template").html()),
+        				data: [
+        					{ col1: "Record 1-1", col2: "Record 1-2" },
+        					{ col1: "Record 2-1", col2: "Record 2-2" },
+        					{ col1: "Record 3-1", col2: "Record 3-2" },
+        					{ col1: "Record 4-1", col2: "Record 4-2" },
+        					{ col1: "Record 5-1", col2: "Record 5-2" },
+        					{ col1: "Record 6-1", col2: "Record 6-2" },
+        					{ col1: "Record 7-1", col2: "Record 7-2" },
+        					{ col1: "Record 8-1", col2: "Record 8-2" },
+        					{ col1: "Record 9-1", col2: "Record 9-2" },
+        					{ col1: "Record 10-1", col2: "Record 10-2" },
+        					{ col1: "Record 11-1", col2: "Record 11-2" },
+        					{ col1: "Record 12-1", col2: "Record 12-2" },
+        					{ col1: "Record 13-1", col2: "Record 13-2" },
+        					{ col1: "Record 14-1", col2: "Record 14-2" },
+        					{ col1: "Record 15-1", col2: "Record 15-2" },
+        					{ col1: "Record 16-1", col2: "Record 16-2" },
+        					{ col1: "Record 17-1", col2: "Record 17-2" },
+        					{ col1: "Record 18-1", col2: "Record 18-2" },
+        					{ col1: "Record 19-1", col2: "Record 19-2" },
+        					{ col1: "Record 20-1", col2: "Record 20-2" },
+        					{ col1: "Record 21-1", col2: "Record 21-2" },
+        					{ col1: "Record 22-1", col2: "Record 22-2" },
+        					{ col1: "Record 23-1", col2: "Record 23-2" },
+        					{ col1: "Record 24-1", col2: "Record 24-2" },
+        					{ col1: "Record 25-1", col2: "Record 25-2" }
+        				]
+        			});
+                    
+                    $("#search-records").click(function(){
+                        var filter = {
+                            StartDate: $("#start-date").val(),
+                            EndDate: $("#end-date").val(),
+                            ClientIPAddress: $("#ip-address").val(),
+                            UserName: $("#user-name").val(),
+                            MacAddress: $("#mac-address").val(),
+                            WorkingTelephoneNumber: $("#wtn").val(),
+                            BillingTelephoneNumber: $("#btn").val()
+                          };
+                          
+                          table.filter(filter);
+                    });
+                });
+            })();
+        </script>
+    </body>
 
 </html>

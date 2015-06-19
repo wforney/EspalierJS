@@ -1,12 +1,14 @@
 /// <reference path="../../typings/jquery/jquery.d.ts"/>
-define(["./espalier.core", "./espalier.validation", "./espalier.messageFactory"],
-    function(core, validation, messageFactory) {
+define(["./espalier.core", "./espalier.validation", "./espalier.messageFactory", "./espalier.waitscreen",
+    "./espalier.tables"],
+    function(core, validation, messageFactory, waitScreen, tables) {
         "use strict";
 
         var espalier = {
             showWarning: core.showWarning,
             showInfo: core.showInfo,
             sendRequest: core.sendRequest,
+            table: tables.create,
             wire: function(form) {
                 form = $(form);
                 form.attr("novalidate", "");
@@ -81,7 +83,13 @@ define(["./espalier.core", "./espalier.validation", "./espalier.messageFactory"]
                     control.data("validations", validations);
                     control.attr(lowerCaseId, "");
                 });
-            }
+            },
+            showWaitScreen: waitScreen.show,
+            hideWaitScreen: waitScreen.hide,
+            shortDate: core.shortDate,
+            shortTime: core.shortTime,
+            publish: core.publish,
+            subscribe: core.subscribe
         };
 
         return espalier;
