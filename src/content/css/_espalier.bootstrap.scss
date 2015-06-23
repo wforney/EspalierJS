@@ -1,4 +1,5 @@
-@import "Variables.less";
+@import "espalier.variables";
+
 form {
     div.form-group {
         input.form-control,
@@ -16,7 +17,7 @@ form {
                 border-radius: 0;
                 border-top-left-radius: .15em;
                 border-top-right-radius: .15em;
-                border-color: @color-error-dark;
+                border-color: $color-error-dark;
                 border-bottom-style: dotted;
             }
             textarea {
@@ -25,7 +26,7 @@ form {
             .message-container {
                 border-bottom-left-radius: .15em;
                 border-bottom-right-radius: .15em;
-                border-color: @color-error-dark;
+                border-color: $color-error-dark;
                 border-top: none;
             }
         }

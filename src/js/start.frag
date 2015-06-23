@@ -4,4 +4,4 @@
     } else {
         root.espalier = factory();
     }
-}(this, function () {
+}(( typeof window === 'object' && window ) || this, function () {

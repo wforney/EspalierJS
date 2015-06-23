@@ -1,7 +1,7 @@
 /// <reference path="../../typings/jquery/jquery.d.ts"/>
 define(["./espalier.core", "./espalier.validation", "./espalier.messageFactory", "./espalier.waitscreen",
     "./espalier.tables"],
-    function(core, validation, messageFactory, waitScreen, tables) {
+    function (core, validation, messageFactory, waitScreen, tables) {
         "use strict";
 
         var espalier = {
@@ -9,19 +9,19 @@ define(["./espalier.core", "./espalier.validation", "./espalier.messageFactory",
             showInfo: core.showInfo,
             sendRequest: core.sendRequest,
             table: tables.create,
-            wire: function(form) {
+            wire: function (form) {
                 form = $(form);
                 form.attr("novalidate", "");
 
-                form.submit(function(ev) {
+                form.submit(function (ev) {
                     var invalid = false;
 
-                    $.each($("input, textarea, select", form), function(index, control) {
+                    $.each($("input, textarea, select", form), function (index, control) {
                         control = $(control);
                         var validations = control.data("validations");
                         var errors = [];
 
-                        $.each(validations, function(vIndex, v) {
+                        $.each(validations, function (vIndex, v) {
                             if (v.invalid(control)) {
                                 errors.push(v.message);
                             }
@@ -41,7 +41,7 @@ define(["./espalier.core", "./espalier.validation", "./espalier.messageFactory",
                     }
                 });
 
-                $.each($("input, textarea, select", form), function(index, control) {
+                $.each($("input, textarea, select", form), function (index, control) {
                     var lowerCaseId = control.id.toLowerCase();
                     control = $(control);
                     var group;
@@ -63,10 +63,10 @@ define(["./espalier.core", "./espalier.validation", "./espalier.messageFactory",
                     var controlMessage = messageFactory.create({
                         attachTo: group,
                         messageAttachment: messageFactory.messageAttachment.Flow,
-                        onRemoved: function() {
+                        onRemoved: function () {
                             group.removeClass("has-error");
                         },
-                        onAdded: function() {
+                        onAdded: function () {
                             group.addClass("has-error");
                             group.velocity("callout.tada", {
                                 duration: 500
@@ -89,6 +89,7 @@ define(["./espalier.core", "./espalier.validation", "./espalier.messageFactory",
             shortDate: core.shortDate,
             shortTime: core.shortTime,
             publish: core.publish,
+            parseISODate: core.parseISODate,
             subscribe: core.subscribe
         };
 

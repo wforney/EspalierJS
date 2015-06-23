@@ -1,4 +1,6 @@
 div#espalier-wait-screen {
+	background:transparent;
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#65000000,endColorstr=#65000000);
 	background: rgba(0, 0, 0, .65);
 	position: fixed;
 	top: 0;

@@ -1024,6 +1024,7 @@ define('js/espalier.core',["./espalier.messageFactory", "./espalier.waitscreen",
                 var emailRegex = /^(([\w-]+\.)+[\w-]+|([a-zA-Z]{1}|[\w-]{2,}))@((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|([a-zA-Z]+[\w-]+\.)+[a-zA-Z]{2,4})$/;
                 return core.isEmptyOrSpaces(str) || str.match(emailRegex);
             },
+            parseISODate: parseDate,
             shortDate: function (date) {
                 if (!(date instanceof Date)) {
                     date = parseDate(date);
@@ -1261,7 +1262,7 @@ define('js/espalier.tables',["./espalier.messageFactory", "./espalier.waitscreen
 /// <reference path="../../typings/jquery/jquery.d.ts"/>
 define('js/espalier',["./espalier.core", "./espalier.validation", "./espalier.messageFactory", "./espalier.waitscreen",
     "./espalier.tables"],
-    function(core, validation, messageFactory, waitScreen, tables) {
+    function (core, validation, messageFactory, waitScreen, tables) {
         "use strict";
 
         var espalier = {
@@ -1269,19 +1270,19 @@ define('js/espalier',["./espalier.core", "./espalier.validation", "./espalier.me
             showInfo: core.showInfo,
             sendRequest: core.sendRequest,
             table: tables.create,
-            wire: function(form) {
+            wire: function (form) {
                 form = $(form);
                 form.attr("novalidate", "");
 
-                form.submit(function(ev) {
+                form.submit(function (ev) {
                     var invalid = false;
 
-                    $.each($("input, textarea, select", form), function(index, control) {
+                    $.each($("input, textarea, select", form), function (index, control) {
                         control = $(control);
                         var validations = control.data("validations");
                         var errors = [];
 
-                        $.each(validations, function(vIndex, v) {
+                        $.each(validations, function (vIndex, v) {
                             if (v.invalid(control)) {
                                 errors.push(v.message);
                             }
@@ -1301,7 +1302,7 @@ define('js/espalier',["./espalier.core", "./espalier.validation", "./espalier.me
                     }
                 });
 
-                $.each($("input, textarea, select", form), function(index, control) {
+                $.each($("input, textarea, select", form), function (index, control) {
                     var lowerCaseId = control.id.toLowerCase();
                     control = $(control);
                     var group;
@@ -1323,10 +1324,10 @@ define('js/espalier',["./espalier.core", "./espalier.validation", "./espalier.me
                     var controlMessage = messageFactory.create({
                         attachTo: group,
                         messageAttachment: messageFactory.messageAttachment.Flow,
-                        onRemoved: function() {
+                        onRemoved: function () {
                             group.removeClass("has-error");
                         },
-                        onAdded: function() {
+                        onAdded: function () {
                             group.addClass("has-error");
                             group.velocity("callout.tada", {
                                 duration: 500
@@ -1349,6 +1350,7 @@ define('js/espalier',["./espalier.core", "./espalier.validation", "./espalier.me
             shortDate: core.shortDate,
             shortTime: core.shortTime,
             publish: core.publish,
+            parseISODate: core.parseISODate,
             subscribe: core.subscribe
         };
 

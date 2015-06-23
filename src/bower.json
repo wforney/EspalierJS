@@ -1,0 +1,46 @@
+{
+  "name": "espalier-js",
+  "version": "0.1.0",
+  "homepage": "https://github.com/jeremeevans/EspalierJS",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jeremeevans/EspalierJS.git"
+  },
+  "description": "Tightly pruned HTML, CSS, and JavaScript for a productive web development experience.",
+  "main": [ "js/espalier.js", "content/css/espalier.scss" ],
+  "moduleType": [
+    "amd",
+    "globals"
+  ],
+  "keywords": [
+    "Paged",
+    "tables",
+    "error",
+    "notification",
+    "JSON",
+    "API"
+  ],
+  "authors": [
+    "Jereme Evans <jereme@jeremeevans.com> (http://www.jeremeevans.com)"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "spec",
+    "index.html",
+    "tests.html"
+  ],
+  "devDependencies": {
+    "jquery": "~2.1.4",
+    "bootstrap-datepicker": "~1.4.0",
+    "bootstrap": "~3.3.4",
+    "handlebars": "~3.0.3",
+    "jasmine": "~2.3.0",
+    "jasmine-jquery": "~2.1.0",
+    "pubsub-js": "~1.5.2",
+    "jquery-legacy": "jquery#1",
+    "requirejs": "~2.1.17"
+  }
+}
