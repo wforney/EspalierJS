@@ -1329,6 +1329,7 @@ define('js/espalier',["./espalier.core", "./espalier.validation", "./espalier.me
                             break;
                         case "date":
                             validations.push(validation.date);
+                            group = control.closest(".form-group");
                             if (control.datepicker) {
                                 control.datepicker().attr("type", "text");
                             }

@@ -57,6 +57,7 @@ define(["./espalier.core", "./espalier.validation", "./espalier.messageFactory",
                             break;
                         case "date":
                             validations.push(validation.date);
+                            group = control.closest(".form-group");
                             if (control.datepicker) {
                                 control.datepicker().attr("type", "text");
                             }
