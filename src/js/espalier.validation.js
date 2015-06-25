@@ -22,6 +22,13 @@ define(["./espalier.core"], function(core) {
                 return !core.isEmail(value);
             },
             message: "Invalid email address."
+        },
+        date: {
+            invalid: function(control) {
+                var value = control.val();
+                return !core.isDate(value);
+            },
+            message: "Invalid date."
         }
     };
 

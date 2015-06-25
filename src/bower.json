@@ -29,6 +29,7 @@
     "node_modules",
     "bower_components",
     "spec",
+    "typings",
     "index.html",
     "tests.html"
   ],

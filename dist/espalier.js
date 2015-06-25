@@ -1024,6 +1024,10 @@ define('js/espalier.core',["./espalier.messageFactory", "./espalier.waitscreen",
                 var emailRegex = /^(([\w-]+\.)+[\w-]+|([a-zA-Z]{1}|[\w-]{2,}))@((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|([a-zA-Z]+[\w-]+\.)+[a-zA-Z]{2,4})$/;
                 return core.isEmptyOrSpaces(str) || str.match(emailRegex);
             },
+            isDate: function(str) {
+                var d = new Date(str);
+                return core.isEmptyOrSpaces(str) || (d != "Invalid Date" && !isNaN(d) );
+            },
             parseISODate: parseDate,
             shortDate: function (date) {
                 if (!(date instanceof Date)) {
@@ -1090,6 +1094,13 @@ define('js/espalier.validation',["./espalier.core"], function(core) {
                 return !core.isEmail(value);
             },
             message: "Invalid email address."
+        },
+        date: {
+            invalid: function(control) {
+                var value = control.val();
+                return !core.isDate(value);
+            },
+            message: "Invalid date."
         }
     };
 
@@ -1315,6 +1326,12 @@ define('js/espalier',["./espalier.core", "./espalier.validation", "./espalier.me
                         case "email":
                             validations.push(validation.email);
                             group = control.closest(".form-group");
+                            break;
+                        case "date":
+                            validations.push(validation.date);
+                            if (control.datepicker) {
+                                control.datepicker().attr("type", "text");
+                            }
                             break;
                         default:
                             group = control.closest(".form-group");

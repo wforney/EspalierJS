@@ -55,6 +55,12 @@ define(["./espalier.core", "./espalier.validation", "./espalier.messageFactory",
                             validations.push(validation.email);
                             group = control.closest(".form-group");
                             break;
+                        case "date":
+                            validations.push(validation.date);
+                            if (control.datepicker) {
+                                control.datepicker().attr("type", "text");
+                            }
+                            break;
                         default:
                             group = control.closest(".form-group");
                             break;
