@@ -1,0 +1,33 @@
+{
+  "name": "espalier-js",
+  "version": "0.1.1",
+  "homepage": "https://github.com/jeremeevans/EspalierJS",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jeremeevans/EspalierJS.git"
+  },
+  "description": "Tightly pruned HTML, CSS, and JavaScript for a productive web development experience.",
+  "main": [ "dist/espalier.js", "dist/espalier.css" ],
+  "moduleType": [
+  ],
+  "keywords": [
+    "Paged",
+    "tables",
+    "error",
+    "notification",
+    "JSON",
+    "API"
+  ],
+  "authors": [
+    "Jereme Evans <jereme@jeremeevans.com> (http://www.jeremeevans.com)"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "src/spec",
+    "src/index.html",
+    "src/tests.html"
+  ]
+}

@@ -1,7 +1,5 @@
-define([], function () {
-    var body = $("body");
+var body = $("body");
 
-    return {
-        body: body
-    };
-});
+export default {
+    body: body
+};

@@ -1,0 +1,56 @@
+var gulp = require('gulp');  
+var babel = require('gulp-babel');  
+var babelify = require("babelify");
+var fs = require("fs");
+var browserify = require('browserify');  
+var concat = require('gulp-concat');  
+var sass = require('gulp-sass');  
+var refresh = require('gulp-livereload');  
+var lr = require('tiny-lr');  
+var server = lr();
+var shim = require("browserify-shim");
+
+
+gulp.task("build-espalier", function() {
+    return browserify({ standalone: "espalier" })
+    .transform(babelify)
+    .require("./src/js/espalier.js", { entry: true })
+    .bundle()
+    .on("error", function (err) { console.log("Error : " + err.message); })
+    .pipe(fs.createWriteStream("./dist/espalier.js"));
+});
+
+gulp.task("build-styles", function() {
+    return gulp.src("./src/css/espalier.scss")
+        .pipe(sass().on("error", sass.logError))
+        .pipe(gulp.dest("./dist"));
+});
+
+gulp.task("default", ["build-espalier", "build-styles"], function() {});
+
+gulp.task("build-app-style", function() {
+    return gulp.src("./demo/css/Site.scss")
+        .pipe(sass().on("error", sass.logError))
+        .pipe(gulp.dest("./demo/css"));
+});
+
+gulp.task("app", ["default", "build-app-style"], function() {
+    var bundler = browserify({ standalone: "app" })
+        .transform(babelify)
+        .require("./demo/js/app.js")
+        .bundle()
+        .on("error", function (err) { console.log("Error : " + err.message); })
+        .pipe(fs.createWriteStream("./demo/js/compiled/demo.js"));
+
+    return gulp.src([
+            "./node_modules/jquery/dist/jquery.js",
+            "./node_modules/handlebars/dist/handlebars.js",
+            "./node_modules/velocity-animate/velocity.js",
+            "./node_modules/velocity-animate/velocity.ui.js",
+            "./node_modules/bootstrap-sass/assets/javascripts/bootstrap.js",
+            "./node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.js",
+            "./dist/espalier.js",
+            "./demo/js/compiled/demo.js"
+        ]).pipe(concat("bundled.js"))
+        .pipe(gulp.dest("./demo/js/compiled"));
+});

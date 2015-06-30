@@ -4,6 +4,26 @@
 		"selected_items":
 		[
 			[
+				"val",
+				"validation"
+			],
+			[
+				"message",
+				"messageFactory"
+			],
+			[
+				"me",
+				"messageFactory"
+			],
+			[
+				"fun",
+				"function"
+			],
+			[
+				"m",
+				"messageFactory_spec"
+			],
+			[
 				"hide",
 				"hideWaitScreen()"
 			],
@@ -16,29 +36,79 @@
 	"buffers":
 	[
 		{
-			"contents": "define([\"./espalier.core\"], function(core) {\n    \"use strict\";\n\n    var espalier = {\n        showWarning: core.showWarning\n    };\n\n    core\n    return espalier;\n});",
-			"file": "src/js/espalier.js",
-			"file_size": 155,
-			"file_write_time": 130716190487557176,
-			"settings":
-			{
-				"buffer_size": 164,
-				"line_ending": "Unix"
-			}
-		},
-		{
 			"file": "src/js/espalier.core.js",
 			"settings":
 			{
-				"buffer_size": 3283,
-				"line_ending": "Unix"
+				"buffer_size": 5581,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "src/js/templates/bootstrapTemplates.js",
+			"settings":
+			{
+				"buffer_size": 660,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "src/js/espalier.js",
+			"settings":
+			{
+				"buffer_size": 3428,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "src/js/espalier.messageFactory.js",
+			"settings":
+			{
+				"buffer_size": 3298,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "src/js/espalier.tables.js",
+			"settings":
+			{
+				"buffer_size": 4675,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "src/js/espalier.validation.js",
+			"settings":
+			{
+				"buffer_size": 888,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "src/js/espalier.waitscreen.js",
+			"settings":
+			{
+				"buffer_size": 3671,
+				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "src/js/espalier.common.js",
+			"settings":
+			{
+				"buffer_size": 57,
+				"line_ending": "Windows"
 			}
 		}
 	],
 	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
 	"command_palette":
 	{
 		"height": 392.0,
+		"last_filter": "",
 		"selected_items":
 		[
 			[
@@ -108,17 +178,23 @@
 	},
 	"expanded_folders":
 	[
-		"/C/git/EspalierJS/src",
-		"/C/git/EspalierJS/src/js",
-		"/C/git/EspalierJS/src/js/lib",
-		"/C/git/EspalierJS/src/js/templates"
+		"/C/git/EspalierJS/src"
 	],
 	"file_history":
 	[
-		"/C/git/EspalierJS/src/js/templates/bootstrapTemplates.js",
 		"/C/git/EspalierJS/src/js/espalier.core.js",
 		"/C/git/EspalierJS/src/js/espalier.js",
 		"/C/git/EspalierJS/src/js/espalier.messageFactory.js",
+		"/C/git/EspalierJS/src/js/templates/bootstrapTemplates.js",
+		"/C/git/EspalierJS/src/index.html",
+		"/C/git/EspalierJS/src/js/lib/require.config.js",
+		"/C/git/EspalierJS/src/tests.html",
+		"/C/git/EspalierJS/src/spec/javascripts/messageFactoryTests.js",
+		"/C/git/EspalierJS/src/spec/javascripts/fixtures/messageFactoryFixture.html",
+		"/C/git/EspalierJS/src/spec/runner.html",
+		"/C/git/EspalierJS/src/spec/messageFactory_spec.js",
+		"/C/git/EspalierJS/src/tests/runner.html",
+		"/C/git/EspalierJS/src/tests/messageFactory_spec.js",
 		"/C/git/EspalierJS/EspalierJS.sublime-project",
 		"/C/Users/jee158/AppData/Roaming/Sublime Text 3/Packages/TernJS/TernJS.sublime-settings",
 		"/C/git/EspalierJS/src/js/.jshintrc",
@@ -127,13 +203,14 @@
 	],
 	"find":
 	{
-		"height": 34.0
+		"height": 22.0
 	},
 	"find_in_files":
 	{
-		"height": 0.0,
+		"height": 90.0,
 		"where_history":
 		[
+			""
 		]
 	},
 	"find_state":
@@ -141,6 +218,10 @@
 		"case_sensitive": false,
 		"find_history":
 		[
+			"messageFactory_spec",
+			"messageFactory",
+			"appendTo",
+			"jquery"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -158,29 +239,93 @@
 	"groups":
 	[
 		{
-			"selected": 0,
+			"selected": 2,
 			"sheets":
 			[
 				{
 					"buffer": 0,
-					"file": "src/js/espalier.js",
+					"file": "src/js/espalier.core.js",
 					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 164,
+						"buffer_size": 5581,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								139,
-								139
+								176,
+								176
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage"
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"syntax": "Packages/JavaScriptNext - ES6 Syntax/JavaScriptNext.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "src/js/templates/bootstrapTemplates.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 660,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								660,
+								660
+							]
+						],
+						"settings":
+						{
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"syntax": "Packages/JavaScriptNext - ES6 Syntax/JavaScriptNext.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "src/js/espalier.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3428,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								459,
+								459
+							]
+						],
+						"settings":
+						{
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"syntax": "Packages/JavaScriptNext - ES6 Syntax/JavaScriptNext.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
 						},
 						"translation.x": 0.0,
 						"translation.y": 0.0,
@@ -190,25 +335,87 @@
 					"type": "text"
 				},
 				{
-					"buffer": 1,
-					"file": "src/js/espalier.core.js",
-					"semi_transient": true,
+					"buffer": 3,
+					"file": "src/js/espalier.messageFactory.js",
+					"semi_transient": false,
 					"settings":
 					{
-						"buffer_size": 3283,
+						"buffer_size": 3298,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								0,
-								0
+								3298,
+								3298
 							]
 						],
 						"settings":
 						{
-							"syntax": "Packages/JavaScript/JavaScript.tmLanguage",
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"syntax": "Packages/JavaScriptNext - ES6 Syntax/JavaScriptNext.tmLanguage",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "src/js/espalier.tables.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 4675,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								4675,
+								4675
+							]
+						],
+						"settings":
+						{
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"syntax": "Packages/JavaScriptNext - ES6 Syntax/JavaScriptNext.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 776.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "src/js/espalier.validation.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 888,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								888,
+								888
+							]
+						],
+						"settings":
+						{
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"syntax": "Packages/JavaScriptNext - ES6 Syntax/JavaScriptNext.tmLanguage",
 							"tab_size": 4,
 							"translate_tabs_to_spaces": true
 						},
@@ -216,7 +423,67 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "src/js/espalier.waitscreen.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3671,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3671,
+								3671
+							]
+						],
+						"settings":
+						{
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"syntax": "Packages/JavaScriptNext - ES6 Syntax/JavaScriptNext.tmLanguage",
+							"tab_size": 4,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "src/js/espalier.common.js",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 57,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								57,
+								57
+							]
+						],
+						"settings":
+						{
+							"color_scheme": "Packages/User/Color Highlighter/themes/Monokai (SL).tmTheme",
+							"syntax": "Packages/JavaScriptNext - ES6 Syntax/JavaScriptNext.tmLanguage"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
 					"type": "text"
 				}
 			]
@@ -224,7 +491,7 @@
 	],
 	"incremental_find":
 	{
-		"height": 23.0
+		"height": 22.0
 	},
 	"input":
 	{
@@ -261,23 +528,30 @@
 	{
 		"height": 0.0
 	},
+	"pinned_build_system": "",
 	"project": "EspalierJS.sublime-project",
 	"replace":
 	{
-		"height": 42.0
+		"height": 40.0
 	},
 	"save_all_on_build": true,
 	"select_file":
 	{
 		"height": 0.0,
+		"last_filter": "",
 		"selected_items":
 		[
+			[
+				"require",
+				"js\\lib\\require.config.js"
+			]
 		],
 		"width": 0.0
 	},
 	"select_project":
 	{
 		"height": 0.0,
+		"last_filter": "",
 		"selected_items":
 		[
 		],
@@ -286,6 +560,7 @@
 	"select_symbol":
 	{
 		"height": 0.0,
+		"last_filter": "",
 		"selected_items":
 		[
 		],
