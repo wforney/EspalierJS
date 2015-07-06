@@ -96,14 +96,27 @@ div#espalier-wait-screen {
       bottom: -150px;
       margin-left: -150px;
       position: absolute;
-      animation-name: rotate-glass;
-      animation-duration: 6s;
-      animation-iteration-count: infinite;
-      animation-timing-function: ease-in-out;
-      animation-delay: -1.5s;
-      animation-direction: normal;
-      transform-origin: 50%; }
+      -webkit-animation-name: rotate-glass;
+              animation-name: rotate-glass;
+      -webkit-animation-duration: 6s;
+              animation-duration: 6s;
+      -webkit-animation-iteration-count: infinite;
+              animation-iteration-count: infinite;
+      -webkit-animation-timing-function: ease-in-out;
+              animation-timing-function: ease-in-out;
+      -webkit-animation-delay: -1.5s;
+              animation-delay: -1.5s;
+      -webkit-animation-direction: normal;
+              animation-direction: normal;
+      -webkit-transform-origin: 50%;
+              transform-origin: 50%; }
+
+@-webkit-keyframes rotate-glass {
+  0% {
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg); } }
 
 @keyframes rotate-glass {
   0% {
-    transform: rotate(360deg); } }
+    -webkit-transform: rotate(360deg);
+            transform: rotate(360deg); } }

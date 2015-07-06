@@ -9,6 +9,9 @@ var espalier = {
     showInfo: core.showInfo,
     sendRequest: core.sendRequest,
     table: tables.create,
+    snatch: function (x) {
+        alert(x);
+    },
     wire: function (form) {
         form = $(form);
         form.attr("novalidate", "");

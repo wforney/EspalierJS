@@ -60,7 +60,6 @@ var renderTable = function (table) {
 		if (table.settings.pages > 0) {
 			rendered.append(getFooter(table));
 		}
-		table.settings.container.html(rendered);
 	} else {
 		core.sendRequest({
 			url: table.settings.fetchUrl,
@@ -81,8 +80,14 @@ var renderTable = function (table) {
 			}
 			rendered.append(tbody);
 			rendered.append(getFooter(table));
-			table.settings.container.html(rendered);
 		});
+	}
+
+	table.settings.container.clear();
+	table.settings.append(rendered);
+
+	if(this.renderedCallback) {
+		this.renderedCallback(table[0]);
 	}
 };
 
@@ -98,7 +103,8 @@ class TableInstance {
 			pageSize: 10,
 			prefetchPages: 5,
 			rowTemplate: undefined,
-			tableClass: "espalier-table"
+			tableClass: "espalier-table",
+			renderedCallback: undefined
 		};
 
 		$.extend(this.settings, args);
