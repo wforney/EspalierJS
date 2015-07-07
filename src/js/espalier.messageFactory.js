@@ -22,14 +22,14 @@ class MessageDisplayer {
     if(!this.settings.attachTo) {
       throw("MessageFactory requires an attachTo argument.");
     }
+  }
 
-    this.remove = function () {
-      if (scope.message) {
-        scope.message.remove();
-        scope.message = undefined;
-        scope.settings.onRemoved();
+  remove() {
+      if (this.message) {
+        this.message.remove();
+        this.message = undefined;
+        this.settings.onRemoved();
       }
-    };
   }
 };
 

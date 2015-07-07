@@ -6213,7 +6213,7 @@ form div.form-group.has-error .message-container {
     border-color: #3d8b3d;
     color: #1e441e; }
 
-div#espalier-wait-screen {
+div.espalier-vellum, div#espalier-wait-screen {
   background: transparent;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#65000000,endColorstr=#65000000);
   background: rgba(0, 0, 0, 0.65);
@@ -6222,28 +6222,29 @@ div#espalier-wait-screen {
   width: 100%;
   height: 100%;
   text-align: center; }
-  div#espalier-wait-screen > div {
-    height: 50%;
-    position: relative; }
-    div#espalier-wait-screen > div > img {
-      height: 300px;
-      bottom: -150px;
-      margin-left: -150px;
-      position: absolute;
-      -webkit-animation-name: rotate-glass;
-              animation-name: rotate-glass;
-      -webkit-animation-duration: 6s;
-              animation-duration: 6s;
-      -webkit-animation-iteration-count: infinite;
-              animation-iteration-count: infinite;
-      -webkit-animation-timing-function: ease-in-out;
-              animation-timing-function: ease-in-out;
-      -webkit-animation-delay: -1.5s;
-              animation-delay: -1.5s;
-      -webkit-animation-direction: normal;
-              animation-direction: normal;
-      -webkit-transform-origin: 50%;
-              transform-origin: 50%; }
+
+div#espalier-wait-screen > div {
+  height: 50%;
+  position: relative; }
+  div#espalier-wait-screen > div > img {
+    height: 300px;
+    bottom: -150px;
+    margin-left: -150px;
+    position: absolute;
+    -webkit-animation-name: rotate-glass;
+            animation-name: rotate-glass;
+    -webkit-animation-duration: 6s;
+            animation-duration: 6s;
+    -webkit-animation-iteration-count: infinite;
+            animation-iteration-count: infinite;
+    -webkit-animation-timing-function: ease-in-out;
+            animation-timing-function: ease-in-out;
+    -webkit-animation-delay: -1.5s;
+            animation-delay: -1.5s;
+    -webkit-animation-direction: normal;
+            animation-direction: normal;
+    -webkit-transform-origin: 50%;
+            transform-origin: 50%; }
 
 @-webkit-keyframes rotate-glass {
   0% {
@@ -6254,6 +6255,9 @@ div#espalier-wait-screen {
   0% {
     -webkit-transform: rotate(360deg);
             transform: rotate(360deg); } }
+
+.espalier-dialog {
+  width: 100%; }
 
 * {
   box-sizing: border-box; }
@@ -6308,6 +6312,10 @@ strong.message-container {
   border-style: solid;
   padding: .5em;
   border-radius: .15em; }
+
+a.btn {
+  text-decoration: none;
+  font-weight: bold; }
 
 /*!
  * Datepicker for Bootstrap v1.4.0 (https://github.com/eternicode/bootstrap-datepicker)

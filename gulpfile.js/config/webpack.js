@@ -8,6 +8,7 @@ module.exports = function(env) {
   var webpackConfig = {
     context: jsSrc,
     plugins: [],
+    devtool: "source-map",
     resolve: {
       extensions: ["", ".js"]
     },
@@ -33,7 +34,6 @@ module.exports = function(env) {
   };
 
   if(env === "dev") {
-    webpackConfig.devtool = "source-map";
     webpack.debug = true;
   }
 

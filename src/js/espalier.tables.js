@@ -83,11 +83,11 @@ var renderTable = function (table) {
 		});
 	}
 
-	table.settings.container.clear();
-	table.settings.append(rendered);
+	table.settings.container.empty();
+	table.settings.container.append(rendered);
 
-	if(this.renderedCallback) {
-		this.renderedCallback(table[0]);
+	if(table.settings.renderedCallback) {
+		table.settings.renderedCallback(table[0]);
 	}
 };
 

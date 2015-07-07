@@ -44,7 +44,7 @@ testDate = undefined;
 
 var core = {
     sendRequest: function (req) {
-        waitScreen.show();
+        waitscreen.show();
         $("." + mainMessage.settings.messageContainerClass).remove();
 
         var ajaxSettings = {
@@ -89,7 +89,7 @@ var core = {
                 }
             },
             complete: function (response) {
-                waitScreen.hide();
+                waitscreen.hide();
 
                 if (response.status === 200) {
                     if (req.event) {
@@ -124,6 +124,9 @@ var core = {
             message: messages,
             messageType: messageFactory.messageType.Info
         });
+    },
+    hideMainMessage: function(){
+        mainMessage.remove();
     },
     isEmptyOrSpaces: function (str) {
         return str === undefined || str === null || str.match(/^\s*$/) !== null;

@@ -1,6 +1,6 @@
 {
   "name": "espalier-js",
-  "version": "0.2.0",
+  "version": "0.2.5",
   "description": "Tightly pruned HTML, CSS, and JavaScript for a productive web development experience.",
   "main": [
     "dist/espalier.js",
@@ -30,9 +30,6 @@
     "require-dir": "^0.3.0",
     "velocity-animate": "^1.2.2",
     "webpack": "^1.10.0"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",

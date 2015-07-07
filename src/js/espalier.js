@@ -1,8 +1,10 @@
+/// <reference path="../../typings/jquery/jquery.d.ts"/>
 import core from "./espalier.core";
 import validation from "./espalier.validation";
 import messageFactory from "./espalier.messageFactory";
 import waitScreen from "./espalier.waitscreen";
 import tables from "./espalier.tables";
+import dialog from "./espalier.dialog";
 
 var espalier = {
     showWarning: core.showWarning,
@@ -100,7 +102,10 @@ var espalier = {
     shortTime: core.shortTime,
     publish: core.publish,
     parseISODate: core.parseISODate,
-    subscribe: core.subscribe
+    subscribe: core.subscribe,
+    dialog: function(args) {
+        return dialog(args).show();
+    }
 };
 
 export default espalier;

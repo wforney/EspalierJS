@@ -1,4 +1,4 @@
-div#espalier-wait-screen {
+div.espalier-vellum, div#espalier-wait-screen {
 	background:transparent;
 	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#65000000,endColorstr=#65000000);
 	background: rgba(0, 0, 0, .65);
@@ -7,22 +7,23 @@ div#espalier-wait-screen {
 	width: 100%;
 	height: 100%;
 	text-align: center;
-	> div {
-		height: 50%;
-		position: relative;
-		> img {
-		    height: 300px;
-			bottom: -150px;
-			margin-left: -150px;
-  			position: absolute;
-		    animation-name: rotate-glass;
-		    animation-duration: 6s;
-		    animation-iteration-count: infinite;
-		    animation-timing-function: ease-in-out;
-		    animation-delay: -1.5s;
-		    animation-direction: normal;
-		    transform-origin: 50%;
-		}
+}
+
+div#espalier-wait-screen > div {
+	height: 50%;
+	position: relative;
+	> img {
+	    height: 300px;
+		bottom: -150px;
+		margin-left: -150px;
+			position: absolute;
+	    animation-name: rotate-glass;
+	    animation-duration: 6s;
+	    animation-iteration-count: infinite;
+	    animation-timing-function: ease-in-out;
+	    animation-delay: -1.5s;
+	    animation-direction: normal;
+	    transform-origin: 50%;
 	}
 }
 

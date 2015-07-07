@@ -4,7 +4,6 @@ var config    = require("../config");
 var webpack   = require("webpack");
 var concat      = require("gulp-concat");
 var logger       = require("../lib/compileLogger");
-var browserSync  = require("browser-sync");
 
 gulp.task("demo:js", function(callback) {
   var built = false;
@@ -13,6 +12,7 @@ gulp.task("demo:js", function(callback) {
   webpack({
     context: jsSrc,
     plugins: [],
+    devtool: "#inline-source-map",
     resolve: {
       extensions: ["", ".js"]
     },
@@ -47,8 +47,6 @@ gulp.task("demo:js", function(callback) {
             config.jsPath + "/demo/demo_compiled.js"
         ]).pipe(concat("bundled.js"))
         .pipe(gulp.dest(config.demoJS));
-
-    browserSync.reload();
 
     // On the initial compile, let gulp know the task is done
     if(!built) { 

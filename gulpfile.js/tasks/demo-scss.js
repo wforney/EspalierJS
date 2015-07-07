@@ -1,5 +1,4 @@
 var gulp 			= require("gulp");
-var browserSync 	= require("browser-sync");
 var sass 			= require("gulp-sass");
 var config			= require("../config/scss");
 var autoprefixer	= require("gulp-autoprefixer");
@@ -20,6 +19,5 @@ gulp.task("demo:scss", ["build:demo:scss"], function() {
 			"./node_modules/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css"
 		])
 		.pipe(concat("site.css"))
-        .pipe(gulp.dest(config.demoSCSSOut))
-        .pipe(browserSync.reload({stream:true}));
+        .pipe(gulp.dest(config.demoSCSSOut));
 });

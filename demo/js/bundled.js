@@ -23288,6 +23288,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
+	/// <reference path="../../typings/jquery/jquery.d.ts"/>
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
@@ -23296,7 +23297,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
-	var _espalierCore = __webpack_require__(2);
+	var _espalierCore = __webpack_require__(4);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
@@ -23304,17 +23305,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierValidation2 = _interopRequireDefault(_espalierValidation);
 	
-	var _espalierMessageFactory = __webpack_require__(3);
+	var _espalierMessageFactory = __webpack_require__(5);
 	
 	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
 	
-	var _espalierWaitscreen = __webpack_require__(5);
+	var _espalierWaitscreen = __webpack_require__(2);
 	
 	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
 	
 	var _espalierTables = __webpack_require__(9);
 	
 	var _espalierTables2 = _interopRequireDefault(_espalierTables);
+	
+	var _espalierDialog = __webpack_require__(10);
+	
+	var _espalierDialog2 = _interopRequireDefault(_espalierDialog);
 	
 	var espalier = {
 	    showWarning: _espalierCore2["default"].showWarning,
@@ -23412,7 +23417,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    shortTime: _espalierCore2["default"].shortTime,
 	    publish: _espalierCore2["default"].publish,
 	    parseISODate: _espalierCore2["default"].parseISODate,
-	    subscribe: _espalierCore2["default"].subscribe
+	    subscribe: _espalierCore2["default"].subscribe,
+	    dialog: function dialog(args) {
+	        return (0, _espalierDialog2["default"])(args).show();
+	    }
 	};
 	
 	exports["default"] = espalier;
@@ -23430,15 +23438,87 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
-	var _espalierMessageFactory = __webpack_require__(3);
+	var _espalierCommon = __webpack_require__(3);
+	
+	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
+	
+	var pleaseWaitId = "espalier-wait-screen";
+	var pleaseWait = $("<div />");
+	pleaseWait.attr("id", pleaseWaitId);
+	
+	var hourglass = "data:image/svg+xml;utf8," + "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"uil-gears\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"xMidYMid meet\" width=\"120px\" height=\"120px\">" + "  <rect class=\"bk\" fill=\"none\" x=\"0\" y=\"0\" width=\"100\" height=\"100\" />" + "  <g transform=\"translate(-20 -20)\">" + "    <path fill=\"#fafafa\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"0 50 50\" from=\"90 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "  <g transform=\"translate(20 20) rotate(15 50.0002 50)\">" + "    <path fill=\"#efefef\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"90 50 50\" from=\"0 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "</svg>";
+	var waitImage = $("<img />");
+	waitImage.attr("src", hourglass);
+	var inner = $("<div />");
+	inner.append(waitImage);
+	pleaseWait.append(inner);
+	
+	var waitScreen = {
+	    show: function show() {
+	        if ($("#" + pleaseWaitId).length > 0) {
+	            return pleaseWait;
+	        }
+	
+	        _espalierCommon2["default"].body.append(pleaseWait);
+	        return pleaseWait;
+	    },
+	    hide: function hide() {
+	        pleaseWait.remove();
+	    }
+	};
+	
+	exports["default"] = waitScreen;
+	module.exports = exports["default"];
+
+/***/ },
+/* 3 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	var body = $("body");
+	
+	exports["default"] = {
+	    body: body,
+	    window: $(window),
+	    showVellum: function showVellum() {
+	        if ($(".espalier-vellum").length > 0) {
+	            return;
+	        }
+	
+	        var vellum = $("<div class=\"espalier-vellum\" />");
+	        body.append(vellum);
+	    },
+	    hideVellum: function hideVellum() {
+	        $(".espalier-vellum").remove();
+	    }
+	};
+	module.exports = exports["default"];
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	var _espalierMessageFactory = __webpack_require__(5);
 	
 	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
 	
-	var _espalierWaitscreen = __webpack_require__(5);
+	var _espalierWaitscreen = __webpack_require__(2);
 	
 	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
 	
-	var _espalierCommon = __webpack_require__(6);
+	var _espalierCommon = __webpack_require__(3);
 	
 	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
 	
@@ -23487,7 +23567,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var core = {
 	    sendRequest: function sendRequest(req) {
-	        waitScreen.show();
+	        _espalierWaitscreen2["default"].show();
 	        $("." + mainMessage.settings.messageContainerClass).remove();
 	
 	        var ajaxSettings = {
@@ -23532,7 +23612,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            },
 	            complete: function complete(response) {
-	                waitScreen.hide();
+	                _espalierWaitscreen2["default"].hide();
 	
 	                if (response.status === 200) {
 	                    if (req.event) {
@@ -23567,6 +23647,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            message: messages,
 	            messageType: _espalierMessageFactory2["default"].messageType.Info
 	        });
+	    },
+	    hideMainMessage: function hideMainMessage() {
+	        mainMessage.remove();
 	    },
 	    isEmptyOrSpaces: function isEmptyOrSpaces(str) {
 	        return str === undefined || str === null || str.match(/^\s*$/) !== null;
@@ -23621,7 +23704,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 3 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -23630,46 +23713,63 @@ return /******/ (function(modules) { // webpackBootstrap
 	  value: true
 	});
 	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _templatesBootstrapTemplates = __webpack_require__(4);
+	var _templatesBootstrapTemplates = __webpack_require__(6);
 	
 	var _templatesBootstrapTemplates2 = _interopRequireDefault(_templatesBootstrapTemplates);
 	
-	var MessageDisplayer = function MessageDisplayer(args) {
-	  _classCallCheck(this, MessageDisplayer);
+	var MessageDisplayer = (function () {
+	  function MessageDisplayer(args) {
+	    _classCallCheck(this, MessageDisplayer);
 	
-	  this.settings = {
-	    attachTo: null,
-	    messageContainerClass: "message-container",
-	    closeMessageClass: "close-message",
-	    infoMessageClass: "info-message",
-	    warningMessageClass: "warning-message",
-	    errorMessageClass: "error-message",
-	    successMessageClass: "success-message",
-	    messageAttachment: factory.messageAttachment.Fixed,
-	    onRemoved: function onRemoved() {},
-	    onAdded: function onAdded() {}
-	  };
+	    this.settings = {
+	      attachTo: null,
+	      messageContainerClass: "message-container",
+	      closeMessageClass: "close-message",
+	      infoMessageClass: "info-message",
+	      warningMessageClass: "warning-message",
+	      errorMessageClass: "error-message",
+	      successMessageClass: "success-message",
+	      messageAttachment: factory.messageAttachment.Fixed,
+	      onRemoved: function onRemoved() {},
+	      onAdded: function onAdded() {}
+	    };
 	
-	  var scope = this;
+	    var scope = this;
 	
-	  $.extend(this.settings, args);
+	    $.extend(this.settings, args);
 	
-	  if (!this.settings.attachTo) {
-	    throw "MessageFactory requires an attachTo argument.";
+	    if (!this.settings.attachTo) {
+	      throw "MessageFactory requires an attachTo argument.";
+	    }
+	
+	    // this.remove = function () {
+	    //   if (scope.message) {
+	    //     scope.message.remove();
+	    //     scope.message = undefined;
+	    //     scope.settings.onRemoved();
+	    //   }
+	    // };
 	  }
 	
-	  this.remove = function () {
-	    if (scope.message) {
-	      scope.message.remove();
-	      scope.message = undefined;
-	      scope.settings.onRemoved();
+	  _createClass(MessageDisplayer, [{
+	    key: "remove",
+	    value: function remove() {
+	      if (this.message) {
+	        this.message.remove();
+	        this.message = undefined;
+	        this.settings.onRemoved();
+	      }
 	    }
-	  };
-	};
+	  }]);
+	
+	  return MessageDisplayer;
+	})();
 	
 	;
 	
@@ -23765,7 +23865,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 4 */
+/* 6 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -23803,66 +23903,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	exports["default"] = templates;
-	module.exports = exports["default"];
-
-/***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-	
-	var _espalierCommon = __webpack_require__(6);
-	
-	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
-	
-	var pleaseWaitId = "espalier-wait-screen";
-	var pleaseWait = $("<div />");
-	pleaseWait.attr("id", pleaseWaitId);
-	
-	var hourglass = "data:image/svg+xml;utf8," + "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"uil-gears\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"xMidYMid meet\" width=\"120px\" height=\"120px\">" + "  <rect class=\"bk\" fill=\"none\" x=\"0\" y=\"0\" width=\"100\" height=\"100\" />" + "  <g transform=\"translate(-20 -20)\">" + "    <path fill=\"#fafafa\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"0 50 50\" from=\"90 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "  <g transform=\"translate(20 20) rotate(15 50.0002 50)\">" + "    <path fill=\"#efefef\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"90 50 50\" from=\"0 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "</svg>";
-	var waitImage = $("<img />");
-	waitImage.attr("src", hourglass);
-	var inner = $("<div />");
-	inner.append(waitImage);
-	pleaseWait.append(inner);
-	
-	var waitScreen = {
-	    show: function show() {
-	        if ($("#" + pleaseWaitId).length > 0) {
-	            return pleaseWait;
-	        }
-	
-	        _espalierCommon2["default"].body.append(pleaseWait);
-	        return pleaseWait;
-	    },
-	    hide: function hide() {
-	        pleaseWait.remove();
-	    }
-	};
-	
-	exports["default"] = waitScreen;
-	module.exports = exports["default"];
-
-/***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	var body = $("body");
-	
-	exports["default"] = {
-	    body: body
-	};
 	module.exports = exports["default"];
 
 /***/ },
@@ -24128,7 +24168,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
-	var _espalierCore = __webpack_require__(2);
+	var _espalierCore = __webpack_require__(4);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
@@ -24180,19 +24220,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _espalierMessageFactory = __webpack_require__(3);
+	var _espalierMessageFactory = __webpack_require__(5);
 	
 	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
 	
-	var _espalierWaitscreen = __webpack_require__(5);
+	var _espalierWaitscreen = __webpack_require__(2);
 	
 	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
 	
-	var _espalierCommon = __webpack_require__(6);
+	var _espalierCommon = __webpack_require__(3);
 	
 	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
 	
-	var _espalierCore = __webpack_require__(2);
+	var _espalierCore = __webpack_require__(4);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
@@ -24276,11 +24316,11 @@ return /******/ (function(modules) { // webpackBootstrap
 			});
 		}
 	
-		table.settings.container.clear();
-		table.settings.append(rendered);
+		table.settings.container.empty();
+		table.settings.container.append(rendered);
 	
-		if (this.renderedCallback) {
-			this.renderedCallback(table[0]);
+		if (table.settings.renderedCallback) {
+			table.settings.renderedCallback(table[0]);
 		}
 	};
 	
@@ -24367,6 +24407,117 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports["default"] = tables;
 	module.exports = exports["default"];
 
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var _espalierCore = __webpack_require__(4);
+	
+	var _espalierCore2 = _interopRequireDefault(_espalierCore);
+	
+	var _espalierCommon = __webpack_require__(3);
+	
+	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
+	
+	var Dialog = (function () {
+	    function Dialog(args) {
+	        _classCallCheck(this, Dialog);
+	
+	        this.settings = {
+	            element: undefined,
+	            dialogClass: "espalier-dialog",
+	            buttons: []
+	        };
+	
+	        $.extend(this.settings, args);
+	
+	        if (!this.settings.element) {
+	            throw new Error("You must pass an element.");
+	        } else if (this.settings.element.length !== 1) {
+	            throw new Error("element must have exactly one root element.");
+	        }
+	    }
+	
+	    _createClass(Dialog, [{
+	        key: "show",
+	        value: function show() {
+	            var _this = this;
+	
+	            var height, scrollTop, top, windowHeight, dialog;
+	            _espalierCore2["default"].hideMainMessage();
+	            _espalierCommon2["default"].showVellum();
+	            windowHeight = _espalierCommon2["default"].window.height();
+	            dialog = this.settings.element;
+	
+	            dialog.addClass(this.settings.dialogClass);
+	            dialog.css("position", "absolute");
+	            $("a, button, input, select, textarea").attr("tabindex", "-1");
+	
+	            _espalierCommon2["default"].body.append(dialog);
+	
+	            scrollTop = _espalierCommon2["default"].window.scrollTop();
+	
+	            height = dialog.height();
+	            top = windowHeight / 2 - height / 2 + scrollTop;
+	            top = top > 0 ? top : 0;
+	            dialog.css("top", top);
+	            $(":focus").blur();
+	            $(".focus", dialog).first().focus();
+	
+	            dialog.css("display", "none");
+	
+	            dialog.velocity("transition.whirlIn", {
+	                duration: 450
+	            });
+	
+	            this.settings.buttons.forEach(function (button) {
+	                $("#" + button.name, dialog).click(function () {
+	                    button.handler(_this);
+	                });
+	            });
+	
+	            return this;
+	        }
+	    }, {
+	        key: "hide",
+	        value: function hide() {
+	            var dialog = $(this.settings.element);
+	            dialog.velocity("transition.whirlOut", {
+	                duration: 150,
+	                complete: function complete() {
+	                    dialog.remove();
+	                    $("#notificationMessage").remove();
+	
+	                    if ($(".dialog").length == 0) {
+	                        _espalierCommon2["default"].hideVellum();
+	                    }
+	                }
+	            });
+	            return this;
+	        }
+	    }]);
+	
+	    return Dialog;
+	})();
+	
+	exports["default"] = function (args) {
+	    return new Dialog(args);
+	};
+	
+	module.exports = exports["default"];
+
 /***/ }
 /******/ ])
 });
@@ -24385,41 +24536,41 @@ return /******/ (function(modules) { // webpackBootstrap
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
-
+/******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
-
+/******/
 /******/ 		// Check if module is in cache
 /******/ 		if(installedModules[moduleId])
 /******/ 			return installedModules[moduleId].exports;
-
+/******/
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			exports: {},
 /******/ 			id: moduleId,
 /******/ 			loaded: false
 /******/ 		};
-
+/******/
 /******/ 		// Execute the module function
 /******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-
+/******/
 /******/ 		// Flag the module as loaded
 /******/ 		module.loaded = true;
-
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-
-
+/******/
+/******/
 /******/ 	// expose the modules object (__webpack_modules__)
 /******/ 	__webpack_require__.m = modules;
-
+/******/
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
-
+/******/
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
-
+/******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);
 /******/ })
@@ -24436,33 +24587,53 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ function(module, exports) {
 
 	"use strict";
-
+	
 	espalier.showInfo("It seems the libraries have loaded!");
 	espalier.wire("#standard-form");
-
+	
+	var dialogTemplate = Handlebars.compile($("#dialog-template").html());
 	$(".datepicker").datepicker();
-
+	
 	var table = espalier.table({
-		container: $("#demo-table"),
-		rowTemplate: Handlebars.compile($("#test-row-template").html()),
-		data: [{ col1: "Record 1-1", col2: "Record 1-2" }, { col1: "Record 2-1", col2: "Record 2-2" }, { col1: "Record 3-1", col2: "Record 3-2" }, { col1: "Record 4-1", col2: "Record 4-2" }, { col1: "Record 5-1", col2: "Record 5-2" }, { col1: "Record 6-1", col2: "Record 6-2" }, { col1: "Record 7-1", col2: "Record 7-2" }, { col1: "Record 8-1", col2: "Record 8-2" }, { col1: "Record 9-1", col2: "Record 9-2" }, { col1: "Record 10-1", col2: "Record 10-2" }, { col1: "Record 11-1", col2: "Record 11-2" }, { col1: "Record 12-1", col2: "Record 12-2" }, { col1: "Record 13-1", col2: "Record 13-2" }, { col1: "Record 14-1", col2: "Record 14-2" }, { col1: "Record 15-1", col2: "Record 15-2" }, { col1: "Record 16-1", col2: "Record 16-2" }, { col1: "Record 17-1", col2: "Record 17-2" }, { col1: "Record 18-1", col2: "Record 18-2" }, { col1: "Record 19-1", col2: "Record 19-2" }, { col1: "Record 20-1", col2: "Record 20-2" }, { col1: "Record 21-1", col2: "Record 21-2" }, { col1: "Record 22-1", col2: "Record 22-2" }, { col1: "Record 23-1", col2: "Record 23-2" }, { col1: "Record 24-1", col2: "Record 24-2" }, { col1: "Record 25-1", col2: "Record 25-2" }]
+	    container: $("#demo-table"),
+	    rowTemplate: Handlebars.compile($("#test-row-template").html()),
+	    data: [{ col1: "Record 1-1", col2: "Record 1-2" }, { col1: "Record 2-1", col2: "Record 2-2" }, { col1: "Record 3-1", col2: "Record 3-2" }, { col1: "Record 4-1", col2: "Record 4-2" }, { col1: "Record 5-1", col2: "Record 5-2" }, { col1: "Record 6-1", col2: "Record 6-2" }, { col1: "Record 7-1", col2: "Record 7-2" }, { col1: "Record 8-1", col2: "Record 8-2" }, { col1: "Record 9-1", col2: "Record 9-2" }, { col1: "Record 10-1", col2: "Record 10-2" }, { col1: "Record 11-1", col2: "Record 11-2" }, { col1: "Record 12-1", col2: "Record 12-2" }, { col1: "Record 13-1", col2: "Record 13-2" }, { col1: "Record 14-1", col2: "Record 14-2" }, { col1: "Record 15-1", col2: "Record 15-2" }, { col1: "Record 16-1", col2: "Record 16-2" }, { col1: "Record 17-1", col2: "Record 17-2" }, { col1: "Record 18-1", col2: "Record 18-2" }, { col1: "Record 19-1", col2: "Record 19-2" }, { col1: "Record 20-1", col2: "Record 20-2" }, { col1: "Record 21-1", col2: "Record 21-2" }, { col1: "Record 22-1", col2: "Record 22-2" }, { col1: "Record 23-1", col2: "Record 23-2" }, { col1: "Record 24-1", col2: "Record 24-2" }, { col1: "Record 25-1", col2: "Record 25-2" }]
 	});
-
+	
 	$("#search-records").click(function () {
-		var filter = {
-			StartDate: $("#start-date").val(),
-			EndDate: $("#end-date").val(),
-			ClientIPAddress: $("#ip-address").val(),
-			UserName: $("#user-name").val(),
-			MacAddress: $("#mac-address").val(),
-			WorkingTelephoneNumber: $("#wtn").val(),
-			BillingTelephoneNumber: $("#btn").val()
-		};
-
-		table.filter(filter);
+	    var filter = {
+	        StartDate: $("#start-date").val(),
+	        EndDate: $("#end-date").val(),
+	        ClientIPAddress: $("#ip-address").val(),
+	        UserName: $("#user-name").val(),
+	        MacAddress: $("#mac-address").val(),
+	        WorkingTelephoneNumber: $("#wtn").val(),
+	        BillingTelephoneNumber: $("#btn").val()
+	    };
+	
+	    table.filter(filter);
+	});
+	
+	$("#show-dialog").click(function () {
+	    espalier.dialog({
+	        element: $($.trim(dialogTemplate())),
+	        buttons: [{
+	            name: "submit",
+	            handler: function handler(dialog) {
+	                alert("submit!");
+	                dialog.hide();
+	            }
+	        }, {
+	            name: "cancel",
+	            handler: function handler(dialog) {
+	                dialog.hide();
+	            }
+	        }]
+	    });
 	});
 
 /***/ }
 /******/ ])
 });
 ;
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbIndlYnBhY2s6Ly8vd2VicGFjay91bml2ZXJzYWxNb2R1bGVEZWZpbml0aW9uIiwid2VicGFjazovLy93ZWJwYWNrL2Jvb3RzdHJhcCBmZTFmMGQ0OWIwNmZiY2JhNTYxMSIsIndlYnBhY2s6Ly8vQzovZ2l0L0VzcGFsaWVySlMvc3JjL2pzL2RlbW8vaW5kZXguanMiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IkFBQUE7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0E7QUFDQTtBQUNBO0FBQ0EsQ0FBQztBQUNELE87QUNWQTtBQUNBOztBQUVBO0FBQ0E7O0FBRUE7QUFDQTtBQUNBOztBQUVBO0FBQ0E7QUFDQSx1QkFBZTtBQUNmO0FBQ0E7QUFDQTs7QUFFQTtBQUNBOztBQUVBO0FBQ0E7O0FBRUE7QUFDQTtBQUNBOzs7QUFHQTtBQUNBOztBQUVBO0FBQ0E7O0FBRUE7QUFDQTs7QUFFQTtBQUNBOzs7Ozs7Ozs7Ozs7Ozs7O0FDdENBLFNBQVEsQ0FBQyxRQUFRLENBQUMscUNBQXFDLENBQUMsQ0FBQztBQUN6RCxTQUFRLENBQUMsSUFBSSxDQUFDLGdCQUFnQixDQUFDLENBQUM7O0FBRWhDLEtBQUksY0FBYyxHQUFHLFVBQVUsQ0FBQyxPQUFPLENBQUMsQ0FBQyxDQUFDLGtCQUFrQixDQUFDLENBQUMsSUFBSSxFQUFFLENBQUMsQ0FBQztBQUN0RSxFQUFDLENBQUMsYUFBYSxDQUFDLENBQUMsVUFBVSxFQUFFLENBQUM7O0FBRTlCLEtBQUksS0FBSyxHQUFHLFFBQVEsQ0FBQyxLQUFLLENBQUM7QUFDdkIsY0FBUyxFQUFFLENBQUMsQ0FBQyxhQUFhLENBQUM7QUFDM0IsZ0JBQVcsRUFBRSxVQUFVLENBQUMsT0FBTyxDQUFDLENBQUMsQ0FBQyxvQkFBb0IsQ0FBQyxDQUFDLElBQUksRUFBRSxDQUFDO0FBQy9ELFNBQUksRUFBRSxDQUNGLEVBQUUsSUFBSSxFQUFFLFlBQVksRUFBRSxJQUFJLEVBQUUsWUFBWSxFQUFFLEVBQzFDLEVBQUUsSUFBSSxFQUFFLFlBQVksRUFBRSxJQUFJLEVBQUUsWUFBWSxFQUFFLEVBQzFDLEVBQUUsSUFBSSxFQUFFLFlBQVksRUFBRSxJQUFJLEVBQUUsWUFBWSxFQUFFLEVBQzFDLEVBQUUsSUFBSSxFQUFFLFlBQVksRUFBRSxJQUFJLEVBQUUsWUFBWSxFQUFFLEVBQzFDLEVBQUUsSUFBSSxFQUFFLFlBQVksRUFBRSxJQUFJLEVBQUUsWUFBWSxFQUFFLEVBQzFDLEVBQUUsSUFBSSxFQUFFLFlBQVksRUFBRSxJQUFJLEVBQUUsWUFBWSxFQUFFLEVBQzFDLEVBQUUsSUFBSSxFQUFFLFlBQVksRUFBRSxJQUFJLEVBQUUsWUFBWSxFQUFFLEVBQzFDLEVBQUUsSUFBSSxFQUFFLFlBQVksRUFBRSxJQUFJLEVBQUUsWUFBWSxFQUFFLEVBQzFDLEVBQUUsSUFBSSxFQUFFLFlBQVksRUFBRSxJQUFJLEVBQUUsWUFBWSxFQUFFLEVBQzFDLEVBQUUsSUFBSSxFQUFFLGFBQWEsRUFBRSxJQUFJLEVBQUUsYUFBYSxFQUFFLEVBQzVDLEVBQUUsSUFBSSxFQUFFLGFBQWEsRUFBRSxJQUFJLEVBQUUsYUFBYSxFQUFFLEVBQzVDLEVBQUUsSUFBSSxFQUFFLGFBQWEsRUFBRSxJQUFJLEVBQUUsYUFBYSxFQUFFLEVBQzVDLEVBQUUsSUFBSSxFQUFFLGFBQWEsRUFBRSxJQUFJLEVBQUUsYUFBYSxFQUFFLEVBQzVDLEVBQUUsSUFBSSxFQUFFLGFBQWEsRUFBRSxJQUFJLEVBQUUsYUFBYSxFQUFFLEVBQzVDLEVBQUUsSUFBSSxFQUFFLGFBQWEsRUFBRSxJQUFJLEVBQUUsYUFBYSxFQUFFLEVBQzVDLEVBQUUsSUFBSSxFQUFFLGFBQWEsRUFBRSxJQUFJLEVBQUUsYUFBYSxFQUFFLEVBQzVDLEVBQUUsSUFBSSxFQUFFLGFBQWEsRUFBRSxJQUFJLEVBQUUsYUFBYSxFQUFFLEVBQzVDLEVBQUUsSUFBSSxFQUFFLGFBQWEsRUFBRSxJQUFJLEVBQUUsYUFBYSxFQUFFLEVBQzVDLEVBQUUsSUFBSSxFQUFFLGFBQWEsRUFBRSxJQUFJLEVBQUUsYUFBYSxFQUFFLEVBQzVDLEVBQUUsSUFBSSxFQUFFLGFBQWEsRUFBRSxJQUFJLEVBQUUsYUFBYSxFQUFFLEVBQzVDLEVBQUUsSUFBSSxFQUFFLGFBQWEsRUFBRSxJQUFJLEVBQUUsYUFBYSxFQUFFLEVBQzVDLEVBQUUsSUFBSSxFQUFFLGFBQWEsRUFBRSxJQUFJLEVBQUUsYUFBYSxFQUFFLEVBQzVDLEVBQUUsSUFBSSxFQUFFLGFBQWEsRUFBRSxJQUFJLEVBQUUsYUFBYSxFQUFFLEVBQzVDLEVBQUUsSUFBSSxFQUFFLGFBQWEsRUFBRSxJQUFJLEVBQUUsYUFBYSxFQUFFLEVBQzVDLEVBQUUsSUFBSSxFQUFFLGFBQWEsRUFBRSxJQUFJLEVBQUUsYUFBYSxFQUFFLENBQy9DO0VBQ0osQ0FBQyxDQUFDOztBQUVILEVBQUMsQ0FBQyxpQkFBaUIsQ0FBQyxDQUFDLEtBQUssQ0FBQyxZQUFZO0FBQ25DLFNBQUksTUFBTSxHQUFHO0FBQ1Qsa0JBQVMsRUFBRSxDQUFDLENBQUMsYUFBYSxDQUFDLENBQUMsR0FBRyxFQUFFO0FBQ2pDLGdCQUFPLEVBQUUsQ0FBQyxDQUFDLFdBQVcsQ0FBQyxDQUFDLEdBQUcsRUFBRTtBQUM3Qix3QkFBZSxFQUFFLENBQUMsQ0FBQyxhQUFhLENBQUMsQ0FBQyxHQUFHLEVBQUU7QUFDdkMsaUJBQVEsRUFBRSxDQUFDLENBQUMsWUFBWSxDQUFDLENBQUMsR0FBRyxFQUFFO0FBQy9CLG1CQUFVLEVBQUUsQ0FBQyxDQUFDLGNBQWMsQ0FBQyxDQUFDLEdBQUcsRUFBRTtBQUNuQywrQkFBc0IsRUFBRSxDQUFDLENBQUMsTUFBTSxDQUFDLENBQUMsR0FBRyxFQUFFO0FBQ3ZDLCtCQUFzQixFQUFFLENBQUMsQ0FBQyxNQUFNLENBQUMsQ0FBQyxHQUFHLEVBQUU7TUFDMUMsQ0FBQzs7QUFFRixVQUFLLENBQUMsTUFBTSxDQUFDLE1BQU0sQ0FBQyxDQUFDO0VBQ3hCLENBQUMsQ0FBQzs7QUFFSCxFQUFDLENBQUMsY0FBYyxDQUFDLENBQUMsS0FBSyxDQUFDLFlBQVk7QUFDaEMsYUFBUSxDQUFDLE1BQU0sQ0FBQztBQUNaLGdCQUFPLEVBQUUsQ0FBQyxDQUFDLENBQUMsQ0FBQyxJQUFJLENBQUMsY0FBYyxFQUFFLENBQUMsQ0FBQztBQUNwQyxnQkFBTyxFQUFFLENBQ0w7QUFDSSxpQkFBSSxFQUFFLFFBQVE7QUFDZCxvQkFBTyxFQUFFLGlCQUFVLE1BQU0sRUFBRTtBQUN2QixzQkFBSyxDQUFDLFNBQVMsQ0FBQyxDQUFDO0FBQ2pCLHVCQUFNLENBQUMsSUFBSSxFQUFFLENBQUM7Y0FDakI7VUFDSixFQUNEO0FBQ0ksaUJBQUksRUFBRSxRQUFRO0FBQ2Qsb0JBQU8sRUFBRSxpQkFBVSxNQUFNLEVBQUU7QUFDdkIsdUJBQU0sQ0FBQyxJQUFJLEVBQUUsQ0FBQztjQUNqQjtVQUNKLENBQ0o7TUFDSixDQUFDLENBQUM7RUFDTixDQUFDLEMiLCJmaWxlIjoiZGVtb19jb21waWxlZC5qcyIsInNvdXJjZXNDb250ZW50IjpbIihmdW5jdGlvbiB3ZWJwYWNrVW5pdmVyc2FsTW9kdWxlRGVmaW5pdGlvbihyb290LCBmYWN0b3J5KSB7XG5cdGlmKHR5cGVvZiBleHBvcnRzID09PSAnb2JqZWN0JyAmJiB0eXBlb2YgbW9kdWxlID09PSAnb2JqZWN0Jylcblx0XHRtb2R1bGUuZXhwb3J0cyA9IGZhY3RvcnkoKTtcblx0ZWxzZSBpZih0eXBlb2YgZGVmaW5lID09PSAnZnVuY3Rpb24nICYmIGRlZmluZS5hbWQpXG5cdFx0ZGVmaW5lKGZhY3RvcnkpO1xuXHRlbHNlIGlmKHR5cGVvZiBleHBvcnRzID09PSAnb2JqZWN0Jylcblx0XHRleHBvcnRzW1wiYXBwXCJdID0gZmFjdG9yeSgpO1xuXHRlbHNlXG5cdFx0cm9vdFtcImFwcFwiXSA9IGZhY3RvcnkoKTtcbn0pKHRoaXMsIGZ1bmN0aW9uKCkge1xucmV0dXJuIFxuXG5cbi8qKiBXRUJQQUNLIEZPT1RFUiAqKlxuICoqIHdlYnBhY2svdW5pdmVyc2FsTW9kdWxlRGVmaW5pdGlvblxuICoqLyIsIiBcdC8vIFRoZSBtb2R1bGUgY2FjaGVcbiBcdHZhciBpbnN0YWxsZWRNb2R1bGVzID0ge307XG5cbiBcdC8vIFRoZSByZXF1aXJlIGZ1bmN0aW9uXG4gXHRmdW5jdGlvbiBfX3dlYnBhY2tfcmVxdWlyZV9fKG1vZHVsZUlkKSB7XG5cbiBcdFx0Ly8gQ2hlY2sgaWYgbW9kdWxlIGlzIGluIGNhY2hlXG4gXHRcdGlmKGluc3RhbGxlZE1vZHVsZXNbbW9kdWxlSWRdKVxuIFx0XHRcdHJldHVybiBpbnN0YWxsZWRNb2R1bGVzW21vZHVsZUlkXS5leHBvcnRzO1xuXG4gXHRcdC8vIENyZWF0ZSBhIG5ldyBtb2R1bGUgKGFuZCBwdXQgaXQgaW50byB0aGUgY2FjaGUpXG4gXHRcdHZhciBtb2R1bGUgPSBpbnN0YWxsZWRNb2R1bGVzW21vZHVsZUlkXSA9IHtcbiBcdFx0XHRleHBvcnRzOiB7fSxcbiBcdFx0XHRpZDogbW9kdWxlSWQsXG4gXHRcdFx0bG9hZGVkOiBmYWxzZVxuIFx0XHR9O1xuXG4gXHRcdC8vIEV4ZWN1dGUgdGhlIG1vZHVsZSBmdW5jdGlvblxuIFx0XHRtb2R1bGVzW21vZHVsZUlkXS5jYWxsKG1vZHVsZS5leHBvcnRzLCBtb2R1bGUsIG1vZHVsZS5leHBvcnRzLCBfX3dlYnBhY2tfcmVxdWlyZV9fKTtcblxuIFx0XHQvLyBGbGFnIHRoZSBtb2R1bGUgYXMgbG9hZGVkXG4gXHRcdG1vZHVsZS5sb2FkZWQgPSB0cnVlO1xuXG4gXHRcdC8vIFJldHVybiB0aGUgZXhwb3J0cyBvZiB0aGUgbW9kdWxlXG4gXHRcdHJldHVybiBtb2R1bGUuZXhwb3J0cztcbiBcdH1cblxuXG4gXHQvLyBleHBvc2UgdGhlIG1vZHVsZXMgb2JqZWN0IChfX3dlYnBhY2tfbW9kdWxlc19fKVxuIFx0X193ZWJwYWNrX3JlcXVpcmVfXy5tID0gbW9kdWxlcztcblxuIFx0Ly8gZXhwb3NlIHRoZSBtb2R1bGUgY2FjaGVcbiBcdF9fd2VicGFja19yZXF1aXJlX18uYyA9IGluc3RhbGxlZE1vZHVsZXM7XG5cbiBcdC8vIF9fd2VicGFja19wdWJsaWNfcGF0aF9fXG4gXHRfX3dlYnBhY2tfcmVxdWlyZV9fLnAgPSBcIlwiO1xuXG4gXHQvLyBMb2FkIGVudHJ5IG1vZHVsZSBhbmQgcmV0dXJuIGV4cG9ydHNcbiBcdHJldHVybiBfX3dlYnBhY2tfcmVxdWlyZV9fKDApO1xuXG5cblxuLyoqIFdFQlBBQ0sgRk9PVEVSICoqXG4gKiogd2VicGFjay9ib290c3RyYXAgZmUxZjBkNDliMDZmYmNiYTU2MTFcbiAqKi8iLCJlc3BhbGllci5zaG93SW5mbyhcIkl0IHNlZW1zIHRoZSBsaWJyYXJpZXMgaGF2ZSBsb2FkZWQhXCIpO1xyXG5lc3BhbGllci53aXJlKFwiI3N0YW5kYXJkLWZvcm1cIik7XHJcblxyXG52YXIgZGlhbG9nVGVtcGxhdGUgPSBIYW5kbGViYXJzLmNvbXBpbGUoJChcIiNkaWFsb2ctdGVtcGxhdGVcIikuaHRtbCgpKTtcclxuJChcIi5kYXRlcGlja2VyXCIpLmRhdGVwaWNrZXIoKTtcclxuXHJcbnZhciB0YWJsZSA9IGVzcGFsaWVyLnRhYmxlKHtcclxuICAgIGNvbnRhaW5lcjogJChcIiNkZW1vLXRhYmxlXCIpLFxyXG4gICAgcm93VGVtcGxhdGU6IEhhbmRsZWJhcnMuY29tcGlsZSgkKFwiI3Rlc3Qtcm93LXRlbXBsYXRlXCIpLmh0bWwoKSksXHJcbiAgICBkYXRhOiBbXHJcbiAgICAgICAgeyBjb2wxOiBcIlJlY29yZCAxLTFcIiwgY29sMjogXCJSZWNvcmQgMS0yXCIgfSxcclxuICAgICAgICB7IGNvbDE6IFwiUmVjb3JkIDItMVwiLCBjb2wyOiBcIlJlY29yZCAyLTJcIiB9LFxyXG4gICAgICAgIHsgY29sMTogXCJSZWNvcmQgMy0xXCIsIGNvbDI6IFwiUmVjb3JkIDMtMlwiIH0sXHJcbiAgICAgICAgeyBjb2wxOiBcIlJlY29yZCA0LTFcIiwgY29sMjogXCJSZWNvcmQgNC0yXCIgfSxcclxuICAgICAgICB7IGNvbDE6IFwiUmVjb3JkIDUtMVwiLCBjb2wyOiBcIlJlY29yZCA1LTJcIiB9LFxyXG4gICAgICAgIHsgY29sMTogXCJSZWNvcmQgNi0xXCIsIGNvbDI6IFwiUmVjb3JkIDYtMlwiIH0sXHJcbiAgICAgICAgeyBjb2wxOiBcIlJlY29yZCA3LTFcIiwgY29sMjogXCJSZWNvcmQgNy0yXCIgfSxcclxuICAgICAgICB7IGNvbDE6IFwiUmVjb3JkIDgtMVwiLCBjb2wyOiBcIlJlY29yZCA4LTJcIiB9LFxyXG4gICAgICAgIHsgY29sMTogXCJSZWNvcmQgOS0xXCIsIGNvbDI6IFwiUmVjb3JkIDktMlwiIH0sXHJcbiAgICAgICAgeyBjb2wxOiBcIlJlY29yZCAxMC0xXCIsIGNvbDI6IFwiUmVjb3JkIDEwLTJcIiB9LFxyXG4gICAgICAgIHsgY29sMTogXCJSZWNvcmQgMTEtMVwiLCBjb2wyOiBcIlJlY29yZCAxMS0yXCIgfSxcclxuICAgICAgICB7IGNvbDE6IFwiUmVjb3JkIDEyLTFcIiwgY29sMjogXCJSZWNvcmQgMTItMlwiIH0sXHJcbiAgICAgICAgeyBjb2wxOiBcIlJlY29yZCAxMy0xXCIsIGNvbDI6IFwiUmVjb3JkIDEzLTJcIiB9LFxyXG4gICAgICAgIHsgY29sMTogXCJSZWNvcmQgMTQtMVwiLCBjb2wyOiBcIlJlY29yZCAxNC0yXCIgfSxcclxuICAgICAgICB7IGNvbDE6IFwiUmVjb3JkIDE1LTFcIiwgY29sMjogXCJSZWNvcmQgMTUtMlwiIH0sXHJcbiAgICAgICAgeyBjb2wxOiBcIlJlY29yZCAxNi0xXCIsIGNvbDI6IFwiUmVjb3JkIDE2LTJcIiB9LFxyXG4gICAgICAgIHsgY29sMTogXCJSZWNvcmQgMTctMVwiLCBjb2wyOiBcIlJlY29yZCAxNy0yXCIgfSxcclxuICAgICAgICB7IGNvbDE6IFwiUmVjb3JkIDE4LTFcIiwgY29sMjogXCJSZWNvcmQgMTgtMlwiIH0sXHJcbiAgICAgICAgeyBjb2wxOiBcIlJlY29yZCAxOS0xXCIsIGNvbDI6IFwiUmVjb3JkIDE5LTJcIiB9LFxyXG4gICAgICAgIHsgY29sMTogXCJSZWNvcmQgMjAtMVwiLCBjb2wyOiBcIlJlY29yZCAyMC0yXCIgfSxcclxuICAgICAgICB7IGNvbDE6IFwiUmVjb3JkIDIxLTFcIiwgY29sMjogXCJSZWNvcmQgMjEtMlwiIH0sXHJcbiAgICAgICAgeyBjb2wxOiBcIlJlY29yZCAyMi0xXCIsIGNvbDI6IFwiUmVjb3JkIDIyLTJcIiB9LFxyXG4gICAgICAgIHsgY29sMTogXCJSZWNvcmQgMjMtMVwiLCBjb2wyOiBcIlJlY29yZCAyMy0yXCIgfSxcclxuICAgICAgICB7IGNvbDE6IFwiUmVjb3JkIDI0LTFcIiwgY29sMjogXCJSZWNvcmQgMjQtMlwiIH0sXHJcbiAgICAgICAgeyBjb2wxOiBcIlJlY29yZCAyNS0xXCIsIGNvbDI6IFwiUmVjb3JkIDI1LTJcIiB9XHJcbiAgICBdXHJcbn0pO1xyXG5cclxuJChcIiNzZWFyY2gtcmVjb3Jkc1wiKS5jbGljayhmdW5jdGlvbiAoKSB7XHJcbiAgICB2YXIgZmlsdGVyID0ge1xyXG4gICAgICAgIFN0YXJ0RGF0ZTogJChcIiNzdGFydC1kYXRlXCIpLnZhbCgpLFxyXG4gICAgICAgIEVuZERhdGU6ICQoXCIjZW5kLWRhdGVcIikudmFsKCksXHJcbiAgICAgICAgQ2xpZW50SVBBZGRyZXNzOiAkKFwiI2lwLWFkZHJlc3NcIikudmFsKCksXHJcbiAgICAgICAgVXNlck5hbWU6ICQoXCIjdXNlci1uYW1lXCIpLnZhbCgpLFxyXG4gICAgICAgIE1hY0FkZHJlc3M6ICQoXCIjbWFjLWFkZHJlc3NcIikudmFsKCksXHJcbiAgICAgICAgV29ya2luZ1RlbGVwaG9uZU51bWJlcjogJChcIiN3dG5cIikudmFsKCksXHJcbiAgICAgICAgQmlsbGluZ1RlbGVwaG9uZU51bWJlcjogJChcIiNidG5cIikudmFsKClcclxuICAgIH07XHJcblxyXG4gICAgdGFibGUuZmlsdGVyKGZpbHRlcik7XHJcbn0pO1xyXG5cclxuJChcIiNzaG93LWRpYWxvZ1wiKS5jbGljayhmdW5jdGlvbiAoKSB7XHJcbiAgICBlc3BhbGllci5kaWFsb2coe1xyXG4gICAgICAgIGVsZW1lbnQ6ICQoJC50cmltKGRpYWxvZ1RlbXBsYXRlKCkpKSxcclxuICAgICAgICBidXR0b25zOiBbXHJcbiAgICAgICAgICAgIHtcclxuICAgICAgICAgICAgICAgIG5hbWU6IFwic3VibWl0XCIsXHJcbiAgICAgICAgICAgICAgICBoYW5kbGVyOiBmdW5jdGlvbiAoZGlhbG9nKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgYWxlcnQoXCJzdWJtaXQhXCIpO1xyXG4gICAgICAgICAgICAgICAgICAgIGRpYWxvZy5oaWRlKCk7XHJcbiAgICAgICAgICAgICAgICB9XHJcbiAgICAgICAgICAgIH0sXHJcbiAgICAgICAgICAgIHtcclxuICAgICAgICAgICAgICAgIG5hbWU6IFwiY2FuY2VsXCIsXHJcbiAgICAgICAgICAgICAgICBoYW5kbGVyOiBmdW5jdGlvbiAoZGlhbG9nKSB7XHJcbiAgICAgICAgICAgICAgICAgICAgZGlhbG9nLmhpZGUoKTtcclxuICAgICAgICAgICAgICAgIH1cclxuICAgICAgICAgICAgfVxyXG4gICAgICAgIF1cclxuICAgIH0pO1xyXG59KTtcblxuXG4vKiogV0VCUEFDSyBGT09URVIgKipcbiAqKiBDOi9naXQvRXNwYWxpZXJKUy9zcmMvanMvZGVtby9pbmRleC5qc1xuICoqLyJdLCJzb3VyY2VSb290IjoiIn0=

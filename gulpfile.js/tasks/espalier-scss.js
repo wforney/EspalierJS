@@ -1,5 +1,4 @@
 var gulp 			= require("gulp");
-var browserSync 	= require("browser-sync");
 var sass 			= require("gulp-sass");
 var config			= require("../config/scss");
 var autoprefixer	= require("gulp-autoprefixer");
@@ -10,6 +9,5 @@ gulp.task("espalier:scss", function() {
 		.pipe(sass(config.settings))
     	.on('error', handleErrors)
 		.pipe(autoprefixer(config.autoprefixer))
-		.pipe(gulp.dest(config.dest))
-		.pipe(browserSync.reload({stream:true}));
+		.pipe(gulp.dest(config.dest));
 });
