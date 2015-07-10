@@ -1,4 +1,3 @@
-/// <reference path="../../typings/jquery/jquery.d.ts"/>
 import core from "./espalier.core";
 import validation from "./espalier.validation";
 import messageFactory from "./espalier.messageFactory";
@@ -100,6 +99,7 @@ var espalier = {
     hideWaitScreen: waitScreen.hide,
     shortDate: core.shortDate,
     shortTime: core.shortTime,
+    numberWithCommas: core.numberWithCommas,
     publish: core.publish,
     parseISODate: core.parseISODate,
     subscribe: core.subscribe,

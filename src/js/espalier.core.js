@@ -125,7 +125,7 @@ var core = {
             messageType: messageFactory.messageType.Info
         });
     },
-    hideMainMessage: function(){
+    hideMainMessage: function () {
         mainMessage.remove();
     },
     isEmptyOrSpaces: function (str) {
@@ -135,9 +135,14 @@ var core = {
         var emailRegex = /^(([\w-]+\.)+[\w-]+|([a-zA-Z]{1}|[\w-]{2,}))@((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|([a-zA-Z]+[\w-]+\.)+[a-zA-Z]{2,4})$/;
         return core.isEmptyOrSpaces(str) || str.match(emailRegex);
     },
-    isDate: function(str) {
+    isDate: function (str) {
         var d = new Date(str);
-        return core.isEmptyOrSpaces(str) || (d != "Invalid Date" && !isNaN(d) );
+        return core.isEmptyOrSpaces(str) || (d != "Invalid Date" && !isNaN(d));
+    },
+    numberWithCommas: function numberWithCommas(x) {
+        var parts = x.toString().split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        return parts.join(".");
     },
     parseISODate: parseDate,
     shortDate: function (date) {

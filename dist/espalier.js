@@ -61,7 +61,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/// <reference path="../../typings/jquery/jquery.d.ts"/>
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
@@ -188,6 +187,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    hideWaitScreen: _espalierWaitscreen2["default"].hide,
 	    shortDate: _espalierCore2["default"].shortDate,
 	    shortTime: _espalierCore2["default"].shortTime,
+	    numberWithCommas: _espalierCore2["default"].numberWithCommas,
 	    publish: _espalierCore2["default"].publish,
 	    parseISODate: _espalierCore2["default"].parseISODate,
 	    subscribe: _espalierCore2["default"].subscribe,
@@ -435,6 +435,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var d = new Date(str);
 	        return core.isEmptyOrSpaces(str) || d != "Invalid Date" && !isNaN(d);
 	    },
+	    numberWithCommas: function numberWithCommas(x) {
+	        var parts = x.toString().split(".");
+	        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	        return parts.join(".");
+	    },
 	    parseISODate: parseDate,
 	    shortDate: function shortDate(date) {
 	        if (!(date instanceof Date)) {
@@ -520,14 +525,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (!this.settings.attachTo) {
 	      throw "MessageFactory requires an attachTo argument.";
 	    }
-	
-	    // this.remove = function () {
-	    //   if (scope.message) {
-	    //     scope.message.remove();
-	    //     scope.message = undefined;
-	    //     scope.settings.onRemoved();
-	    //   }
-	    // };
 	  }
 	
 	  _createClass(MessageDisplayer, [{
@@ -986,8 +983,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
-		value: true
+	    value: true
 	});
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
@@ -1010,171 +1009,166 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
 	var getFooter = function getFooter(table) {
-		var startAtPage = Math.max(0, table.settings.currentPage - 3);
-		var endAtPage = Math.min(table.settings.pages - 1, table.settings.currentPage + 3 + Math.max(3 - table.settings.currentPage, 0));
-		var pagingControl = $("<ul />");
-		pagingControl.addClass("pagination");
+	    var startAtPage = Math.max(0, table.settings.currentPage - 3);
+	    var endAtPage = Math.min(table.settings.pages - 1, table.settings.currentPage + 3 + Math.max(3 - table.settings.currentPage, 0));
+	    var pagingControl = "<ul class=\"pagination\">";
 	
-		var previous = $("<li><a data-page=\"" + (table.settings.currentPage - 1) + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&laquo;</span></a></li>");
+	    pagingControl += "<li" + (table.settings.currentPage == 0 ? " class=\"disabled\"" : "") + "><a data-page=\"" + (table.settings.currentPage - 1) + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&laquo;</span></a></li>";
 	
-		if (table.settings.currentPage == 0) {
-			previous.addClass("disabled");
-		}
+	    for (var i = startAtPage; i <= endAtPage; i++) {
+	        pagingControl += "<li" + (i === table.settings.currentPage ? " class=\"active\"" : "") + "><a data-page=\"" + i + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\">" + (i + 1) + "</a></li>";
+	    }
 	
-		pagingControl.append(previous);
+	    var nextPage = table.settings.currentPage + 1;
+	    pagingControl += "<li" + (nextPage == table.settings.pages ? " class=\"disabled\"" : "") + "><a data-page=\"" + nextPage + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&raquo;</span></a></li>";
 	
-		for (var i = startAtPage; i <= endAtPage; i++) {
-			var pageButton = $("<li><a data-page=\"" + i + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\">" + (i + 1) + "</a></li>");
-	
-			if (i === table.settings.currentPage) {
-				pageButton.addClass("active");
-			}
-	
-			pagingControl.append(pageButton);
-		}
-	
-		var nextPage = table.settings.currentPage + 1;
-		var next = $("<li><a data-page=\"" + nextPage + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&raquo;</span></a></li>");
-	
-		if (nextPage == table.settings.pages) {
-			next.addClass("disabled");
-		}
-	
-		pagingControl.append(next);
-	
-		return $("<tfoot />").append($("<tr />").append($("<td colspan=\"42\" />").append(pagingControl)));
+	    return "<tfoot><tr><td colspan=\"42\">" + pagingControl + "</td></tr></tfoot>";
 	};
 	
 	var renderTable = function renderTable(table) {
-		var rendered = $("<table />");
-		rendered.addClass(table.settings.tableClass);
-		rendered.addClass("table");
-		rendered.addClass("table-striped");
+	    var promise = new Promise(function (resolve, reject) {
+	        var rendered = "<table class=\"" + table.settings.tableClass + " table table-striped\">";
 	
-		if (table.settings.headerTemplate) {
-			rendered.append(table.settings.headerTemplate());
-		}
+	        if (table.settings.headerTemplate) {
+	            rendered += table.settings.headerTemplate();
+	        }
 	
-		var tbody = $("<tbody />");
-		var startAtIndex = table.settings.currentPage * table.settings.pageSize;
+	        rendered += "<tbody>";
+	        var startAtIndex = table.settings.currentPage * table.settings.pageSize;
 	
-		if (table.settings.data) {
-			for (var i = startAtIndex; i < Math.min(startAtIndex + table.settings.pageSize, table.settings.data.length); i++) {
-				tbody.append(table.settings.rowTemplate(table.settings.data[i]));
-			}
-			rendered.append(tbody);
-			if (table.settings.pages > 0) {
-				rendered.append(getFooter(table));
-			}
-		} else {
-			_espalierCore2["default"].sendRequest({
-				url: table.settings.fetchUrl,
-				type: "POST",
-				data: {
-					Page: table.settings.currentPage,
-					PageSize: table.settings.pageSize,
-					Criteria: table.settings.filter
-				}
-			}).then(function (result) {
-				if (table.settings.fetchCallback) {
-					table.settings.fetchCallback(result);
-				}
+	        if (table.settings.data) {
+	            for (var i = startAtIndex; i < Math.min(startAtIndex + table.settings.pageSize, table.settings.data.length); i++) {
+	                rendered += table.settings.rowTemplate(table.settings.data[i]);
+	            }
 	
-				table.settings.pages = Math.ceil(result.data.total / result.data.pageSize);
-				for (var i = 0; i < result.data.records.length; i++) {
-					tbody.append(table.settings.rowTemplate(result.data.records[i]));
-				}
-				rendered.append(tbody);
-				rendered.append(getFooter(table));
-			});
-		}
+	            rendered += "</tbody>";
 	
-		table.settings.container.empty();
-		table.settings.container.append(rendered);
+	            if (table.settings.pages > 0) {
+	                rendered += getFooter(table);
+	            }
+	            resolve(rendered);
+	        } else {
+	            _espalierCore2["default"].sendRequest({
+	                url: table.settings.fetchUrl,
+	                type: "POST",
+	                data: {
+	                    Page: table.settings.currentPage,
+	                    PageSize: table.settings.pageSize,
+	                    Criteria: table.settings.filter
+	                }
+	            }).then(function (result) {
+	                if (table.settings.fetchCallback) {
+	                    table.settings.fetchCallback(result);
+	                }
 	
-		if (table.settings.renderedCallback) {
-			table.settings.renderedCallback(table[0]);
-		}
+	                table.settings.pages = Math.ceil(result.data.total / result.data.pageSize);
+	                for (var i = 0; i < result.data.records.length; i++) {
+	                    rendered += table.settings.rowTemplate(result.data.records[i]);
+	                }
+	                rendered += "</tbody>";
+	                rendered += getFooter(table);
+	                resolve(rendered);
+	            });
+	        }
+	    });
+	
+	    promise.then(function (rendered) {
+	        table.settings.container.html(rendered);
+	
+	        if (table.settings.renderedCallback) {
+	            table.settings.renderedCallback(table.settings.container[0].getElementsByTagName("table")[0]);
+	        }
+	    });
 	};
 	
-	var TableInstance = function TableInstance(args) {
-		_classCallCheck(this, TableInstance);
+	var TableInstance = (function () {
+	    function TableInstance(args) {
+	        _classCallCheck(this, TableInstance);
 	
-		this.settings = {
-			container: undefined,
-			currentPage: 0,
-			data: undefined,
-			fetchCallback: undefined,
-			fetchUrl: "",
-			headerTemplate: undefined,
-			pageSize: 10,
-			prefetchPages: 5,
-			rowTemplate: undefined,
-			tableClass: "espalier-table",
-			renderedCallback: undefined
-		};
+	        this.settings = {
+	            container: undefined,
+	            currentPage: 0,
+	            data: undefined,
+	            fetchCallback: undefined,
+	            fetchUrl: "",
+	            headerTemplate: undefined,
+	            pageSize: 10,
+	            prefetchPages: 5,
+	            rowTemplate: undefined,
+	            tableClass: "espalier-table",
+	            renderedCallback: undefined
+	        };
 	
-		$.extend(this.settings, args);
+	        $.extend(this.settings, args);
 	
-		if (!this.settings.fetchUrl && !this.settings.data) {
-			throw new TypeError("You must either specify a fetch url or pass in data for the table to display.");
-		}
+	        if (!this.settings.fetchUrl && !this.settings.data) {
+	            throw new TypeError("You must either specify a fetch url or pass in data for the table to display.");
+	        }
 	
-		if (!this.settings.container) {
-			throw new TypeError("You must specify a container to place the table in.");
-		}
+	        if (!this.settings.container) {
+	            throw new TypeError("You must specify a container to place the table in.");
+	        }
 	
-		if (!this.settings.rowTemplate) {
-			throw new TypeError("You must provide a row template.");
-		}
+	        if (!this.settings.rowTemplate) {
+	            throw new TypeError("You must provide a row template.");
+	        }
 	
-		if (this.settings.data) {
-			this.settings.pages = Math.ceil(this.settings.data.length / this.settings.pageSize);
-		}
+	        if (this.settings.data) {
+	            this.settings.pages = Math.ceil(this.settings.data.length / this.settings.pageSize);
+	        }
 	
-		$.extend(this.settings, args);
-	};
+	        $.extend(this.settings, args);
+	    }
+	
+	    _createClass(TableInstance, [{
+	        key: "next",
+	        value: function next() {
+	            this.settings.currentPage++;
+	            renderTable(this);
+	            return this;
+	        }
+	    }, {
+	        key: "previous",
+	        value: function previous() {
+	            this.settings.currentPage--;
+	            renderTable(this);
+	            return this;
+	        }
+	    }, {
+	        key: "filter",
+	        value: function filter(_filter) {
+	            this.settings.filter = _filter;
+	            this.settings.currentPage = 0;
+	            renderTable(this);
+	            return this;
+	        }
+	    }, {
+	        key: "goToPage",
+	        value: function goToPage(page) {
+	            if (page < 0 || page >= this.settings.pages) {
+	                return;
+	            }
+	
+	            this.settings.currentPage = page;
+	            renderTable(this);
+	            return this;
+	        }
+	    }]);
+	
+	    return TableInstance;
+	})();
 	
 	;
 	
-	TableInstance.prototype.next = function () {
-		this.settings.currentPage++;
-		renderTable(this);
-		return this;
-	};
-	
-	TableInstance.prototype.previous = function () {
-		this.settings.currentPage--;
-		renderTable(this);
-		return this;
-	};
-	
-	TableInstance.prototype.filter = function (filter) {
-		this.settings.filter = filter;
-		this.settings.currentPage = 0;
-		renderTable(this);
-		return this;
-	};
-	
-	TableInstance.prototype.goToPage = function (page) {
-		if (page < 0 || page >= this.settings.pages) {
-			return;
-		}
-	
-		this.settings.currentPage = page;
-		renderTable(this);
-		return this;
-	};
-	
 	var tables = {
-		create: function create(args) {
-			var table = new TableInstance(args);
-			table.settings.container.on("click", ".espalier-table-button", function () {
-				table.goToPage($(this).data("page"));
-			});
-			renderTable(table);
-			return table;
-		}
+	    create: function create(args) {
+	        var table = new TableInstance(args);
+	        table.settings.container.on("click", ".espalier-table-button", function () {
+	            table.goToPage($(this).data("page"));
+	        });
+	        renderTable(table);
+	        return table;
+	    }
 	};
 	
 	exports["default"] = tables;
@@ -1210,7 +1204,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	        this.settings = {
 	            element: undefined,
-	            dialogClass: "espalier-dialog",
 	            buttons: []
 	        };
 	
@@ -1233,8 +1226,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            _espalierCommon2["default"].showVellum();
 	            windowHeight = _espalierCommon2["default"].window.height();
 	            dialog = this.settings.element;
-	
-	            dialog.addClass(this.settings.dialogClass);
 	            dialog.css("position", "absolute");
 	            $("a, button, input, select, textarea").attr("tabindex", "-1");
 	
@@ -1255,11 +1246,36 @@ return /******/ (function(modules) { // webpackBootstrap
 	                duration: 450
 	            });
 	
-	            this.settings.buttons.forEach(function (button) {
-	                $("#" + button.name, dialog).click(function () {
-	                    button.handler(_this);
-	                });
-	            });
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+	
+	            try {
+	                var _loop = function () {
+	                    var button = _step.value;
+	
+	                    $("#" + button.name, dialog).click(function () {
+	                        button.handler(_this);
+	                    });
+	                };
+	
+	                for (var _iterator = this.settings.buttons[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    _loop();
+	                }
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                        _iterator["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
 	
 	            return this;
 	        }

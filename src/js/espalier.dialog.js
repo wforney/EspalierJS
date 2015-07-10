@@ -5,7 +5,6 @@ class Dialog {
     constructor(args) {
         this.settings = {
             element: undefined,
-            dialogClass: "espalier-dialog",
             buttons: []
         };
 
@@ -24,8 +23,6 @@ class Dialog {
         common.showVellum();
         windowHeight = common.window.height();
         dialog = this.settings.element;
-
-        dialog.addClass(this.settings.dialogClass);
         dialog.css("position", "absolute");
         $("a, button, input, select, textarea").attr("tabindex", "-1");
 
@@ -46,11 +43,11 @@ class Dialog {
             duration: 450
         });
 
-        this.settings.buttons.forEach(button => {
+        for(let button of this.settings.buttons) {
             $("#" + button.name, dialog).click(() => {
                 button.handler(this);
             });
-        });
+        }
 
         return this;
     }
