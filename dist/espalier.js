@@ -104,37 +104,99 @@ return /******/ (function(modules) { // webpackBootstrap
 	    wire: function wire(form) {
 	        form = $(form);
 	        form.attr("novalidate", "");
+	        var onSuccess = form.data("success");
 	
 	        form.submit(function (ev) {
+	            ev.preventDefault();
 	            var invalid = false;
+	            var controls = $("input, textarea, select", form).toArray();
 	
-	            $.each($("input, textarea, select", form), function (index, control) {
-	                control = $(control);
-	                var validations = control.data("validations");
-	                var errors = [];
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
 	
-	                $.each(validations, function (vIndex, v) {
-	                    if (v.invalid(control)) {
-	                        errors.push(v.message);
+	            try {
+	                for (var _iterator = controls[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var control = _step.value;
+	
+	                    control = $(control);
+	                    var validations = control.data("validations");
+	                    var errors = [];
+	
+	                    if (validations) {
+	                        var _iteratorNormalCompletion2 = true;
+	                        var _didIteratorError2 = false;
+	                        var _iteratorError2 = undefined;
+	
+	                        try {
+	                            for (var _iterator2 = validations[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                                var validation = _step2.value;
+	
+	                                if (validation.invalid(control)) {
+	                                    errors.push(validation.message);
+	                                }
+	                            }
+	                        } catch (err) {
+	                            _didIteratorError2 = true;
+	                            _iteratorError2 = err;
+	                        } finally {
+	                            try {
+	                                if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+	                                    _iterator2["return"]();
+	                                }
+	                            } finally {
+	                                if (_didIteratorError2) {
+	                                    throw _iteratorError2;
+	                                }
+	                            }
+	                        }
 	                    }
-	                });
 	
-	                if (errors.length > 0) {
-	                    invalid = true;
-	                    control.data("message").show({
-	                        message: errors,
-	                        messageType: _espalierMessageFactory2["default"].messageType.Error
-	                    });
+	                    if (errors.length > 0) {
+	                        invalid = true;
+	                        control.data("message").show({
+	                            message: errors,
+	                            messageType: _espalierMessageFactory2["default"].messageType.Error
+	                        });
+	                    }
 	                }
-	            });
-	
-	            if (invalid) {
-	                ev.preventDefault();
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                        _iterator["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
 	            }
+	
+	            if (!invalid) {
+	                _espalierCore2["default"].sendRequest({
+	                    type: form.attr("method"),
+	                    url: form.attr("action"),
+	                    data: form.serialize()
+	                }).then(function (data) {
+	                    _espalierCore2["default"].publish(onSuccess, data);
+	                });
+	            }
+	        });
+	
+	        form.on("click", "[data-action=\"submit\"]", function () {
+	            form.submit();
 	        });
 	
 	        $.each($("input, textarea, select", form), function (index, control) {
 	            var lowerCaseId = control.id.toLowerCase();
+	
+	            if (!lowerCaseId) {
+	                return;
+	            }
+	
 	            control = $(control);
 	            var group;
 	            var validations = [];
@@ -488,7 +550,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+	    value: true
 	});
 	
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -502,133 +564,141 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _templatesBootstrapTemplates2 = _interopRequireDefault(_templatesBootstrapTemplates);
 	
 	var MessageDisplayer = (function () {
-	  function MessageDisplayer(args) {
-	    _classCallCheck(this, MessageDisplayer);
+	    function MessageDisplayer(args) {
+	        _classCallCheck(this, MessageDisplayer);
 	
-	    this.settings = {
-	      attachTo: null,
-	      messageContainerClass: "message-container",
-	      closeMessageClass: "close-message",
-	      infoMessageClass: "info-message",
-	      warningMessageClass: "warning-message",
-	      errorMessageClass: "error-message",
-	      successMessageClass: "success-message",
-	      messageAttachment: factory.messageAttachment.Fixed,
-	      onRemoved: function onRemoved() {},
-	      onAdded: function onAdded() {}
-	    };
+	        this.settings = {
+	            attachTo: null,
+	            messageContainerClass: "message-container",
+	            closeMessageClass: "close-message",
+	            infoMessageClass: "info-message",
+	            warningMessageClass: "warning-message",
+	            errorMessageClass: "error-message",
+	            successMessageClass: "success-message",
+	            messageAttachment: factory.messageAttachment.Fixed,
+	            onRemoved: function onRemoved() {},
+	            onAdded: function onAdded() {}
+	        };
 	
-	    var scope = this;
+	        var scope = this;
 	
-	    $.extend(this.settings, args);
+	        $.extend(this.settings, args);
 	
-	    if (!this.settings.attachTo) {
-	      throw "MessageFactory requires an attachTo argument.";
+	        if (!this.settings.attachTo) {
+	            throw "MessageFactory requires an attachTo argument.";
+	        }
 	    }
-	  }
 	
-	  _createClass(MessageDisplayer, [{
-	    key: "remove",
-	    value: function remove() {
-	      if (this.message) {
-	        this.message.remove();
-	        this.message = undefined;
-	        this.settings.onRemoved();
-	      }
-	    }
-	  }]);
+	    _createClass(MessageDisplayer, [{
+	        key: "remove",
+	        value: function remove() {
+	            if (this.message) {
+	                this.message.remove();
+	                this.message = undefined;
+	                this.settings.onRemoved();
+	            }
+	        }
+	    }, {
+	        key: "show",
+	        value: function show(messageArgs) {
+	            var messageTypeClass = undefined,
+	                messageSettings = undefined,
+	                messageAttachmentClass = undefined;
 	
-	  return MessageDisplayer;
+	            //NOTE: There should only be one message displayed per instance.
+	            if (this.message) {
+	                this.message.remove();
+	            }
+	
+	            //NOTE: Allow them to either use an array of messages or a
+	            //      single message.
+	            if (typeof messageArgs.message === "string") {
+	                messageArgs.message = [messageArgs.message];
+	            }
+	
+	            messageSettings = {
+	                messageType: factory.messageType.Info,
+	                message: []
+	            };
+	
+	            $.extend(messageSettings, messageArgs);
+	
+	            if (messageSettings.message.length === 0) {
+	                console.log("No message to display.");
+	                return;
+	            }
+	
+	            switch (messageSettings.messageType) {
+	                case factory.messageType.Info:
+	                    messageTypeClass = this.settings.infoMessageClass;
+	                    break;
+	                case factory.messageType.Success:
+	                    messageTypeClass = this.settings.successMessageClass;
+	                    break;
+	                case factory.messageType.Error:
+	                    messageTypeClass = this.settings.errorMessageClass;
+	                    break;
+	                case factory.messageType.Warning:
+	                    messageTypeClass = this.settings.warningMessageClass;
+	                    break;
+	                default:
+	                    console.log("Invalid message type.");
+	                    return;
+	            }
+	
+	            switch (this.settings.messageAttachment) {
+	                case factory.messageAttachment.Fixed:
+	                    messageAttachmentClass = "fixed";
+	                    break;
+	                case factory.messageAttachment.Flow:
+	                    messageAttachmentClass = "flow";
+	                    break;
+	                default:
+	                    messageAttachmentClass = "";
+	                    break;
+	            }
+	
+	            this.message = _templatesBootstrapTemplates2["default"].message({
+	                messageTypeClass: messageTypeClass,
+	                messages: messageSettings.message,
+	                messageContainerClass: this.settings.messageContainerClass,
+	                closeMessageClass: this.settings.closeMessageClass,
+	                messageAttachmentClass: messageAttachmentClass,
+	                moreThanOne: typeof messageArgs.message !== "string" && messageArgs.message.length > 1
+	            });
+	
+	            this.message = $(this.message);
+	            this.settings.attachTo.append(this.message);
+	            this.settings.onAdded(this.message);
+	
+	            var displayedMessage = this;
+	
+	            this.message.on("click", "." + this.settings.closeMessageClass, function () {
+	                displayedMessage.remove();
+	            });
+	            return this.message;
+	        }
+	    }]);
+	
+	    return MessageDisplayer;
 	})();
 	
 	;
 	
-	MessageDisplayer.prototype.show = function (messageArgs) {
-	  var messageTypeClass, messageSettings, messageAttachmentClass;
-	
-	  //NOTE: There should only be one message displayed per instance.
-	  if (this.message) {
-	    this.message.remove();
-	  }
-	
-	  //NOTE: Allow them to either use an array of messages or a
-	  //      single message.
-	  if (typeof messageArgs.message === "string") {
-	    messageArgs.message = [messageArgs.message];
-	  }
-	
-	  messageSettings = {
-	    messageType: factory.messageType.Info,
-	    message: []
-	  };
-	
-	  $.extend(messageSettings, messageArgs);
-	
-	  if (messageSettings.message.length === 0) {
-	    console.log("No message to display.");
-	    return;
-	  }
-	
-	  switch (messageSettings.messageType) {
-	    case factory.messageType.Info:
-	      messageTypeClass = this.settings.infoMessageClass;
-	      break;
-	    case factory.messageType.Success:
-	      messageTypeClass = this.settings.successMessageClass;
-	      break;
-	    case factory.messageType.Error:
-	      messageTypeClass = this.settings.errorMessageClass;
-	      break;
-	    case factory.messageType.Warning:
-	      messageTypeClass = this.settings.warningMessageClass;
-	      break;
-	    default:
-	      console.log("Invalid message type.");
-	      return;
-	  }
-	
-	  switch (this.settings.messageAttachment) {
-	    case factory.messageAttachment.Fixed:
-	      messageAttachmentClass = "fixed";
-	      break;
-	    case factory.messageAttachment.Flow:
-	      messageAttachmentClass = "flow";
-	      break;
-	    default:
-	      messageAttachmentClass = "";
-	      break;
-	  }
-	
-	  this.message = _templatesBootstrapTemplates2["default"].message({
-	    messageTypeClass: messageTypeClass,
-	    messages: messageSettings.message,
-	    messageContainerClass: this.settings.messageContainerClass,
-	    closeMessageClass: this.settings.closeMessageClass,
-	    messageAttachmentClass: messageAttachmentClass,
-	    moreThanOne: typeof messageArgs.message !== "string" && messageArgs.message.length > 1
-	  });
-	
-	  this.message = $(this.message);
-	  this.settings.attachTo.append(this.message);
-	  this.settings.onAdded(this.message);
-	  this.message.on("click", "." + this.settings.closeMessageClass, this.remove);
-	  return this.message;
-	};
-	
 	var factory = {
-	  create: function create(args) {
-	    return new MessageDisplayer(args);
-	  },
-	  messageType: {
-	    Info: "Info",
-	    Success: "success",
-	    Error: "error",
-	    Warning: "warning"
-	  },
-	  messageAttachment: {
-	    Fixed: "Fixed",
-	    Flow: "Flow"
-	  }
+	    create: function create(args) {
+	        return new MessageDisplayer(args);
+	    },
+	    messageType: {
+	        Info: "Info",
+	        Success: "success",
+	        Error: "error",
+	        Warning: "warning"
+	    },
+	    messageAttachment: {
+	        Fixed: "Fixed",
+	        Flow: "Flow"
+	    }
 	};
 	
 	exports["default"] = factory;

@@ -1,3 +1,5 @@
+import espalier from "../espalier";
+
 espalier.showInfo("It seems the libraries have loaded!");
 espalier.wire("#standard-form");
 

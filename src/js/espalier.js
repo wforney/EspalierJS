@@ -10,26 +10,28 @@ var espalier = {
     showInfo: core.showInfo,
     sendRequest: core.sendRequest,
     table: tables.create,
-    snatch: function (x) {
-        alert(x);
-    },
     wire: function (form) {
         form = $(form);
         form.attr("novalidate", "");
+        let onSuccess = form.data("success");
 
         form.submit(function (ev) {
+            ev.preventDefault();
             var invalid = false;
+            var controls = $("input, textarea, select", form).toArray();
 
-            $.each($("input, textarea, select", form), function (index, control) {
+            for (let control of controls) {
                 control = $(control);
                 var validations = control.data("validations");
                 var errors = [];
 
-                $.each(validations, function (vIndex, v) {
-                    if (v.invalid(control)) {
-                        errors.push(v.message);
+                if (validations) {
+                    for (var validation of validations) {
+                        if (validation.invalid(control)) {
+                            errors.push(validation.message);
+                        }
                     }
-                });
+                }
 
                 if (errors.length > 0) {
                     invalid = true;
@@ -38,15 +40,30 @@ var espalier = {
                         messageType: messageFactory.messageType.Error
                     });
                 }
-            });
-
-            if (invalid) {
-                ev.preventDefault();
             }
+
+            if (!invalid) {
+                core.sendRequest({
+                    type: form.attr("method"),
+                    url: form.attr("action"),
+                    data: form.serialize()
+                }).then((data) => {
+                    core.publish(onSuccess, data);
+                });
+            }
+        });
+
+        form.on("click", "[data-action=\"submit\"]", function () {
+            form.submit();
         });
 
         $.each($("input, textarea, select", form), function (index, control) {
             var lowerCaseId = control.id.toLowerCase();
+
+            if (!lowerCaseId) {
+                return;
+            }
+
             control = $(control);
             var group;
             var validations = [];
@@ -103,7 +120,7 @@ var espalier = {
     publish: core.publish,
     parseISODate: core.parseISODate,
     subscribe: core.subscribe,
-    dialog: function(args) {
+    dialog: function (args) {
         return dialog(args).show();
     }
 };

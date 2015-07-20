@@ -28,7 +28,7 @@ gulp.task("demo:js", function(callback) {
       demo: [ "./" ]
     },
     output: {
-      path: config.jsPath + "/demo",
+      path: config.demoJS,
       filename: "demo_compiled.js",
       library: "app",
       libraryTarget: "umd"
@@ -42,9 +42,7 @@ gulp.task("demo:js", function(callback) {
             "./node_modules/velocity-animate/velocity.js",
             "./node_modules/velocity-animate/velocity.ui.js",
             "./node_modules/bootstrap-sass/assets/javascripts/bootstrap.js",
-            "./node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.js",
-            "./dist/espalier.js",
-            config.jsPath + "/demo/demo_compiled.js"
+            "./node_modules/bootstrap-datepicker/dist/js/bootstrap-datepicker.js"
         ]).pipe(concat("bundled.js"))
         .pipe(gulp.dest(config.demoJS));
 

@@ -1,56 +1,45 @@
 <!doctype html>
 <html>
-<head>
-	<title>EspalierJS Unit Tests</title>
+    
+    <head>
+        <title>EspalierJS Unit Tests</title>
+        <!-- Include the Jasmine assets for running in an HTML page. -->
+        <script type="text/javascript" src="js/lib/jquery-2.1.3.js"></script>
+        <link rel="stylesheet" type="text/css" href="bower_components/jasmine/lib/jasmine-core/jasmine.css"></link>
+        <script type="text/javascript" src="bower_components/jasmine/lib/jasmine-core/jasmine.js"></script>
+        <script type="text/javascript" src="bower_components/jasmine/lib/jasmine-core/jasmine-html.js"></script>
+        <script type="text/javascript" src="bower_components/jasmine/lib/jasmine-core/boot.js"></script>
+        <script type="text/javascript" src="bower_components/jasmine-jquery/lib/jasmine-jquery.js"></script>
+        <script type="text/javascript" src="bower_components/handlebars/handlebars.js"></script>
+        <script type="text/javascript" src="bower_components/requirejs/require.js"></script>
+        <!-- Since we are in the "test" directory, not in the standard "js" directory, we need to define the path prefix'
+        for the RequireJS modules so that the modules can be found from the tests running in the Spec directory. Use RequireJS to
+        load and execute the actual Jasmine test specifications (ie. specs). NOTE: We have to use the domReady! plugin since the
+        Jasmine reporter needs to have access to the BODY tag of the document when outputting the results of the test. -->
+        <script type="text/javascript">
+            requirejs.config({
+            		    paths: {
+            		    	"js": "./js",
+            		        "jquery": "./js/lib/jquery-2.1.3",
+            		        "velocity": "./js/lib/velocity",
+            		        "velocity-ui": "./js/lib/velocity.ui"
+            		    },
+            		    shim: {
+            		        "velocity": {
+            		            deps: [ "jquery" ]
+            		        },
+            		        "velocity-ui": {
+            		            deps: [ "velocity" ]
+            		        }
+            		    }
+            		});
+        </script>
+        <script type="text/javascript" src="spec/javascripts/messageFactoryTests.js"></script>
+        <script type="text/javascript" src="spec/javascripts/espalier.tables.tests.js"></script>
+    </head>
+    
+    <body>
+        <!-- Left intentionally blank. -->
+    </body>
 
-	<!-- Include the Jasmine assets for running in an HTML page. -->
-	<script type="text/javascript" 			src="js/lib/jquery-2.1.3.js"></script>
-	<link rel="stylesheet" type="text/css" href="bower_components/jasmine/lib/jasmine-core/jasmine.css"></link>
-	<script type="text/javascript"          src="bower_components/jasmine/lib/jasmine-core/jasmine.js"></script>
-	<script type="text/javascript"          src="bower_components/jasmine/lib/jasmine-core/jasmine-html.js"></script>
-	<script type="text/javascript"          src="bower_components/jasmine/lib/jasmine-core/boot.js"></script>
-	<script type="text/javascript"          src="bower_components/jasmine-jquery/lib/jasmine-jquery.js"></script>
-	<script type="text/javascript" 			src="bower_components/handlebars/handlebars.js"></script>
-	<script type="text/javascript" 			src="bower_components/requirejs/require.js"></script>
-
-	<!--
-		Since we are in the "test" directory, not in the standard
-		"js" directory, we need to define the path prefix' for the
-		RequireJS modules so that the modules can be found from the
-		tests running in the Spec directory.
-
-		Use RequireJS to load and execute the actual Jasmine test
-		specifications (ie. specs).
-
-		NOTE: We have to use the domReady! plugin since the Jasmine
-		reporter needs to have access to the BODY tag of the document
-		when outputting the results of the test.
-	-->
-	<script type="text/javascript">
-
-		requirejs.config({
-		    paths: {
-		    	"js": "./js",
-		        "jquery": "./js/lib/jquery-2.1.3",
-		        "velocity": "./js/lib/velocity",
-		        "velocity-ui": "./js/lib/velocity.ui"
-		    },
-		    shim: {
-		        "velocity": {
-		            deps: [ "jquery" ]
-		        },
-		        "velocity-ui": {
-		            deps: [ "velocity" ]
-		        }
-		    }
-		});
-
-	</script>
-
-	<script type="text/javascript" src="spec/javascripts/messageFactoryTests.js"></script>
-	<script type="text/javascript" src="spec/javascripts/espalier.tables.tests.js"></script>
-</head>
-<body>
-	<!-- Left intentionally blank. -->
-</body>
 </html>
