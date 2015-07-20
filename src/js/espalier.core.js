@@ -3,8 +3,13 @@ import waitscreen from "./espalier.waitscreen";
 import common from "./espalier.common";
 import pubsub from "pubsub-js";
 
+var find = function (selector, root) {
+    root = root ? root : document;
+    return root.querySelectorAll(selector);
+};
+
 var mainMessage = messageFactory.create({
-    attachTo: common.body
+    attachTo: find("body")[0]
 });
 
 var parseDate;
@@ -181,6 +186,91 @@ var core = {
         return pubsub.subscribe(topic, function (topic, message) {
             handler(message);
         });
+    },
+    find,
+    extend: function (out) {
+        out = out || {};
+
+        for (var i = 1; i < arguments.length; i++) {
+            var obj = arguments[i];
+
+            if (!obj)
+                continue;
+
+            for (var key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    if (typeof obj[key] === 'object')
+                        core.extend(out[key], obj[key]);
+                    else
+                        out[key] = obj[key];
+                }
+            }
+        }
+
+        return out;
+    },
+    closest: function closest(el, selector) {
+        var matchesFn;
+
+        // find vendor prefix
+        ["matches", "webkitMatchesSelector", "mozMatchesSelector", "msMatchesSelector", "oMatchesSelector"].some(function (fn) {
+            if (typeof document.body[fn] == "function") {
+                matchesFn = fn;
+                return true;
+            }
+            return false;
+        })
+
+        // traverse parents
+        while (el !== null) {
+            let parent = el.parentElement;
+            if (parent !== null && parent[matchesFn](selector)) {
+                return parent;
+            }
+            el = parent;
+        }
+
+        return null;
+    },
+    addClass: function (el, className) {
+        if (el.classList) {
+            el.classList.add(className);
+        } else {
+            el.className += ' ' + className;
+        }
+    },
+    removeClass: function (el, className) {
+        if (el.classList) {
+            el.classList.remove(className);
+        } else {
+            el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+        }
+    },
+    addEventListener: function (el, eventName, handler) {
+        if (el.addEventListener) {
+            el.addEventListener(eventName, handler);
+        } else {
+            el.attachEvent('on' + eventName, function () {
+                handler.call(el);
+            });
+        }
+    },
+    matches: function (el, selector) {
+        var _matches = (el.matches || el.matchesSelector || el.msMatchesSelector || el.mozMatchesSelector || el.webkitMatchesSelector || el.oMatchesSelector);
+
+        if (_matches) {
+            return _matches.call(el, selector);
+        } else {
+            var nodes = el.parentNode.querySelectorAll(selector);
+            for (var i = nodes.length; i--;) {
+                if (nodes[i] === el)
+                    return true;
+            }
+            return false;
+        }
+    },
+    isString: function(toTest) {
+        return typeof toTest === 'string' || toTest instanceof String;
     }
 };
 

@@ -1,4 +1,5 @@
-﻿import bootstrapTemplates from "./templates/bootstrapTemplates";
+﻿import core from "./espalier.core";
+import bootstrapTemplates from "./templates/bootstrapTemplates";
 
 class MessageDisplayer {
     constructor(args) {
@@ -14,8 +15,6 @@ class MessageDisplayer {
             onRemoved: function () { },
             onAdded: function () { }
         };
-
-        var scope = this;
 
         $.extend(this.settings, args);
 
@@ -42,7 +41,7 @@ class MessageDisplayer {
 
         //NOTE: Allow them to either use an array of messages or a
         //      single message.
-        if (typeof messageArgs.message === 'string') {
+        if (core.isString(messageArgs.message)) {
             messageArgs.message = [messageArgs.message];
         }
 
@@ -94,19 +93,22 @@ class MessageDisplayer {
             messageContainerClass: this.settings.messageContainerClass,
             closeMessageClass: this.settings.closeMessageClass,
             messageAttachmentClass: messageAttachmentClass,
-            moreThanOne: (typeof messageArgs.message !== 'string' &&
-                messageArgs.message.length > 1)
+            moreThanOne: (!core.isString(messageArgs.message) && messageArgs.message.length > 1)
         });
 
-        this.message = $(this.message);
-        this.settings.attachTo.append(this.message);
+        this.settings.attachTo.appendChild(this.message);
         this.settings.onAdded(this.message);
 
         let displayedMessage = this;
 
-        this.message.on("click", "." + this.settings.closeMessageClass, function () {
-            displayedMessage.remove();
-        });
+        let closeButtons = Array.from(core.find(`.${this.settings.closeMessageClass}`, this.message));
+
+        for (let button of closeButtons) {
+            core.addEventListener(button, "click", () => {
+                displayedMessage.remove();
+            });
+        }
+
         return this.message;
     }
 };

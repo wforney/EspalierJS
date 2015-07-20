@@ -69,7 +69,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
-	var _espalierCore = __webpack_require__(4);
+	var _espalierCore = __webpack_require__(2);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
@@ -77,19 +77,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierValidation2 = _interopRequireDefault(_espalierValidation);
 	
-	var _espalierMessageFactory = __webpack_require__(5);
+	var _espalierMessageFactory = __webpack_require__(3);
 	
 	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
 	
-	var _espalierWaitscreen = __webpack_require__(2);
+	var _espalierForms = __webpack_require__(9);
+	
+	var _espalierForms2 = _interopRequireDefault(_espalierForms);
+	
+	var _espalierWaitscreen = __webpack_require__(5);
 	
 	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
 	
-	var _espalierTables = __webpack_require__(9);
+	var _espalierTables = __webpack_require__(11);
 	
 	var _espalierTables2 = _interopRequireDefault(_espalierTables);
 	
-	var _espalierDialog = __webpack_require__(10);
+	var _espalierDialog = __webpack_require__(12);
 	
 	var _espalierDialog2 = _interopRequireDefault(_espalierDialog);
 	
@@ -98,153 +102,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    showInfo: _espalierCore2["default"].showInfo,
 	    sendRequest: _espalierCore2["default"].sendRequest,
 	    table: _espalierTables2["default"].create,
-	    snatch: function snatch(x) {
-	        alert(x);
-	    },
-	    wire: function wire(form) {
-	        form = $(form);
-	        form.attr("novalidate", "");
-	        var onSuccess = form.data("success");
-	
-	        form.submit(function (ev) {
-	            ev.preventDefault();
-	            var invalid = false;
-	            var controls = $("input, textarea, select", form).toArray();
-	
-	            var _iteratorNormalCompletion = true;
-	            var _didIteratorError = false;
-	            var _iteratorError = undefined;
-	
-	            try {
-	                for (var _iterator = controls[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                    var control = _step.value;
-	
-	                    control = $(control);
-	                    var validations = control.data("validations");
-	                    var errors = [];
-	
-	                    if (validations) {
-	                        var _iteratorNormalCompletion2 = true;
-	                        var _didIteratorError2 = false;
-	                        var _iteratorError2 = undefined;
-	
-	                        try {
-	                            for (var _iterator2 = validations[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	                                var validation = _step2.value;
-	
-	                                if (validation.invalid(control)) {
-	                                    errors.push(validation.message);
-	                                }
-	                            }
-	                        } catch (err) {
-	                            _didIteratorError2 = true;
-	                            _iteratorError2 = err;
-	                        } finally {
-	                            try {
-	                                if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
-	                                    _iterator2["return"]();
-	                                }
-	                            } finally {
-	                                if (_didIteratorError2) {
-	                                    throw _iteratorError2;
-	                                }
-	                            }
-	                        }
-	                    }
-	
-	                    if (errors.length > 0) {
-	                        invalid = true;
-	                        control.data("message").show({
-	                            message: errors,
-	                            messageType: _espalierMessageFactory2["default"].messageType.Error
-	                        });
-	                    }
-	                }
-	            } catch (err) {
-	                _didIteratorError = true;
-	                _iteratorError = err;
-	            } finally {
-	                try {
-	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
-	                        _iterator["return"]();
-	                    }
-	                } finally {
-	                    if (_didIteratorError) {
-	                        throw _iteratorError;
-	                    }
-	                }
-	            }
-	
-	            if (!invalid) {
-	                _espalierCore2["default"].sendRequest({
-	                    type: form.attr("method"),
-	                    url: form.attr("action"),
-	                    data: form.serialize()
-	                }).then(function (data) {
-	                    _espalierCore2["default"].publish(onSuccess, data);
-	                });
-	            }
-	        });
-	
-	        form.on("click", "[data-action=\"submit\"]", function () {
-	            form.submit();
-	        });
-	
-	        $.each($("input, textarea, select", form), function (index, control) {
-	            var lowerCaseId = control.id.toLowerCase();
-	
-	            if (!lowerCaseId) {
-	                return;
-	            }
-	
-	            control = $(control);
-	            var group;
-	            var validations = [];
-	
-	            switch (control.attr("type")) {
-	                case "checkbox":
-	                    group = control.closest(".checkbox");
-	                    break;
-	                case "email":
-	                    validations.push(_espalierValidation2["default"].email);
-	                    group = control.closest(".form-group");
-	                    break;
-	                case "date":
-	                    validations.push(_espalierValidation2["default"].date);
-	                    group = control.closest(".form-group");
-	                    if (control.datepicker) {
-	                        control.datepicker().attr("type", "text");
-	                    }
-	                    break;
-	                default:
-	                    group = control.closest(".form-group");
-	                    break;
-	            }
-	
-	            var controlMessage = _espalierMessageFactory2["default"].create({
-	                attachTo: group,
-	                messageAttachment: _espalierMessageFactory2["default"].messageAttachment.Flow,
-	                onRemoved: function onRemoved() {
-	                    group.removeClass("has-error");
-	                },
-	                onAdded: function onAdded() {
-	                    group.addClass("has-error");
-	                    group.velocity("callout.tada", {
-	                        duration: 500
-	                    });
-	                }
-	            });
-	
-	            if (control.attr("required")) {
-	                validations.push(_espalierValidation2["default"].required);
-	                group.addClass("required");
-	            }
-	
-	            control.data("message", controlMessage);
-	            control.data("validations", validations);
-	            control.attr(lowerCaseId, "");
-	        });
-	    },
+	    wire: _espalierForms2["default"],
 	    showWaitScreen: _espalierWaitscreen2["default"].show,
 	    hideWaitScreen: _espalierWaitscreen2["default"].hide,
 	    shortDate: _espalierCore2["default"].shortDate,
@@ -273,87 +131,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
-	var _espalierCommon = __webpack_require__(3);
-	
-	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
-	
-	var pleaseWaitId = "espalier-wait-screen";
-	var pleaseWait = $("<div />");
-	pleaseWait.attr("id", pleaseWaitId);
-	
-	var hourglass = "data:image/svg+xml;utf8," + "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"uil-gears\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"xMidYMid meet\" width=\"120px\" height=\"120px\">" + "  <rect class=\"bk\" fill=\"none\" x=\"0\" y=\"0\" width=\"100\" height=\"100\" />" + "  <g transform=\"translate(-20 -20)\">" + "    <path fill=\"#fafafa\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"0 50 50\" from=\"90 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "  <g transform=\"translate(20 20) rotate(15 50.0002 50)\">" + "    <path fill=\"#efefef\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"90 50 50\" from=\"0 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "</svg>";
-	var waitImage = $("<img />");
-	waitImage.attr("src", hourglass);
-	var inner = $("<div />");
-	inner.append(waitImage);
-	pleaseWait.append(inner);
-	
-	var waitScreen = {
-	    show: function show() {
-	        if ($("#" + pleaseWaitId).length > 0) {
-	            return pleaseWait;
-	        }
-	
-	        _espalierCommon2["default"].body.append(pleaseWait);
-	        return pleaseWait;
-	    },
-	    hide: function hide() {
-	        pleaseWait.remove();
-	    }
-	};
-	
-	exports["default"] = waitScreen;
-	module.exports = exports["default"];
-
-/***/ },
-/* 3 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	var body = $("body");
-	
-	exports["default"] = {
-	    body: body,
-	    window: $(window),
-	    showVellum: function showVellum() {
-	        if ($(".espalier-vellum").length > 0) {
-	            return;
-	        }
-	
-	        var vellum = $("<div class=\"espalier-vellum\" />");
-	        body.append(vellum);
-	    },
-	    hideVellum: function hideVellum() {
-	        $(".espalier-vellum").remove();
-	    }
-	};
-	module.exports = exports["default"];
-
-/***/ },
-/* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-	
-	var _espalierMessageFactory = __webpack_require__(5);
+	var _espalierMessageFactory = __webpack_require__(3);
 	
 	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
 	
-	var _espalierWaitscreen = __webpack_require__(2);
+	var _espalierWaitscreen = __webpack_require__(5);
 	
 	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
 	
-	var _espalierCommon = __webpack_require__(3);
+	var _espalierCommon = __webpack_require__(6);
 	
 	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
 	
@@ -361,8 +147,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _pubsubJs2 = _interopRequireDefault(_pubsubJs);
 	
+	var find = function find(selector, root) {
+	    root = root ? root : document;
+	    return root.querySelectorAll(selector);
+	};
+	
 	var mainMessage = _espalierMessageFactory2["default"].create({
-	    attachTo: _espalierCommon2["default"].body
+	    attachTo: find("body")[0]
 	});
 	
 	var parseDate;
@@ -537,6 +328,86 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return _pubsubJs2["default"].subscribe(topic, function (topic, message) {
 	            handler(message);
 	        });
+	    },
+	    find: find,
+	    extend: function extend(out) {
+	        out = out || {};
+	
+	        for (var i = 1; i < arguments.length; i++) {
+	            var obj = arguments[i];
+	
+	            if (!obj) continue;
+	
+	            for (var key in obj) {
+	                if (obj.hasOwnProperty(key)) {
+	                    if (typeof obj[key] === "object") core.extend(out[key], obj[key]);else out[key] = obj[key];
+	                }
+	            }
+	        }
+	
+	        return out;
+	    },
+	    closest: function closest(el, selector) {
+	        var matchesFn;
+	
+	        // find vendor prefix
+	        ["matches", "webkitMatchesSelector", "mozMatchesSelector", "msMatchesSelector", "oMatchesSelector"].some(function (fn) {
+	            if (typeof document.body[fn] == "function") {
+	                matchesFn = fn;
+	                return true;
+	            }
+	            return false;
+	        });
+	
+	        // traverse parents
+	        while (el !== null) {
+	            var _parent = el.parentElement;
+	            if (_parent !== null && _parent[matchesFn](selector)) {
+	                return _parent;
+	            }
+	            el = _parent;
+	        }
+	
+	        return null;
+	    },
+	    addClass: function addClass(el, className) {
+	        if (el.classList) {
+	            el.classList.add(className);
+	        } else {
+	            el.className += " " + className;
+	        }
+	    },
+	    removeClass: function removeClass(el, className) {
+	        if (el.classList) {
+	            el.classList.remove(className);
+	        } else {
+	            el.className = el.className.replace(new RegExp("(^|\\b)" + className.split(" ").join("|") + "(\\b|$)", "gi"), " ");
+	        }
+	    },
+	    addEventListener: function addEventListener(el, eventName, handler) {
+	        if (el.addEventListener) {
+	            el.addEventListener(eventName, handler);
+	        } else {
+	            el.attachEvent("on" + eventName, function () {
+	                handler.call(el);
+	            });
+	        }
+	    },
+	    matches: function matches(el, selector) {
+	        var _matches = el.matches || el.matchesSelector || el.msMatchesSelector || el.mozMatchesSelector || el.webkitMatchesSelector || el.oMatchesSelector;
+	
+	        if (_matches) {
+	            return _matches.call(el, selector);
+	        } else {
+	            var nodes = el.parentNode.querySelectorAll(selector);
+	            for (var i = nodes.length; i--;) {
+	                if (nodes[i] === el) return true;
+	            }
+	            return false;
+	        }
+	    },
+	    isString: function isString(toTest) {
+	        return typeof toTest === "string" || toTest instanceof String;
 	    }
 	};
 	
@@ -544,7 +415,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 5 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -559,7 +430,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _templatesBootstrapTemplates = __webpack_require__(6);
+	var _espalierCore = __webpack_require__(2);
+	
+	var _espalierCore2 = _interopRequireDefault(_espalierCore);
+	
+	var _templatesBootstrapTemplates = __webpack_require__(4);
 	
 	var _templatesBootstrapTemplates2 = _interopRequireDefault(_templatesBootstrapTemplates);
 	
@@ -579,8 +454,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            onRemoved: function onRemoved() {},
 	            onAdded: function onAdded() {}
 	        };
-	
-	        var scope = this;
 	
 	        $.extend(this.settings, args);
 	
@@ -612,7 +485,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            //NOTE: Allow them to either use an array of messages or a
 	            //      single message.
-	            if (typeof messageArgs.message === "string") {
+	            if (_espalierCore2["default"].isString(messageArgs.message)) {
 	                messageArgs.message = [messageArgs.message];
 	            }
 	
@@ -664,18 +537,43 @@ return /******/ (function(modules) { // webpackBootstrap
 	                messageContainerClass: this.settings.messageContainerClass,
 	                closeMessageClass: this.settings.closeMessageClass,
 	                messageAttachmentClass: messageAttachmentClass,
-	                moreThanOne: typeof messageArgs.message !== "string" && messageArgs.message.length > 1
+	                moreThanOne: !_espalierCore2["default"].isString(messageArgs.message) && messageArgs.message.length > 1
 	            });
 	
-	            this.message = $(this.message);
-	            this.settings.attachTo.append(this.message);
+	            this.settings.attachTo.appendChild(this.message);
 	            this.settings.onAdded(this.message);
 	
 	            var displayedMessage = this;
 	
-	            this.message.on("click", "." + this.settings.closeMessageClass, function () {
-	                displayedMessage.remove();
-	            });
+	            var closeButtons = Array.from(_espalierCore2["default"].find("." + this.settings.closeMessageClass, this.message));
+	
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+	
+	            try {
+	                for (var _iterator = closeButtons[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var button = _step.value;
+	
+	                    _espalierCore2["default"].addEventListener(button, "click", function () {
+	                        displayedMessage.remove();
+	                    });
+	                }
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                        _iterator["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+	
 	            return this.message;
 	        }
 	    }]);
@@ -705,7 +603,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 6 */
+/* 4 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -743,6 +641,78 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	exports["default"] = templates;
+	module.exports = exports["default"];
+
+/***/ },
+/* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	var _espalierCommon = __webpack_require__(6);
+	
+	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
+	
+	var pleaseWaitId = "espalier-wait-screen";
+	var pleaseWait = $("<div />");
+	pleaseWait.attr("id", pleaseWaitId);
+	
+	var hourglass = "data:image/svg+xml;utf8," + "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"uil-gears\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"xMidYMid meet\" width=\"120px\" height=\"120px\">" + "  <rect class=\"bk\" fill=\"none\" x=\"0\" y=\"0\" width=\"100\" height=\"100\" />" + "  <g transform=\"translate(-20 -20)\">" + "    <path fill=\"#fafafa\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"0 50 50\" from=\"90 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "  <g transform=\"translate(20 20) rotate(15 50.0002 50)\">" + "    <path fill=\"#efefef\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"90 50 50\" from=\"0 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "</svg>";
+	var waitImage = $("<img />");
+	waitImage.attr("src", hourglass);
+	var inner = $("<div />");
+	inner.append(waitImage);
+	pleaseWait.append(inner);
+	
+	var waitScreen = {
+	    show: function show() {
+	        if ($("#" + pleaseWaitId).length > 0) {
+	            return pleaseWait;
+	        }
+	
+	        _espalierCommon2["default"].body.append(pleaseWait);
+	        return pleaseWait;
+	    },
+	    hide: function hide() {
+	        pleaseWait.remove();
+	    }
+	};
+	
+	exports["default"] = waitScreen;
+	module.exports = exports["default"];
+
+/***/ },
+/* 6 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	var body = $("body");
+	
+	exports["default"] = {
+	    body: body,
+	    window: $(window),
+	    showVellum: function showVellum() {
+	        if ($(".espalier-vellum").length > 0) {
+	            return;
+	        }
+	
+	        var vellum = $("<div class=\"espalier-vellum\" />");
+	        body.append(vellum);
+	    },
+	    hideVellum: function hideVellum() {
+	        $(".espalier-vellum").remove();
+	    }
+	};
 	module.exports = exports["default"];
 
 /***/ },
@@ -1008,19 +978,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
-	var _espalierCore = __webpack_require__(4);
+	var _espalierCore = __webpack_require__(2);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
 	var validation = {
 	    required: {
 	        invalid: function invalid(control) {
-	            switch (control.attr("type")) {
+	            switch (control.getAttribute("type")) {
 	                case "checkbox":
-	                    return !control.is(":checked");
+	                    return !_espalierCore2["default"].matches(control, ":checked");
 	                    break;
 	                default:
-	                    var value = control.val();
+	                    var value = control.value;
 	                    return _espalierCore2["default"].isEmptyOrSpaces(value);
 	                    break;
 	            }
@@ -1029,14 +999,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    },
 	    email: {
 	        invalid: function invalid(control) {
-	            var value = control.val();
+	            var value = control.value;
 	            return !_espalierCore2["default"].isEmail(value);
 	        },
 	        message: "Invalid email address."
 	    },
 	    date: {
 	        invalid: function invalid(control) {
-	            var value = control.val();
+	            var value = control.value;
 	            return !_espalierCore2["default"].isDate(value);
 	        },
 	        message: "Invalid date."
@@ -1062,19 +1032,327 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _espalierMessageFactory = __webpack_require__(5);
+	var _espalierCore = __webpack_require__(2);
+	
+	var _espalierCore2 = _interopRequireDefault(_espalierCore);
+	
+	var _espalierFormsControl = __webpack_require__(10);
+	
+	var _espalierFormsControl2 = _interopRequireDefault(_espalierFormsControl);
+	
+	var EspalierForm = (function () {
+	    function EspalierForm(formToWire) {
+	        var _this = this;
+	
+	        _classCallCheck(this, EspalierForm);
+	
+	        if (_espalierCore2["default"].isString(formToWire)) {
+	            this.form = _espalierCore2["default"].find(formToWire)[0];
+	        } else {
+	            this.form = formToWire[0];
+	        }
+	
+	        this.form.setAttribute("novalidate", "");
+	        this.controls = new Set();
+	
+	        var rawControls = _espalierCore2["default"].find("input, textarea, select", this.form);
+	
+	        var _iteratorNormalCompletion = true;
+	        var _didIteratorError = false;
+	        var _iteratorError = undefined;
+	
+	        try {
+	            for (var _iterator = rawControls[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                var control = _step.value;
+	
+	                var lowerCaseId = control.id.toLowerCase();
+	
+	                if (lowerCaseId) {
+	                    this.controls.add((0, _espalierFormsControl2["default"])(control));
+	                }
+	            }
+	        } catch (err) {
+	            _didIteratorError = true;
+	            _iteratorError = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                    _iterator["return"]();
+	                }
+	            } finally {
+	                if (_didIteratorError) {
+	                    throw _iteratorError;
+	                }
+	            }
+	        }
+	
+	        _espalierCore2["default"].addEventListener(this.form, "submit", function (e) {
+	            e.preventDefault();
+	            _this.submit();
+	        });
+	
+	        var submitButtons = _espalierCore2["default"].find("[data-action=\"submit\"]", this.form);
+	
+	        var _iteratorNormalCompletion2 = true;
+	        var _didIteratorError2 = false;
+	        var _iteratorError2 = undefined;
+	
+	        try {
+	            for (var _iterator2 = submitButtons[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                var submitButton = _step2.value;
+	
+	                _espalierCore2["default"].addEventListener(submitButton, "click", function (e) {
+	                    _this.submit();
+	                });
+	            }
+	        } catch (err) {
+	            _didIteratorError2 = true;
+	            _iteratorError2 = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+	                    _iterator2["return"]();
+	                }
+	            } finally {
+	                if (_didIteratorError2) {
+	                    throw _iteratorError2;
+	                }
+	            }
+	        }
+	    }
+	
+	    _createClass(EspalierForm, [{
+	        key: "submit",
+	        value: function submit() {
+	            var _this2 = this;
+	
+	            if (this.validate()) {
+	                var method = this.form.getAttribute("method");
+	
+	                _espalierCore2["default"].sendRequest({
+	                    type: method ? method : "GET",
+	                    url: this.form.getAttribute("action"),
+	                    data: $(this.form).serialize() //TODO: Remove jQuery.
+	                }).then(function (data) {
+	                    var onSuccess = _this2.form.getAttribute("data-success");
+	
+	                    if (onSuccess) {
+	                        _espalierCore2["default"].publish(onSuccess, data);
+	                    }
+	                });
+	            }
+	        }
+	    }, {
+	        key: "validate",
+	        value: function validate() {
+	            var valid = true;
+	
+	            var _iteratorNormalCompletion3 = true;
+	            var _didIteratorError3 = false;
+	            var _iteratorError3 = undefined;
+	
+	            try {
+	                for (var _iterator3 = this.controls[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	                    var control = _step3.value;
+	
+	                    control.message.remove();
+	
+	                    if (!control.validate()) {
+	                        valid = false;
+	                    }
+	                }
+	            } catch (err) {
+	                _didIteratorError3 = true;
+	                _iteratorError3 = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
+	                        _iterator3["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError3) {
+	                        throw _iteratorError3;
+	                    }
+	                }
+	            }
+	
+	            return valid;
+	        }
+	    }]);
+	
+	    return EspalierForm;
+	})();
+	
+	exports["default"] = function (formToWire) {
+	    return new EspalierForm(formToWire);
+	};
+	
+	;
+	module.exports = exports["default"];
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var _espalierCore = __webpack_require__(2);
+	
+	var _espalierCore2 = _interopRequireDefault(_espalierCore);
+	
+	var _espalierValidation = __webpack_require__(8);
+	
+	var _espalierValidation2 = _interopRequireDefault(_espalierValidation);
+	
+	var _espalierMessageFactory = __webpack_require__(3);
 	
 	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
 	
-	var _espalierWaitscreen = __webpack_require__(2);
+	var FormControl = function FormControl(control, validations) {
+	    _classCallCheck(this, FormControl);
+	
+	    var lowerCaseId = control.id.toLowerCase();
+	
+	    if (!lowerCaseId) {
+	        throw new Error("Elements must have an Id to be properly wired to an Espalier form control.");
+	    }
+	
+	    this.control = control;
+	    var group;
+	
+	    switch (control.getAttribute("type")) {
+	        case "checkbox":
+	            group = _espalierCore2["default"].closest(control, ".checkbox");
+	            break;
+	        case "email":
+	            validations.push(_espalierValidation2["default"].email);
+	            group = _espalierCore2["default"].closest(control, ".form-group");
+	            break;
+	        case "date":
+	            validations.push(_espalierValidation2["default"].date);
+	            group = _espalierCore2["default"].closest(control, ".form-group");
+	
+	            if (control.datepicker) {
+	                control.datepicker().attr("type", "text");
+	            }
+	            break;
+	        default:
+	            group = _espalierCore2["default"].closest(control, ".form-group");
+	            break;
+	    }
+	
+	    this.message = _espalierMessageFactory2["default"].create({
+	        attachTo: group,
+	        messageAttachment: _espalierMessageFactory2["default"].messageAttachment.Flow,
+	        onRemoved: function onRemoved() {
+	            _espalierCore2["default"].removeClass(group, "has-error");
+	        },
+	        onAdded: function onAdded() {
+	            _espalierCore2["default"].addClass(group, "has-error");
+	            //TODO: Get rid of jQuery
+	            $(group).velocity("callout.tada", {
+	                duration: 500
+	            });
+	        }
+	    });
+	
+	    if (control.required || control.getAttribute("required")) {
+	        validations.push(_espalierValidation2["default"].required);
+	        _espalierCore2["default"].addClass(group, "required");
+	    }
+	
+	    control.setAttribute(lowerCaseId, "");
+	};
+	
+	exports["default"] = function (control) {
+	    var validations = [];
+	    var formControl = new FormControl(control, validations);
+	
+	    formControl.validate = function () {
+	        var errors = [];
+	
+	        if (validations) {
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+	
+	            try {
+	                for (var _iterator = validations[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var _validation = _step.value;
+	
+	                    if (_validation.invalid(formControl.control)) {
+	                        errors.push(_validation.message);
+	                    }
+	                }
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                        _iterator["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+	        }
+	
+	        if (errors.length > 0) {
+	            formControl.message.show({
+	                message: errors,
+	                messageType: _espalierMessageFactory2["default"].messageType.Error
+	            });
+	        }
+	
+	        return errors.length === 0;
+	    };
+	
+	    return formControl;
+	};
+	
+	;
+	module.exports = exports["default"];
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var _espalierMessageFactory = __webpack_require__(3);
+	
+	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
+	
+	var _espalierWaitscreen = __webpack_require__(5);
 	
 	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
 	
-	var _espalierCommon = __webpack_require__(3);
+	var _espalierCommon = __webpack_require__(6);
 	
 	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
 	
-	var _espalierCore = __webpack_require__(4);
+	var _espalierCore = __webpack_require__(2);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
@@ -1245,7 +1523,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 10 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1260,11 +1538,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _espalierCore = __webpack_require__(4);
+	var _espalierCore = __webpack_require__(2);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
-	var _espalierCommon = __webpack_require__(3);
+	var _espalierCommon = __webpack_require__(6);
 	
 	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
 	

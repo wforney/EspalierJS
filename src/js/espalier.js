@@ -1,6 +1,7 @@
 import core from "./espalier.core";
 import validation from "./espalier.validation";
 import messageFactory from "./espalier.messageFactory";
+import forms from "./espalier.forms";
 import waitScreen from "./espalier.waitscreen";
 import tables from "./espalier.tables";
 import dialog from "./espalier.dialog";
@@ -10,108 +11,7 @@ var espalier = {
     showInfo: core.showInfo,
     sendRequest: core.sendRequest,
     table: tables.create,
-    wire: function (form) {
-        form = $(form);
-        form.attr("novalidate", "");
-        let onSuccess = form.data("success");
-
-        form.submit(function (ev) {
-            ev.preventDefault();
-            var invalid = false;
-            var controls = $("input, textarea, select", form).toArray();
-
-            for (let control of controls) {
-                control = $(control);
-                var validations = control.data("validations");
-                var errors = [];
-
-                if (validations) {
-                    for (var validation of validations) {
-                        if (validation.invalid(control)) {
-                            errors.push(validation.message);
-                        }
-                    }
-                }
-
-                if (errors.length > 0) {
-                    invalid = true;
-                    control.data("message").show({
-                        message: errors,
-                        messageType: messageFactory.messageType.Error
-                    });
-                }
-            }
-
-            if (!invalid) {
-                core.sendRequest({
-                    type: form.attr("method"),
-                    url: form.attr("action"),
-                    data: form.serialize()
-                }).then((data) => {
-                    core.publish(onSuccess, data);
-                });
-            }
-        });
-
-        form.on("click", "[data-action=\"submit\"]", function () {
-            form.submit();
-        });
-
-        $.each($("input, textarea, select", form), function (index, control) {
-            var lowerCaseId = control.id.toLowerCase();
-
-            if (!lowerCaseId) {
-                return;
-            }
-
-            control = $(control);
-            var group;
-            var validations = [];
-
-            switch (control.attr("type")) {
-                case "checkbox":
-                    group = control.closest(".checkbox");
-                    break;
-                case "email":
-                    validations.push(validation.email);
-                    group = control.closest(".form-group");
-                    break;
-                case "date":
-                    validations.push(validation.date);
-                    group = control.closest(".form-group");
-                    if (control.datepicker) {
-                        control.datepicker().attr("type", "text");
-                    }
-                    break;
-                default:
-                    group = control.closest(".form-group");
-                    break;
-            }
-
-            var controlMessage = messageFactory.create({
-                attachTo: group,
-                messageAttachment: messageFactory.messageAttachment.Flow,
-                onRemoved: function () {
-                    group.removeClass("has-error");
-                },
-                onAdded: function () {
-                    group.addClass("has-error");
-                    group.velocity("callout.tada", {
-                        duration: 500
-                    });
-                }
-            });
-
-            if (control.attr("required")) {
-                validations.push(validation.required);
-                group.addClass("required");
-            }
-
-            control.data("message", controlMessage);
-            control.data("validations", validations);
-            control.attr(lowerCaseId, "");
-        });
-    },
+    wire: forms,
     showWaitScreen: waitScreen.show,
     hideWaitScreen: waitScreen.hide,
     shortDate: core.shortDate,
