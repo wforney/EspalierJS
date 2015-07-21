@@ -33,6 +33,27 @@
                             <label>
                                 <input required type="checkbox" id="exampleCheckBox">Check me out</label>
                         </div>
+                        <div class="radio-group">
+                            <header>
+                                <h3>Radio buttons</h3>
+                            </header>
+                            <div class="radio">
+                                <label><input type="radio" required name="fruit" value="1">Apple</label>
+                            </div>
+                            <div class="radio">
+                                <label><input type="radio" name="fruit" value="2">Orange</label>
+                            </div>
+                            <div class="radio">
+                                <label><input type="radio" name="fruit" value="3">Pear</label>
+                            </div>
+                            <div class="radio">
+                                <label><input type="radio" data-require="#fruit-name" name="fruit" value="4">Other</label>
+                            </div>
+                            <div class="form-group form-group-lg">
+                                <label for="fruit-name">Fruit</label>
+                                <input type="text" id="fruit-name" name="fruitName" class="form-control">
+                            </div>
+                        </div>
                         <button type="submit" class="btn btn-default">Submit</button>
                     </form>
                     <div>

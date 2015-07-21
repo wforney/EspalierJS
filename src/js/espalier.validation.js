@@ -1,34 +1,79 @@
 import core from "./espalier.core";
 
-var validation = {
-    required: {
-        invalid: function (control) {
-            switch (control.getAttribute("type")) {
-                case "checkbox":
-                    return !core.matches(control, ":checked");
-                    break;
-                default:
-                    var value = control.value;
-                    return core.isEmptyOrSpaces(value);
-                    break;
-            }
-        },
-        message: "Field is required."
-    },
-    email: {
-        invalid: function (control) {
-            var value = control.value;
-            return !core.isEmail(value);
-        },
-        message: "Invalid email address."
-    },
-    date: {
-        invalid: function (control) {
-            var value = control.value;
-            return !core.isDate(value);
-        },
-        message: "Invalid date."
-    }
-};
+class Validation {
+    constructor(control) {
+        if (this.isValid === undefined) {
+            throw new TypeError("Must have an isValid method.");
+        }
 
-export default validation;
+        if (this.message === undefined) {
+            throw new TypeError("Must add a message prior to calling super.");
+        }
+
+        this.control = control;
+    }
+}
+
+class Required extends Validation {
+    constructor(control) {
+        super(control);
+    }
+
+    isValid() {
+        return !core.isEmptyOrSpaces(this.control.val());
+    }
+    
+    get message() {
+        return "Field is required.";
+    }
+}
+
+class Email extends Validation {
+    constructor(control) {
+        super(control);
+    }
+
+    isValid() {
+        return core.isEmail(this.control.val());
+    }
+    
+    get message() {
+        return "Invalid email address.";
+    }
+}
+
+class Date extends Validation {
+    constructor(control) {
+        super(control);
+    }
+
+    isValid() {
+        return core.isDate(this.control.val());
+    }
+    
+    get message() {
+        return "Invalid date.";
+    }
+}
+
+class RequiredDependent extends Validation {
+    constructor(control, whenVal, dependent) {
+        super(control);
+        this.whenVal = whenVal;
+        this.dependent = dependent;
+    }
+
+    isValid() {
+        if(this.control.val() === this.whenVal && core.isEmptyOrSpaces(this.dependent.value)) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    get message() {
+        return "Field is required.";
+    }
+}
+
+export { Required, Email, Date, RequiredDependent };

@@ -11,13 +11,20 @@ class EspalierForm {
 
         this.form.setAttribute("novalidate", "");
         this.controls = new Set();
-
+        let processedControls = new Set();
         let rawControls = core.find("input, textarea, select", this.form);
 
         for (let control of rawControls) {
-            var lowerCaseId = control.id.toLowerCase();
+            var controlType = control.type ? control.type : control.getAttribute("type");
+            var lowerCaseId = controlType == "radio" ? control.name.toLowerCase() : control.id.toLowerCase();
 
-            if (lowerCaseId) {
+            if (processedControls.has(lowerCaseId)) {
+                continue;
+            }
+
+            processedControls.add(lowerCaseId);
+
+            if (lowerCaseId || (control.type ? control.type : control.getAttribute("type")) == "radio") {
                 this.controls.add(FormControl(control));
             }
         }
