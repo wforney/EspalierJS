@@ -1,4 +1,5 @@
 import core from "./espalier.core";
+import formControl from "./espalier.forms.control";
 
 class Validation {
     constructor(control) {
@@ -22,7 +23,7 @@ class Required extends Validation {
     isValid() {
         return !core.isEmptyOrSpaces(this.control.val());
     }
-    
+
     get message() {
         return "Field is required.";
     }
@@ -36,7 +37,7 @@ class Email extends Validation {
     isValid() {
         return core.isEmail(this.control.val());
     }
-    
+
     get message() {
         return "Invalid email address.";
     }
@@ -50,7 +51,7 @@ class Date extends Validation {
     isValid() {
         return core.isDate(this.control.val());
     }
-    
+
     get message() {
         return "Invalid date.";
     }
@@ -64,15 +65,11 @@ class RequiredDependent extends Validation {
     }
 
     isValid() {
-        if(this.control.val() === this.whenVal && core.isEmptyOrSpaces(this.dependent.value)) {
-            return false;
-        }
-        
-        return true;
+        return this.control.val() !== this.whenVal || this.control.val() === this.whenVal && this.dependent.validate();
     }
-    
+
     get message() {
-        return "Field is required.";
+        return false;
     }
 }
 

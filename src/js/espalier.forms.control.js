@@ -3,7 +3,7 @@ import { Required, Email, Date, RequiredDependent } from "./espalier.validation"
 import messageFactory from "./espalier.messageFactory";
 
 class FormControl {
-    constructor(control, validations) {
+    constructor(control, form, validations, explicitValidations) {
         var controlType = control.type ? control.type : control.getAttribute("type");
         var lowerCaseId = controlType == "radio" ? control.name.toLowerCase() : control.id.toLowerCase();
 
@@ -12,6 +12,7 @@ class FormControl {
         }
 
         this.control = control;
+        this.form = form;
         var group;
         let required = false;
 
@@ -26,20 +27,20 @@ class FormControl {
                     if (radio.required || radio.getAttribute("required")) {
                         required = true;
                     }
-                    
+
                     core.addEventListener(radio, "click", () => {
-                        for(let key of dependents.keys()) {
-                            for(let dependent of dependents.get(key)) {
-                                dependent.style.display = "none";
+                        for (let key of dependents.keys()) {
+                            for (let dependent of dependents.get(key)) {
+                                dependent.hide();
                             }
                         }
-                        
-                        if(!dependents.has(radio)) {
+
+                        if (!dependents.has(radio)) {
                             return;
                         }
-                        
-                        for(let dependent of dependents.get(radio)) {
-                            dependent.style.display = "inline";
+
+                        for (let dependent of dependents.get(radio)) {
+                            dependent.show();
                         }
                     });
 
@@ -49,14 +50,17 @@ class FormControl {
                         continue;
                     }
 
-                    let requiredDependents = core.find(requiredDependentsSelector, group);
+                    let requiredDependents = core.find(requiredDependentsSelector, this.form);
+                    let dependentControls = [];
 
                     for (let requiredDependent of requiredDependents) {
-                        validations.push(new RequiredDependent(this, radio.value, requiredDependent));
-                        requiredDependent.style.display = "none";
+                        let dependentControl = factory(requiredDependent, form, { required: true });
+                        validations.push(new RequiredDependent(this, radio.value, dependentControl));
+                        dependentControl.hide();
+                        dependentControls.push(dependentControl);
                     }
-                    
-                    dependents.set(radio, requiredDependents);
+
+                    dependents.set(radio, dependentControls);
                 }
                 break;
             case "checkbox":
@@ -94,7 +98,10 @@ class FormControl {
             }
         });
 
-        if (required || control.required || control.getAttribute("required")) {
+        this.group = group;
+        this.originalDisplay = this.group.style.display;
+
+        if (explicitValidations.required || required || control.required || control.getAttribute("required")) {
             validations.push(new Required(this));
             core.addClass(group, "required");
         }
@@ -115,19 +122,32 @@ class FormControl {
                 return this.control.value;
         }
     }
+
+    hide() {
+        this.group.style.display = "none";
+    }
+
+    show() {
+        this.group.style.display = this.originalDisplay;
+    }
 }
 
-export default function (control) {
+let factory = function (control, form, explicitValidations) {
+    explicitValidations = explicitValidations ? explicitValidations : {};
     let validations = [];
-    let formControl = new FormControl(control, validations);
+    let formControl = new FormControl(control, form, validations, explicitValidations);
 
     formControl.validate = function () {
         let errors = [];
+        let hasErrors = false;
 
         if (validations) {
             for (let validation of validations) {
                 if (!validation.isValid()) {
-                    errors.push(validation.message);
+                    hasErrors = true;
+                    if (validation.message) {
+                        errors.push(validation.message);
+                    }
                 }
             }
         }
@@ -139,8 +159,10 @@ export default function (control) {
             });
         }
 
-        return errors.length === 0;
+        return !hasErrors;
     };
 
     return formControl;
 };
+
+export default factory;

@@ -81,7 +81,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
 	
-	var _espalierForms = __webpack_require__(9);
+	var _espalierForms = __webpack_require__(10);
 	
 	var _espalierForms2 = _interopRequireDefault(_espalierForms);
 	
@@ -990,6 +990,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
+	var _espalierFormsControl = __webpack_require__(9);
+	
+	var _espalierFormsControl2 = _interopRequireDefault(_espalierFormsControl);
+	
 	var Validation = function Validation(control) {
 	    _classCallCheck(this, Validation);
 	
@@ -1090,16 +1094,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _createClass(RequiredDependent, [{
 	        key: "isValid",
 	        value: function isValid() {
-	            if (this.control.val() === this.whenVal && _espalierCore2["default"].isEmptyOrSpaces(this.dependent.value)) {
-	                return false;
-	            }
-	
-	            return true;
+	            return this.control.val() !== this.whenVal || this.control.val() === this.whenVal && this.dependent.validate();
 	        }
 	    }, {
 	        key: "message",
 	        get: function get() {
-	            return "Field is required.";
+	            return false;
 	        }
 	    }]);
 	
@@ -1131,7 +1131,350 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
-	var _espalierFormsControl = __webpack_require__(10);
+	var _espalierValidation = __webpack_require__(8);
+	
+	var _espalierMessageFactory = __webpack_require__(3);
+	
+	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
+	
+	var FormControl = (function () {
+	    function FormControl(control, form, validations, explicitValidations) {
+	        var _this = this;
+	
+	        _classCallCheck(this, FormControl);
+	
+	        var controlType = control.type ? control.type : control.getAttribute("type");
+	        var lowerCaseId = controlType == "radio" ? control.name.toLowerCase() : control.id.toLowerCase();
+	
+	        if (!lowerCaseId) {
+	            throw new Error("Elements must have an Id to be properly wired to an Espalier form control.");
+	        }
+	
+	        this.control = control;
+	        this.form = form;
+	        var group;
+	        var required = false;
+	
+	        switch (controlType) {
+	            case "radio":
+	                group = _espalierCore2["default"].closest(control, ".radio-group");
+	
+	                var radios = _espalierCore2["default"].find("input[type=\"radio\"]", group);
+	                var dependents = new Map();
+	
+	                var _iteratorNormalCompletion = true;
+	                var _didIteratorError = false;
+	                var _iteratorError = undefined;
+	
+	                try {
+	                    var _loop = function () {
+	                        var radio = _step.value;
+	
+	                        if (radio.required || radio.getAttribute("required")) {
+	                            required = true;
+	                        }
+	
+	                        _espalierCore2["default"].addEventListener(radio, "click", function () {
+	                            var _iteratorNormalCompletion2 = true;
+	                            var _didIteratorError2 = false;
+	                            var _iteratorError2 = undefined;
+	
+	                            try {
+	                                for (var _iterator2 = dependents.keys()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                                    var key = _step2.value;
+	                                    var _iteratorNormalCompletion4 = true;
+	                                    var _didIteratorError4 = false;
+	                                    var _iteratorError4 = undefined;
+	
+	                                    try {
+	                                        for (var _iterator4 = dependents.get(key)[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	                                            var dependent = _step4.value;
+	
+	                                            dependent.hide();
+	                                        }
+	                                    } catch (err) {
+	                                        _didIteratorError4 = true;
+	                                        _iteratorError4 = err;
+	                                    } finally {
+	                                        try {
+	                                            if (!_iteratorNormalCompletion4 && _iterator4["return"]) {
+	                                                _iterator4["return"]();
+	                                            }
+	                                        } finally {
+	                                            if (_didIteratorError4) {
+	                                                throw _iteratorError4;
+	                                            }
+	                                        }
+	                                    }
+	                                }
+	                            } catch (err) {
+	                                _didIteratorError2 = true;
+	                                _iteratorError2 = err;
+	                            } finally {
+	                                try {
+	                                    if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+	                                        _iterator2["return"]();
+	                                    }
+	                                } finally {
+	                                    if (_didIteratorError2) {
+	                                        throw _iteratorError2;
+	                                    }
+	                                }
+	                            }
+	
+	                            if (!dependents.has(radio)) {
+	                                return;
+	                            }
+	
+	                            var _iteratorNormalCompletion3 = true;
+	                            var _didIteratorError3 = false;
+	                            var _iteratorError3 = undefined;
+	
+	                            try {
+	                                for (var _iterator3 = dependents.get(radio)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	                                    var dependent = _step3.value;
+	
+	                                    dependent.show();
+	                                }
+	                            } catch (err) {
+	                                _didIteratorError3 = true;
+	                                _iteratorError3 = err;
+	                            } finally {
+	                                try {
+	                                    if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
+	                                        _iterator3["return"]();
+	                                    }
+	                                } finally {
+	                                    if (_didIteratorError3) {
+	                                        throw _iteratorError3;
+	                                    }
+	                                }
+	                            }
+	                        });
+	
+	                        var requiredDependentsSelector = radio.getAttribute("data-require");
+	
+	                        if (!requiredDependentsSelector) {
+	                            return "continue";
+	                        }
+	
+	                        var requiredDependents = _espalierCore2["default"].find(requiredDependentsSelector, _this.form);
+	                        var dependentControls = [];
+	
+	                        _iteratorNormalCompletion5 = true;
+	                        _didIteratorError5 = false;
+	                        _iteratorError5 = undefined;
+	
+	                        try {
+	                            for (_iterator5 = requiredDependents[Symbol.iterator](); !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	                                var requiredDependent = _step5.value;
+	
+	                                var dependentControl = factory(requiredDependent, form, { required: true });
+	                                validations.push(new _espalierValidation.RequiredDependent(_this, radio.value, dependentControl));
+	                                dependentControl.hide();
+	                                dependentControls.push(dependentControl);
+	                            }
+	                        } catch (err) {
+	                            _didIteratorError5 = true;
+	                            _iteratorError5 = err;
+	                        } finally {
+	                            try {
+	                                if (!_iteratorNormalCompletion5 && _iterator5["return"]) {
+	                                    _iterator5["return"]();
+	                                }
+	                            } finally {
+	                                if (_didIteratorError5) {
+	                                    throw _iteratorError5;
+	                                }
+	                            }
+	                        }
+	
+	                        dependents.set(radio, dependentControls);
+	                    };
+	
+	                    for (var _iterator = radios[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                        var _iteratorNormalCompletion5;
+	
+	                        var _didIteratorError5;
+	
+	                        var _iteratorError5;
+	
+	                        var _iterator5, _step5;
+	
+	                        var _ret = _loop();
+	
+	                        if (_ret === "continue") continue;
+	                    }
+	                } catch (err) {
+	                    _didIteratorError = true;
+	                    _iteratorError = err;
+	                } finally {
+	                    try {
+	                        if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                            _iterator["return"]();
+	                        }
+	                    } finally {
+	                        if (_didIteratorError) {
+	                            throw _iteratorError;
+	                        }
+	                    }
+	                }
+	
+	                break;
+	            case "checkbox":
+	                group = _espalierCore2["default"].closest(control, ".checkbox");
+	                break;
+	            case "email":
+	                validations.push(new _espalierValidation.Email(this));
+	                group = _espalierCore2["default"].closest(control, ".form-group");
+	                break;
+	            case "date":
+	                validations.push(new _espalierValidation.Date(this));
+	                group = _espalierCore2["default"].closest(control, ".form-group");
+	
+	                if (control.datepicker) {
+	                    control.datepicker().attr("type", "text");
+	                }
+	                break;
+	            default:
+	                group = _espalierCore2["default"].closest(control, ".form-group");
+	                break;
+	        }
+	
+	        this.message = _espalierMessageFactory2["default"].create({
+	            attachTo: group,
+	            messageAttachment: _espalierMessageFactory2["default"].messageAttachment.Flow,
+	            onRemoved: function onRemoved() {
+	                _espalierCore2["default"].removeClass(group, "has-error");
+	            },
+	            onAdded: function onAdded() {
+	                _espalierCore2["default"].addClass(group, "has-error");
+	                //TODO: Get rid of jQuery
+	                $(group).velocity("callout.tada", {
+	                    duration: 500
+	                });
+	            }
+	        });
+	
+	        this.group = group;
+	        this.originalDisplay = this.group.style.display;
+	
+	        if (explicitValidations.required || required || control.required || control.getAttribute("required")) {
+	            validations.push(new _espalierValidation.Required(this));
+	            _espalierCore2["default"].addClass(group, "required");
+	        }
+	
+	        control.setAttribute(lowerCaseId, "");
+	    }
+	
+	    _createClass(FormControl, [{
+	        key: "val",
+	        value: function val() {
+	            var controlType = this.control.type ? this.control.type : this.control.getAttribute("type");
+	
+	            switch (controlType) {
+	                case "checkbox":
+	                    return _espalierCore2["default"].matches(this.control, ":checked") ? this.control.value : undefined;
+	                case "radio":
+	                    var selected = _espalierCore2["default"].find("[name=\"" + this.control.name + "\"]:checked");
+	                    return selected.length == 1 ? selected[0].value : undefined;
+	                default:
+	                    return this.control.value;
+	            }
+	        }
+	    }, {
+	        key: "hide",
+	        value: function hide() {
+	            this.group.style.display = "none";
+	        }
+	    }, {
+	        key: "show",
+	        value: function show() {
+	            this.group.style.display = this.originalDisplay;
+	        }
+	    }]);
+	
+	    return FormControl;
+	})();
+	
+	var factory = function factory(control, form, explicitValidations) {
+	    explicitValidations = explicitValidations ? explicitValidations : {};
+	    var validations = [];
+	    var formControl = new FormControl(control, form, validations, explicitValidations);
+	
+	    formControl.validate = function () {
+	        var errors = [];
+	        var hasErrors = false;
+	
+	        if (validations) {
+	            var _iteratorNormalCompletion6 = true;
+	            var _didIteratorError6 = false;
+	            var _iteratorError6 = undefined;
+	
+	            try {
+	                for (var _iterator6 = validations[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+	                    var validation = _step6.value;
+	
+	                    if (!validation.isValid()) {
+	                        hasErrors = true;
+	                        if (validation.message) {
+	                            errors.push(validation.message);
+	                        }
+	                    }
+	                }
+	            } catch (err) {
+	                _didIteratorError6 = true;
+	                _iteratorError6 = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion6 && _iterator6["return"]) {
+	                        _iterator6["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError6) {
+	                        throw _iteratorError6;
+	                    }
+	                }
+	            }
+	        }
+	
+	        if (errors.length > 0) {
+	            formControl.message.show({
+	                message: errors,
+	                messageType: _espalierMessageFactory2["default"].messageType.Error
+	            });
+	        }
+	
+	        return !hasErrors;
+	    };
+	
+	    return formControl;
+	};
+	
+	exports["default"] = factory;
+	module.exports = exports["default"];
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var _espalierCore = __webpack_require__(2);
+	
+	var _espalierCore2 = _interopRequireDefault(_espalierCore);
+	
+	var _espalierFormsControl = __webpack_require__(9);
 	
 	var _espalierFormsControl2 = _interopRequireDefault(_espalierFormsControl);
 	
@@ -1287,327 +1630,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports["default"] = function (formToWire) {
 	    return new EspalierForm(formToWire);
-	};
-	
-	;
-	module.exports = exports["default"];
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var _espalierCore = __webpack_require__(2);
-	
-	var _espalierCore2 = _interopRequireDefault(_espalierCore);
-	
-	var _espalierValidation = __webpack_require__(8);
-	
-	var _espalierMessageFactory = __webpack_require__(3);
-	
-	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
-	
-	var FormControl = (function () {
-	    function FormControl(control, validations) {
-	        var _this = this;
-	
-	        _classCallCheck(this, FormControl);
-	
-	        var controlType = control.type ? control.type : control.getAttribute("type");
-	        var lowerCaseId = controlType == "radio" ? control.name.toLowerCase() : control.id.toLowerCase();
-	
-	        if (!lowerCaseId) {
-	            throw new Error("Elements must have an Id to be properly wired to an Espalier form control.");
-	        }
-	
-	        this.control = control;
-	        var group;
-	        var required = false;
-	
-	        switch (controlType) {
-	            case "radio":
-	                group = _espalierCore2["default"].closest(control, ".radio-group");
-	
-	                var radios = _espalierCore2["default"].find("input[type=\"radio\"]", group);
-	                var dependents = new Map();
-	
-	                var _iteratorNormalCompletion = true;
-	                var _didIteratorError = false;
-	                var _iteratorError = undefined;
-	
-	                try {
-	                    var _loop = function () {
-	                        var radio = _step.value;
-	
-	                        if (radio.required || radio.getAttribute("required")) {
-	                            required = true;
-	                        }
-	
-	                        _espalierCore2["default"].addEventListener(radio, "click", function () {
-	                            var _iteratorNormalCompletion2 = true;
-	                            var _didIteratorError2 = false;
-	                            var _iteratorError2 = undefined;
-	
-	                            try {
-	                                for (var _iterator2 = dependents.keys()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	                                    var key = _step2.value;
-	                                    var _iteratorNormalCompletion4 = true;
-	                                    var _didIteratorError4 = false;
-	                                    var _iteratorError4 = undefined;
-	
-	                                    try {
-	                                        for (var _iterator4 = dependents.get(key)[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-	                                            var dependent = _step4.value;
-	
-	                                            dependent.style.display = "none";
-	                                        }
-	                                    } catch (err) {
-	                                        _didIteratorError4 = true;
-	                                        _iteratorError4 = err;
-	                                    } finally {
-	                                        try {
-	                                            if (!_iteratorNormalCompletion4 && _iterator4["return"]) {
-	                                                _iterator4["return"]();
-	                                            }
-	                                        } finally {
-	                                            if (_didIteratorError4) {
-	                                                throw _iteratorError4;
-	                                            }
-	                                        }
-	                                    }
-	                                }
-	                            } catch (err) {
-	                                _didIteratorError2 = true;
-	                                _iteratorError2 = err;
-	                            } finally {
-	                                try {
-	                                    if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
-	                                        _iterator2["return"]();
-	                                    }
-	                                } finally {
-	                                    if (_didIteratorError2) {
-	                                        throw _iteratorError2;
-	                                    }
-	                                }
-	                            }
-	
-	                            if (!dependents.has(radio)) {
-	                                return;
-	                            }
-	
-	                            var _iteratorNormalCompletion3 = true;
-	                            var _didIteratorError3 = false;
-	                            var _iteratorError3 = undefined;
-	
-	                            try {
-	                                for (var _iterator3 = dependents.get(radio)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-	                                    var dependent = _step3.value;
-	
-	                                    dependent.style.display = "inline";
-	                                }
-	                            } catch (err) {
-	                                _didIteratorError3 = true;
-	                                _iteratorError3 = err;
-	                            } finally {
-	                                try {
-	                                    if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
-	                                        _iterator3["return"]();
-	                                    }
-	                                } finally {
-	                                    if (_didIteratorError3) {
-	                                        throw _iteratorError3;
-	                                    }
-	                                }
-	                            }
-	                        });
-	
-	                        var requiredDependentsSelector = radio.getAttribute("data-require");
-	
-	                        if (!requiredDependentsSelector) {
-	                            return "continue";
-	                        }
-	
-	                        var requiredDependents = _espalierCore2["default"].find(requiredDependentsSelector, group);
-	
-	                        _iteratorNormalCompletion5 = true;
-	                        _didIteratorError5 = false;
-	                        _iteratorError5 = undefined;
-	
-	                        try {
-	                            for (_iterator5 = requiredDependents[Symbol.iterator](); !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-	                                var requiredDependent = _step5.value;
-	
-	                                validations.push(new _espalierValidation.RequiredDependent(_this, radio.value, requiredDependent));
-	                                requiredDependent.style.display = "none";
-	                            }
-	                        } catch (err) {
-	                            _didIteratorError5 = true;
-	                            _iteratorError5 = err;
-	                        } finally {
-	                            try {
-	                                if (!_iteratorNormalCompletion5 && _iterator5["return"]) {
-	                                    _iterator5["return"]();
-	                                }
-	                            } finally {
-	                                if (_didIteratorError5) {
-	                                    throw _iteratorError5;
-	                                }
-	                            }
-	                        }
-	
-	                        dependents.set(radio, requiredDependents);
-	                    };
-	
-	                    for (var _iterator = radios[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                        var _iteratorNormalCompletion5;
-	
-	                        var _didIteratorError5;
-	
-	                        var _iteratorError5;
-	
-	                        var _iterator5, _step5;
-	
-	                        var _ret = _loop();
-	
-	                        if (_ret === "continue") continue;
-	                    }
-	                } catch (err) {
-	                    _didIteratorError = true;
-	                    _iteratorError = err;
-	                } finally {
-	                    try {
-	                        if (!_iteratorNormalCompletion && _iterator["return"]) {
-	                            _iterator["return"]();
-	                        }
-	                    } finally {
-	                        if (_didIteratorError) {
-	                            throw _iteratorError;
-	                        }
-	                    }
-	                }
-	
-	                break;
-	            case "checkbox":
-	                group = _espalierCore2["default"].closest(control, ".checkbox");
-	                break;
-	            case "email":
-	                validations.push(new _espalierValidation.Email(this));
-	                group = _espalierCore2["default"].closest(control, ".form-group");
-	                break;
-	            case "date":
-	                validations.push(new _espalierValidation.Date(this));
-	                group = _espalierCore2["default"].closest(control, ".form-group");
-	
-	                if (control.datepicker) {
-	                    control.datepicker().attr("type", "text");
-	                }
-	                break;
-	            default:
-	                group = _espalierCore2["default"].closest(control, ".form-group");
-	                break;
-	        }
-	
-	        this.message = _espalierMessageFactory2["default"].create({
-	            attachTo: group,
-	            messageAttachment: _espalierMessageFactory2["default"].messageAttachment.Flow,
-	            onRemoved: function onRemoved() {
-	                _espalierCore2["default"].removeClass(group, "has-error");
-	            },
-	            onAdded: function onAdded() {
-	                _espalierCore2["default"].addClass(group, "has-error");
-	                //TODO: Get rid of jQuery
-	                $(group).velocity("callout.tada", {
-	                    duration: 500
-	                });
-	            }
-	        });
-	
-	        if (required || control.required || control.getAttribute("required")) {
-	            validations.push(new _espalierValidation.Required(this));
-	            _espalierCore2["default"].addClass(group, "required");
-	        }
-	
-	        control.setAttribute(lowerCaseId, "");
-	    }
-	
-	    _createClass(FormControl, [{
-	        key: "val",
-	        value: function val() {
-	            var controlType = this.control.type ? this.control.type : this.control.getAttribute("type");
-	
-	            switch (controlType) {
-	                case "checkbox":
-	                    return _espalierCore2["default"].matches(this.control, ":checked") ? this.control.value : undefined;
-	                case "radio":
-	                    var selected = _espalierCore2["default"].find("[name=\"" + this.control.name + "\"]:checked");
-	                    return selected.length == 1 ? selected[0].value : undefined;
-	                default:
-	                    return this.control.value;
-	            }
-	        }
-	    }]);
-	
-	    return FormControl;
-	})();
-	
-	exports["default"] = function (control) {
-	    var validations = [];
-	    var formControl = new FormControl(control, validations);
-	
-	    formControl.validate = function () {
-	        var errors = [];
-	
-	        if (validations) {
-	            var _iteratorNormalCompletion6 = true;
-	            var _didIteratorError6 = false;
-	            var _iteratorError6 = undefined;
-	
-	            try {
-	                for (var _iterator6 = validations[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-	                    var validation = _step6.value;
-	
-	                    if (!validation.isValid()) {
-	                        errors.push(validation.message);
-	                    }
-	                }
-	            } catch (err) {
-	                _didIteratorError6 = true;
-	                _iteratorError6 = err;
-	            } finally {
-	                try {
-	                    if (!_iteratorNormalCompletion6 && _iterator6["return"]) {
-	                        _iterator6["return"]();
-	                    }
-	                } finally {
-	                    if (_didIteratorError6) {
-	                        throw _iteratorError6;
-	                    }
-	                }
-	            }
-	        }
-	
-	        if (errors.length > 0) {
-	            formControl.message.show({
-	                message: errors,
-	                messageType: _espalierMessageFactory2["default"].messageType.Error
-	            });
-	        }
-	
-	        return errors.length === 0;
-	    };
-	
-	    return formControl;
 	};
 	
 	;
