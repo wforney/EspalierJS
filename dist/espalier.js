@@ -69,19 +69,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
-	var _espalierCore = __webpack_require__(2);
+	var _espalierCore = __webpack_require__(4);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
-	
-	var _espalierValidation = __webpack_require__(8);
-	
-	var _espalierValidation2 = _interopRequireDefault(_espalierValidation);
 	
 	var _espalierMessageFactory = __webpack_require__(3);
 	
 	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
 	
-	var _espalierForms = __webpack_require__(10);
+	var _espalierForms = __webpack_require__(9);
 	
 	var _espalierForms2 = _interopRequireDefault(_espalierForms);
 	
@@ -89,13 +85,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
 	
-	var _espalierTables = __webpack_require__(11);
+	var _espalierTables = __webpack_require__(2);
 	
 	var _espalierTables2 = _interopRequireDefault(_espalierTables);
 	
 	var _espalierDialog = __webpack_require__(12);
 	
 	var _espalierDialog2 = _interopRequireDefault(_espalierDialog);
+	
+	var _espalierGraph = __webpack_require__(13);
+	
+	var _espalierGraph2 = _interopRequireDefault(_espalierGraph);
+	
+	var _espalierGraphNode = __webpack_require__(14);
+	
+	var _espalierGraphNode2 = _interopRequireDefault(_espalierGraphNode);
 	
 	var espalier = {
 	    showWarning: _espalierCore2["default"].showWarning,
@@ -113,7 +117,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    subscribe: _espalierCore2["default"].subscribe,
 	    dialog: function dialog(args) {
 	        return (0, _espalierDialog2["default"])(args).show();
-	    }
+	    },
+	    graph: _espalierGraph2["default"],
+	    GraphNode: _espalierGraphNode2["default"]
 	};
 	
 	exports["default"] = espalier;
@@ -121,6 +127,392 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var _espalierMessageFactory = __webpack_require__(3);
+	
+	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
+	
+	var _espalierWaitscreen = __webpack_require__(5);
+	
+	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
+	
+	var _espalierCommon = __webpack_require__(6);
+	
+	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
+	
+	var _espalierCore = __webpack_require__(4);
+	
+	var _espalierCore2 = _interopRequireDefault(_espalierCore);
+	
+	var getFooter = function getFooter(table) {
+	    var startAtPage = Math.max(0, table.settings.currentPage - 3);
+	    var endAtPage = Math.min(table.settings.pages - 1, table.settings.currentPage + 3 + Math.max(3 - table.settings.currentPage, 0));
+	    var pagingControl = "<ul class=\"pagination\">";
+	
+	    pagingControl += "<li" + (table.settings.currentPage == 0 ? " class=\"disabled\"" : "") + "><a data-page=\"" + (table.settings.currentPage - 1) + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&laquo;</span></a></li>";
+	
+	    for (var i = startAtPage; i <= endAtPage; i++) {
+	        pagingControl += "<li" + (i === table.settings.currentPage ? " class=\"active\"" : "") + "><a data-page=\"" + i + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\">" + (i + 1) + "</a></li>";
+	    }
+	
+	    var nextPage = table.settings.currentPage + 1;
+	    pagingControl += "<li" + (nextPage == table.settings.pages ? " class=\"disabled\"" : "") + "><a data-page=\"" + nextPage + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&raquo;</span></a></li>";
+	
+	    return "<tfoot><tr><td colspan=\"42\">" + pagingControl + "</td></tr></tfoot>";
+	};
+	
+	var renderTable = function renderTable(table) {
+	    var promise = new Promise(function (resolve, reject) {
+	        var rendered = "<table class=\"" + table.settings.tableClass + " table table-striped\">";
+	
+	        if (table.settings.headerTemplate) {
+	            rendered += table.settings.headerTemplate();
+	        }
+	
+	        rendered += "<tbody>";
+	        var startAtIndex = table.settings.currentPage * table.settings.pageSize;
+	
+	        if (table.settings.data) {
+	            for (var i = startAtIndex; i < Math.min(startAtIndex + table.settings.pageSize, table.settings.data.length); i++) {
+	                rendered += table.settings.rowTemplate(table.settings.data[i]);
+	            }
+	
+	            rendered += "</tbody>";
+	
+	            if (table.settings.pages > 0) {
+	                rendered += getFooter(table);
+	            }
+	            resolve(rendered);
+	        } else {
+	            _espalierCore2["default"].sendRequest({
+	                url: table.settings.fetchUrl,
+	                type: "POST",
+	                data: {
+	                    Page: table.settings.currentPage,
+	                    PageSize: table.settings.pageSize,
+	                    Criteria: table.settings.filter
+	                }
+	            }).then(function (result) {
+	                if (table.settings.fetchCallback) {
+	                    table.settings.fetchCallback(result);
+	                }
+	
+	                table.settings.pages = Math.ceil(result.data.total / result.data.pageSize);
+	                for (var i = 0; i < result.data.records.length; i++) {
+	                    rendered += table.settings.rowTemplate(result.data.records[i]);
+	                }
+	                rendered += "</tbody>";
+	                rendered += getFooter(table);
+	                resolve(rendered);
+	            });
+	        }
+	    });
+	
+	    promise.then(function (rendered) {
+	        table.settings.container.html(rendered);
+	
+	        if (table.settings.renderedCallback) {
+	            table.settings.renderedCallback(table.settings.container[0].getElementsByTagName("table")[0]);
+	        }
+	    });
+	};
+	
+	var TableInstance = (function () {
+	    function TableInstance(args) {
+	        _classCallCheck(this, TableInstance);
+	
+	        this.settings = {
+	            container: undefined,
+	            currentPage: 0,
+	            data: undefined,
+	            fetchCallback: undefined,
+	            fetchUrl: "",
+	            headerTemplate: undefined,
+	            pageSize: 10,
+	            prefetchPages: 5,
+	            rowTemplate: undefined,
+	            tableClass: "espalier-table",
+	            renderedCallback: undefined
+	        };
+	
+	        $.extend(this.settings, args);
+	
+	        if (!this.settings.fetchUrl && !this.settings.data) {
+	            throw new TypeError("You must either specify a fetch url or pass in data for the table to display.");
+	        }
+	
+	        if (!this.settings.container) {
+	            throw new TypeError("You must specify a container to place the table in.");
+	        }
+	
+	        if (!this.settings.rowTemplate) {
+	            throw new TypeError("You must provide a row template.");
+	        }
+	
+	        if (this.settings.data) {
+	            this.settings.pages = Math.ceil(this.settings.data.length / this.settings.pageSize);
+	        }
+	
+	        $.extend(this.settings, args);
+	    }
+	
+	    _createClass(TableInstance, [{
+	        key: "next",
+	        value: function next() {
+	            this.settings.currentPage++;
+	            renderTable(this);
+	            return this;
+	        }
+	    }, {
+	        key: "previous",
+	        value: function previous() {
+	            this.settings.currentPage--;
+	            renderTable(this);
+	            return this;
+	        }
+	    }, {
+	        key: "filter",
+	        value: function filter(_filter) {
+	            this.settings.filter = _filter;
+	            this.settings.currentPage = 0;
+	            renderTable(this);
+	            return this;
+	        }
+	    }, {
+	        key: "goToPage",
+	        value: function goToPage(page) {
+	            if (page < 0 || page >= this.settings.pages) {
+	                return;
+	            }
+	
+	            this.settings.currentPage = page;
+	            renderTable(this);
+	            return this;
+	        }
+	    }]);
+	
+	    return TableInstance;
+	})();
+	
+	;
+	
+	var tables = {
+	    create: function create(args) {
+	        var table = new TableInstance(args);
+	        table.settings.container.on("click", ".espalier-table-button", function () {
+	            table.goToPage($(this).data("page"));
+	        });
+	        renderTable(table);
+	        return table;
+	    }
+	};
+	
+	exports["default"] = tables;
+	module.exports = exports["default"];
+
+/***/ },
+/* 3 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var _espalierCore = __webpack_require__(4);
+	
+	var _espalierCore2 = _interopRequireDefault(_espalierCore);
+	
+	var _templatesBootstrapTemplates = __webpack_require__(8);
+	
+	var _templatesBootstrapTemplates2 = _interopRequireDefault(_templatesBootstrapTemplates);
+	
+	var MessageDisplayer = (function () {
+	    function MessageDisplayer(args) {
+	        _classCallCheck(this, MessageDisplayer);
+	
+	        this.settings = {
+	            attachTo: null,
+	            messageContainerClass: "message-container",
+	            closeMessageClass: "close-message",
+	            infoMessageClass: "info-message",
+	            warningMessageClass: "warning-message",
+	            errorMessageClass: "error-message",
+	            successMessageClass: "success-message",
+	            messageAttachment: factory.messageAttachment.Fixed,
+	            onRemoved: function onRemoved() {},
+	            onAdded: function onAdded() {}
+	        };
+	
+	        $.extend(this.settings, args);
+	
+	        if (!this.settings.attachTo) {
+	            throw "MessageFactory requires an attachTo argument.";
+	        }
+	    }
+	
+	    _createClass(MessageDisplayer, [{
+	        key: "remove",
+	        value: function remove() {
+	            if (this.message) {
+	                this.message.parentNode.removeChild(this.message);
+	                this.message = undefined;
+	                this.settings.onRemoved();
+	            }
+	        }
+	    }, {
+	        key: "show",
+	        value: function show(messageArgs) {
+	            var messageTypeClass = undefined,
+	                messageSettings = undefined,
+	                messageAttachmentClass = undefined;
+	
+	            //NOTE: There should only be one message displayed per instance.
+	            if (this.message) {
+	                this.message.remove();
+	            }
+	
+	            //NOTE: Allow them to either use an array of messages or a
+	            //      single message.
+	            if (_espalierCore2["default"].isString(messageArgs.message)) {
+	                messageArgs.message = [messageArgs.message];
+	            }
+	
+	            messageSettings = {
+	                messageType: factory.messageType.Info,
+	                message: []
+	            };
+	
+	            $.extend(messageSettings, messageArgs);
+	
+	            if (messageSettings.message.length === 0) {
+	                console.log("No message to display.");
+	                return;
+	            }
+	
+	            switch (messageSettings.messageType) {
+	                case factory.messageType.Info:
+	                    messageTypeClass = this.settings.infoMessageClass;
+	                    break;
+	                case factory.messageType.Success:
+	                    messageTypeClass = this.settings.successMessageClass;
+	                    break;
+	                case factory.messageType.Error:
+	                    messageTypeClass = this.settings.errorMessageClass;
+	                    break;
+	                case factory.messageType.Warning:
+	                    messageTypeClass = this.settings.warningMessageClass;
+	                    break;
+	                default:
+	                    console.log("Invalid message type.");
+	                    return;
+	            }
+	
+	            switch (this.settings.messageAttachment) {
+	                case factory.messageAttachment.Fixed:
+	                    messageAttachmentClass = "fixed";
+	                    break;
+	                case factory.messageAttachment.Flow:
+	                    messageAttachmentClass = "flow";
+	                    break;
+	                default:
+	                    messageAttachmentClass = "";
+	                    break;
+	            }
+	
+	            this.message = _templatesBootstrapTemplates2["default"].message({
+	                messageTypeClass: messageTypeClass,
+	                messages: messageSettings.message,
+	                messageContainerClass: this.settings.messageContainerClass,
+	                closeMessageClass: this.settings.closeMessageClass,
+	                messageAttachmentClass: messageAttachmentClass,
+	                moreThanOne: !_espalierCore2["default"].isString(messageArgs.message) && messageArgs.message.length > 1
+	            });
+	
+	            this.settings.attachTo.appendChild(this.message);
+	            this.settings.onAdded(this.message);
+	
+	            var displayedMessage = this;
+	
+	            var closeButtons = Array.from(_espalierCore2["default"].find("." + this.settings.closeMessageClass, this.message));
+	
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+	
+	            try {
+	                for (var _iterator = closeButtons[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var button = _step.value;
+	
+	                    _espalierCore2["default"].addEventListener(button, "click", function () {
+	                        displayedMessage.remove();
+	                    });
+	                }
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                        _iterator["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+	
+	            return this.message;
+	        }
+	    }]);
+	
+	    return MessageDisplayer;
+	})();
+	
+	;
+	
+	var factory = {
+	    create: function create(args) {
+	        return new MessageDisplayer(args);
+	    },
+	    messageType: {
+	        Info: "Info",
+	        Success: "success",
+	        Error: "error",
+	        Warning: "warning"
+	    },
+	    messageAttachment: {
+	        Fixed: "Fixed",
+	        Flow: "Flow"
+	    }
+	};
+	
+	exports["default"] = factory;
+	module.exports = exports["default"];
+
+/***/ },
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -408,239 +800,52 @@ return /******/ (function(modules) { // webpackBootstrap
 	    },
 	    isString: function isString(toTest) {
 	        return typeof toTest === "string" || toTest instanceof String;
+	    },
+	    first: function first(array, match) {
+	        var _iteratorNormalCompletion = true;
+	        var _didIteratorError = false;
+	        var _iteratorError = undefined;
+	
+	        try {
+	            for (var _iterator = array[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                var arrayItem = _step.value;
+	
+	                if (match(arrayItem)) {
+	                    return arrayItem;
+	                }
+	            }
+	        } catch (err) {
+	            _didIteratorError = true;
+	            _iteratorError = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                    _iterator["return"]();
+	                }
+	            } finally {
+	                if (_didIteratorError) {
+	                    throw _iteratorError;
+	                }
+	            }
+	        }
+	
+	        throw new Error("Unable to match that item.");
+	    },
+	    setProperty: function setProperty(obj, prop, value) {
+	        if (core.isString(prop)) {
+	            prop = prop.split(".");
+	        }
+	
+	        if (prop.length > 1) {
+	            var e = prop.shift();
+	            core.setProperty(obj[e] = Object.prototype.toString.call(obj[e]) === "[object Object]" ? obj[e] : {}, prop, value);
+	        } else {
+	            obj[prop[0]] = value;
+	        }
 	    }
 	};
 	
 	exports["default"] = core;
-	module.exports = exports["default"];
-
-/***/ },
-/* 3 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var _espalierCore = __webpack_require__(2);
-	
-	var _espalierCore2 = _interopRequireDefault(_espalierCore);
-	
-	var _templatesBootstrapTemplates = __webpack_require__(4);
-	
-	var _templatesBootstrapTemplates2 = _interopRequireDefault(_templatesBootstrapTemplates);
-	
-	var MessageDisplayer = (function () {
-	    function MessageDisplayer(args) {
-	        _classCallCheck(this, MessageDisplayer);
-	
-	        this.settings = {
-	            attachTo: null,
-	            messageContainerClass: "message-container",
-	            closeMessageClass: "close-message",
-	            infoMessageClass: "info-message",
-	            warningMessageClass: "warning-message",
-	            errorMessageClass: "error-message",
-	            successMessageClass: "success-message",
-	            messageAttachment: factory.messageAttachment.Fixed,
-	            onRemoved: function onRemoved() {},
-	            onAdded: function onAdded() {}
-	        };
-	
-	        $.extend(this.settings, args);
-	
-	        if (!this.settings.attachTo) {
-	            throw "MessageFactory requires an attachTo argument.";
-	        }
-	    }
-	
-	    _createClass(MessageDisplayer, [{
-	        key: "remove",
-	        value: function remove() {
-	            if (this.message) {
-	                this.message.remove();
-	                this.message = undefined;
-	                this.settings.onRemoved();
-	            }
-	        }
-	    }, {
-	        key: "show",
-	        value: function show(messageArgs) {
-	            var messageTypeClass = undefined,
-	                messageSettings = undefined,
-	                messageAttachmentClass = undefined;
-	
-	            //NOTE: There should only be one message displayed per instance.
-	            if (this.message) {
-	                this.message.remove();
-	            }
-	
-	            //NOTE: Allow them to either use an array of messages or a
-	            //      single message.
-	            if (_espalierCore2["default"].isString(messageArgs.message)) {
-	                messageArgs.message = [messageArgs.message];
-	            }
-	
-	            messageSettings = {
-	                messageType: factory.messageType.Info,
-	                message: []
-	            };
-	
-	            $.extend(messageSettings, messageArgs);
-	
-	            if (messageSettings.message.length === 0) {
-	                console.log("No message to display.");
-	                return;
-	            }
-	
-	            switch (messageSettings.messageType) {
-	                case factory.messageType.Info:
-	                    messageTypeClass = this.settings.infoMessageClass;
-	                    break;
-	                case factory.messageType.Success:
-	                    messageTypeClass = this.settings.successMessageClass;
-	                    break;
-	                case factory.messageType.Error:
-	                    messageTypeClass = this.settings.errorMessageClass;
-	                    break;
-	                case factory.messageType.Warning:
-	                    messageTypeClass = this.settings.warningMessageClass;
-	                    break;
-	                default:
-	                    console.log("Invalid message type.");
-	                    return;
-	            }
-	
-	            switch (this.settings.messageAttachment) {
-	                case factory.messageAttachment.Fixed:
-	                    messageAttachmentClass = "fixed";
-	                    break;
-	                case factory.messageAttachment.Flow:
-	                    messageAttachmentClass = "flow";
-	                    break;
-	                default:
-	                    messageAttachmentClass = "";
-	                    break;
-	            }
-	
-	            this.message = _templatesBootstrapTemplates2["default"].message({
-	                messageTypeClass: messageTypeClass,
-	                messages: messageSettings.message,
-	                messageContainerClass: this.settings.messageContainerClass,
-	                closeMessageClass: this.settings.closeMessageClass,
-	                messageAttachmentClass: messageAttachmentClass,
-	                moreThanOne: !_espalierCore2["default"].isString(messageArgs.message) && messageArgs.message.length > 1
-	            });
-	
-	            this.settings.attachTo.appendChild(this.message);
-	            this.settings.onAdded(this.message);
-	
-	            var displayedMessage = this;
-	
-	            var closeButtons = Array.from(_espalierCore2["default"].find("." + this.settings.closeMessageClass, this.message));
-	
-	            var _iteratorNormalCompletion = true;
-	            var _didIteratorError = false;
-	            var _iteratorError = undefined;
-	
-	            try {
-	                for (var _iterator = closeButtons[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                    var button = _step.value;
-	
-	                    _espalierCore2["default"].addEventListener(button, "click", function () {
-	                        displayedMessage.remove();
-	                    });
-	                }
-	            } catch (err) {
-	                _didIteratorError = true;
-	                _iteratorError = err;
-	            } finally {
-	                try {
-	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
-	                        _iterator["return"]();
-	                    }
-	                } finally {
-	                    if (_didIteratorError) {
-	                        throw _iteratorError;
-	                    }
-	                }
-	            }
-	
-	            return this.message;
-	        }
-	    }]);
-	
-	    return MessageDisplayer;
-	})();
-	
-	;
-	
-	var factory = {
-	    create: function create(args) {
-	        return new MessageDisplayer(args);
-	    },
-	    messageType: {
-	        Info: "Info",
-	        Success: "success",
-	        Error: "error",
-	        Warning: "warning"
-	    },
-	    messageAttachment: {
-	        Fixed: "Fixed",
-	        Flow: "Flow"
-	    }
-	};
-	
-	exports["default"] = factory;
-	module.exports = exports["default"];
-
-/***/ },
-/* 4 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	var templates = {
-		message: function message(data) {
-			var root = $("<div />");
-			root.addClass(data.messageContainerClass);
-			root.addClass(data.messageTypeClass);
-			root.addClass(data.messageAttachmentClass);
-	
-			var closeButton = $("<a />");
-			closeButton.attr("href", "javascript: void(0);");
-			closeButton.addClass(data.closeMessageClass);
-	
-			root.append(closeButton);
-	
-			if (data.moreThanOne) {
-				var list = $("<ul />");
-	
-				$.each(data.messages, function (index, message) {
-					list.append("<li>" + message + "</li>");
-				});
-	
-				root.append(list);
-			} else {
-				root.append("<p>" + data.messages + "</p>");
-			}
-	
-			return root[0];
-		}
-	};
-	
-	exports["default"] = templates;
 	module.exports = exports["default"];
 
 /***/ },
@@ -968,148 +1173,44 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 8 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+		value: true
 	});
+	var templates = {
+		message: function message(data) {
+			var root = $("<div />");
+			root.addClass(data.messageContainerClass);
+			root.addClass(data.messageTypeClass);
+			root.addClass(data.messageAttachmentClass);
 	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+			var closeButton = $("<a />");
+			closeButton.attr("href", "javascript: void(0);");
+			closeButton.addClass(data.closeMessageClass);
 	
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+			root.append(closeButton);
 	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+			if (data.moreThanOne) {
+				var list = $("<ul />");
 	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+				$.each(data.messages, function (index, message) {
+					list.append("<li>" + message + "</li>");
+				});
 	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+				root.append(list);
+			} else {
+				root.append("<p>" + data.messages + "</p>");
+			}
 	
-	var _espalierCore = __webpack_require__(2);
-	
-	var _espalierCore2 = _interopRequireDefault(_espalierCore);
-	
-	var _espalierFormsControl = __webpack_require__(9);
-	
-	var _espalierFormsControl2 = _interopRequireDefault(_espalierFormsControl);
-	
-	var Validation = function Validation(control) {
-	    _classCallCheck(this, Validation);
-	
-	    if (this.isValid === undefined) {
-	        throw new TypeError("Must have an isValid method.");
-	    }
-	
-	    if (this.message === undefined) {
-	        throw new TypeError("Must add a message prior to calling super.");
-	    }
-	
-	    this.control = control;
+			return root[0];
+		}
 	};
 	
-	var Required = (function (_Validation) {
-	    function Required(control) {
-	        _classCallCheck(this, Required);
-	
-	        _get(Object.getPrototypeOf(Required.prototype), "constructor", this).call(this, control);
-	    }
-	
-	    _inherits(Required, _Validation);
-	
-	    _createClass(Required, [{
-	        key: "isValid",
-	        value: function isValid() {
-	            return !_espalierCore2["default"].isEmptyOrSpaces(this.control.val());
-	        }
-	    }, {
-	        key: "message",
-	        get: function get() {
-	            return "Field is required.";
-	        }
-	    }]);
-	
-	    return Required;
-	})(Validation);
-	
-	var Email = (function (_Validation2) {
-	    function Email(control) {
-	        _classCallCheck(this, Email);
-	
-	        _get(Object.getPrototypeOf(Email.prototype), "constructor", this).call(this, control);
-	    }
-	
-	    _inherits(Email, _Validation2);
-	
-	    _createClass(Email, [{
-	        key: "isValid",
-	        value: function isValid() {
-	            return _espalierCore2["default"].isEmail(this.control.val());
-	        }
-	    }, {
-	        key: "message",
-	        get: function get() {
-	            return "Invalid email address.";
-	        }
-	    }]);
-	
-	    return Email;
-	})(Validation);
-	
-	var Date = (function (_Validation3) {
-	    function Date(control) {
-	        _classCallCheck(this, Date);
-	
-	        _get(Object.getPrototypeOf(Date.prototype), "constructor", this).call(this, control);
-	    }
-	
-	    _inherits(Date, _Validation3);
-	
-	    _createClass(Date, [{
-	        key: "isValid",
-	        value: function isValid() {
-	            return _espalierCore2["default"].isDate(this.control.val());
-	        }
-	    }, {
-	        key: "message",
-	        get: function get() {
-	            return "Invalid date.";
-	        }
-	    }]);
-	
-	    return Date;
-	})(Validation);
-	
-	var RequiredDependent = (function (_Validation4) {
-	    function RequiredDependent(control, whenVal, dependent) {
-	        _classCallCheck(this, RequiredDependent);
-	
-	        _get(Object.getPrototypeOf(RequiredDependent.prototype), "constructor", this).call(this, control);
-	        this.whenVal = whenVal;
-	        this.dependent = dependent;
-	    }
-	
-	    _inherits(RequiredDependent, _Validation4);
-	
-	    _createClass(RequiredDependent, [{
-	        key: "isValid",
-	        value: function isValid() {
-	            return this.control.val() !== this.whenVal || this.control.val() === this.whenVal && this.dependent.validate();
-	        }
-	    }, {
-	        key: "message",
-	        get: function get() {
-	            return false;
-	        }
-	    }]);
-	
-	    return RequiredDependent;
-	})(Validation);
-	
-	exports.Required = Required;
-	exports.Email = Email;
-	exports.Date = Date;
-	exports.RequiredDependent = RequiredDependent;
+	exports["default"] = templates;
+	module.exports = exports["default"];
 
 /***/ },
 /* 9 */
@@ -1127,11 +1228,247 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _espalierCore = __webpack_require__(2);
+	var _espalierCore = __webpack_require__(4);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
-	var _espalierValidation = __webpack_require__(8);
+	var _espalierFormsControl = __webpack_require__(10);
+	
+	var _espalierFormsControl2 = _interopRequireDefault(_espalierFormsControl);
+	
+	var EspalierForm = (function () {
+	    function EspalierForm(formToWire, args) {
+	        var _this = this;
+	
+	        _classCallCheck(this, EspalierForm);
+	
+	        if (_espalierCore2["default"].isString(formToWire)) {
+	            this.form = _espalierCore2["default"].find(formToWire)[0];
+	        } else {
+	            this.form = formToWire[0];
+	        }
+	
+	        var options = {
+	            submit: false
+	        };
+	
+	        var onEnter = function onEnter(event) {
+	            var code = event.keyCode ? event.keyCode : event.which;
+	
+	            if (code == 13) {
+	                event.preventDefault();
+	                event.stopPropagation();
+	                _this.submit();
+	            }
+	        };
+	
+	        this.options = _espalierCore2["default"].extend(options, args);
+	
+	        this.form.setAttribute("novalidate", "");
+	        this.controls = new Set();
+	        var processedControls = new Set();
+	        var rawControls = _espalierCore2["default"].find("input, textarea, select", this.form);
+	
+	        var _iteratorNormalCompletion = true;
+	        var _didIteratorError = false;
+	        var _iteratorError = undefined;
+	
+	        try {
+	            for (var _iterator = rawControls[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                var control = _step.value;
+	
+	                control.addEventListener("keypress", onEnter);
+	                var controlType = control.type ? control.type : control.getAttribute("type");
+	                var lowerCaseId = controlType == "radio" ? control.name.toLowerCase() : control.id.toLowerCase();
+	
+	                if (processedControls.has(lowerCaseId)) {
+	                    continue;
+	                }
+	
+	                processedControls.add(lowerCaseId);
+	
+	                if (lowerCaseId || (control.type ? control.type : control.getAttribute("type")) == "radio") {
+	                    this.controls.add((0, _espalierFormsControl2["default"])(control));
+	                }
+	            }
+	        } catch (err) {
+	            _didIteratorError = true;
+	            _iteratorError = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                    _iterator["return"]();
+	                }
+	            } finally {
+	                if (_didIteratorError) {
+	                    throw _iteratorError;
+	                }
+	            }
+	        }
+	
+	        _espalierCore2["default"].addEventListener(this.form, "submit", function (event) {
+	            event.preventDefault();
+	            _this.submit();
+	        });
+	
+	        var submitButtons = _espalierCore2["default"].find("[data-action=\"submit\"]", this.form);
+	
+	        var _iteratorNormalCompletion2 = true;
+	        var _didIteratorError2 = false;
+	        var _iteratorError2 = undefined;
+	
+	        try {
+	            for (var _iterator2 = submitButtons[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                var submitButton = _step2.value;
+	
+	                _espalierCore2["default"].addEventListener(submitButton, "click", function (e) {
+	                    _this.submit();
+	                });
+	            }
+	        } catch (err) {
+	            _didIteratorError2 = true;
+	            _iteratorError2 = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+	                    _iterator2["return"]();
+	                }
+	            } finally {
+	                if (_didIteratorError2) {
+	                    throw _iteratorError2;
+	                }
+	            }
+	        }
+	
+	        var hasFocus = _espalierCore2["default"].find("[data-focus=\"true\"]", this.form);
+	
+	        var _iteratorNormalCompletion3 = true;
+	        var _didIteratorError3 = false;
+	        var _iteratorError3 = undefined;
+	
+	        try {
+	            for (var _iterator3 = hasFocus[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	                var el = _step3.value;
+	
+	                if (el.offsetParent === null || el.readOnly) {
+	                    continue;
+	                }
+	
+	                el.focus();
+	                el.select();
+	                break;
+	            }
+	        } catch (err) {
+	            _didIteratorError3 = true;
+	            _iteratorError3 = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
+	                    _iterator3["return"]();
+	                }
+	            } finally {
+	                if (_didIteratorError3) {
+	                    throw _iteratorError3;
+	                }
+	            }
+	        }
+	    }
+	
+	    _createClass(EspalierForm, [{
+	        key: "submit",
+	        value: function submit() {
+	            var _this2 = this;
+	
+	            if (this.options.submit) {
+	                this.options.submit();
+	                return;
+	            }
+	
+	            if (this.validate()) {
+	                var method = this.form.getAttribute("method");
+	
+	                _espalierCore2["default"].sendRequest({
+	                    type: method ? method : "GET",
+	                    url: this.form.getAttribute("action"),
+	                    data: $(this.form).serialize() //TODO: Remove jQuery.
+	                }).then(function (data) {
+	                    var onSuccess = _this2.form.getAttribute("data-success");
+	
+	                    if (onSuccess) {
+	                        _espalierCore2["default"].publish(onSuccess, data);
+	                    }
+	                });
+	            }
+	        }
+	    }, {
+	        key: "validate",
+	        value: function validate() {
+	            var valid = true;
+	
+	            var _iteratorNormalCompletion4 = true;
+	            var _didIteratorError4 = false;
+	            var _iteratorError4 = undefined;
+	
+	            try {
+	                for (var _iterator4 = this.controls[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	                    var control = _step4.value;
+	
+	                    control.message.remove();
+	
+	                    if (!control.validate()) {
+	                        valid = false;
+	                    }
+	                }
+	            } catch (err) {
+	                _didIteratorError4 = true;
+	                _iteratorError4 = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion4 && _iterator4["return"]) {
+	                        _iterator4["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError4) {
+	                        throw _iteratorError4;
+	                    }
+	                }
+	            }
+	
+	            return valid;
+	        }
+	    }]);
+	
+	    return EspalierForm;
+	})();
+	
+	exports["default"] = function (formToWire, args) {
+	    return new EspalierForm(formToWire, args);
+	};
+	
+	;
+	module.exports = exports["default"];
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var _espalierCore = __webpack_require__(4);
+	
+	var _espalierCore2 = _interopRequireDefault(_espalierCore);
+	
+	var _espalierValidation = __webpack_require__(11);
 	
 	var _espalierMessageFactory = __webpack_require__(3);
 	
@@ -1455,187 +1792,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var _espalierCore = __webpack_require__(2);
-	
-	var _espalierCore2 = _interopRequireDefault(_espalierCore);
-	
-	var _espalierFormsControl = __webpack_require__(9);
-	
-	var _espalierFormsControl2 = _interopRequireDefault(_espalierFormsControl);
-	
-	var EspalierForm = (function () {
-	    function EspalierForm(formToWire) {
-	        var _this = this;
-	
-	        _classCallCheck(this, EspalierForm);
-	
-	        if (_espalierCore2["default"].isString(formToWire)) {
-	            this.form = _espalierCore2["default"].find(formToWire)[0];
-	        } else {
-	            this.form = formToWire[0];
-	        }
-	
-	        this.form.setAttribute("novalidate", "");
-	        this.controls = new Set();
-	        var processedControls = new Set();
-	        var rawControls = _espalierCore2["default"].find("input, textarea, select", this.form);
-	
-	        var _iteratorNormalCompletion = true;
-	        var _didIteratorError = false;
-	        var _iteratorError = undefined;
-	
-	        try {
-	            for (var _iterator = rawControls[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                var control = _step.value;
-	
-	                var controlType = control.type ? control.type : control.getAttribute("type");
-	                var lowerCaseId = controlType == "radio" ? control.name.toLowerCase() : control.id.toLowerCase();
-	
-	                if (processedControls.has(lowerCaseId)) {
-	                    continue;
-	                }
-	
-	                processedControls.add(lowerCaseId);
-	
-	                if (lowerCaseId || (control.type ? control.type : control.getAttribute("type")) == "radio") {
-	                    this.controls.add((0, _espalierFormsControl2["default"])(control));
-	                }
-	            }
-	        } catch (err) {
-	            _didIteratorError = true;
-	            _iteratorError = err;
-	        } finally {
-	            try {
-	                if (!_iteratorNormalCompletion && _iterator["return"]) {
-	                    _iterator["return"]();
-	                }
-	            } finally {
-	                if (_didIteratorError) {
-	                    throw _iteratorError;
-	                }
-	            }
-	        }
-	
-	        _espalierCore2["default"].addEventListener(this.form, "submit", function (e) {
-	            e.preventDefault();
-	            _this.submit();
-	        });
-	
-	        var submitButtons = _espalierCore2["default"].find("[data-action=\"submit\"]", this.form);
-	
-	        var _iteratorNormalCompletion2 = true;
-	        var _didIteratorError2 = false;
-	        var _iteratorError2 = undefined;
-	
-	        try {
-	            for (var _iterator2 = submitButtons[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	                var submitButton = _step2.value;
-	
-	                _espalierCore2["default"].addEventListener(submitButton, "click", function (e) {
-	                    _this.submit();
-	                });
-	            }
-	        } catch (err) {
-	            _didIteratorError2 = true;
-	            _iteratorError2 = err;
-	        } finally {
-	            try {
-	                if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
-	                    _iterator2["return"]();
-	                }
-	            } finally {
-	                if (_didIteratorError2) {
-	                    throw _iteratorError2;
-	                }
-	            }
-	        }
-	    }
-	
-	    _createClass(EspalierForm, [{
-	        key: "submit",
-	        value: function submit() {
-	            var _this2 = this;
-	
-	            if (this.validate()) {
-	                var method = this.form.getAttribute("method");
-	
-	                _espalierCore2["default"].sendRequest({
-	                    type: method ? method : "GET",
-	                    url: this.form.getAttribute("action"),
-	                    data: $(this.form).serialize() //TODO: Remove jQuery.
-	                }).then(function (data) {
-	                    var onSuccess = _this2.form.getAttribute("data-success");
-	
-	                    if (onSuccess) {
-	                        _espalierCore2["default"].publish(onSuccess, data);
-	                    }
-	                });
-	            }
-	        }
-	    }, {
-	        key: "validate",
-	        value: function validate() {
-	            var valid = true;
-	
-	            var _iteratorNormalCompletion3 = true;
-	            var _didIteratorError3 = false;
-	            var _iteratorError3 = undefined;
-	
-	            try {
-	                for (var _iterator3 = this.controls[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-	                    var control = _step3.value;
-	
-	                    control.message.remove();
-	
-	                    if (!control.validate()) {
-	                        valid = false;
-	                    }
-	                }
-	            } catch (err) {
-	                _didIteratorError3 = true;
-	                _iteratorError3 = err;
-	            } finally {
-	                try {
-	                    if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
-	                        _iterator3["return"]();
-	                    }
-	                } finally {
-	                    if (_didIteratorError3) {
-	                        throw _iteratorError3;
-	                    }
-	                }
-	            }
-	
-	            return valid;
-	        }
-	    }]);
-	
-	    return EspalierForm;
-	})();
-	
-	exports["default"] = function (formToWire) {
-	    return new EspalierForm(formToWire);
-	};
-	
-	;
-	module.exports = exports["default"];
-
-/***/ },
 /* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -1647,191 +1803,138 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 	
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _espalierMessageFactory = __webpack_require__(3);
-	
-	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
-	
-	var _espalierWaitscreen = __webpack_require__(5);
-	
-	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
-	
-	var _espalierCommon = __webpack_require__(6);
-	
-	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
-	
-	var _espalierCore = __webpack_require__(2);
+	var _espalierCore = __webpack_require__(4);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
-	var getFooter = function getFooter(table) {
-	    var startAtPage = Math.max(0, table.settings.currentPage - 3);
-	    var endAtPage = Math.min(table.settings.pages - 1, table.settings.currentPage + 3 + Math.max(3 - table.settings.currentPage, 0));
-	    var pagingControl = "<ul class=\"pagination\">";
+	var _espalierFormsControl = __webpack_require__(10);
 	
-	    pagingControl += "<li" + (table.settings.currentPage == 0 ? " class=\"disabled\"" : "") + "><a data-page=\"" + (table.settings.currentPage - 1) + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&laquo;</span></a></li>";
+	var _espalierFormsControl2 = _interopRequireDefault(_espalierFormsControl);
 	
-	    for (var i = startAtPage; i <= endAtPage; i++) {
-	        pagingControl += "<li" + (i === table.settings.currentPage ? " class=\"active\"" : "") + "><a data-page=\"" + i + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\">" + (i + 1) + "</a></li>";
+	var Validation = function Validation(control) {
+	    _classCallCheck(this, Validation);
+	
+	    if (this.isValid === undefined) {
+	        throw new TypeError("Must have an isValid method.");
 	    }
 	
-	    var nextPage = table.settings.currentPage + 1;
-	    pagingControl += "<li" + (nextPage == table.settings.pages ? " class=\"disabled\"" : "") + "><a data-page=\"" + nextPage + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&raquo;</span></a></li>";
-	
-	    return "<tfoot><tr><td colspan=\"42\">" + pagingControl + "</td></tr></tfoot>";
-	};
-	
-	var renderTable = function renderTable(table) {
-	    var promise = new Promise(function (resolve, reject) {
-	        var rendered = "<table class=\"" + table.settings.tableClass + " table table-striped\">";
-	
-	        if (table.settings.headerTemplate) {
-	            rendered += table.settings.headerTemplate();
-	        }
-	
-	        rendered += "<tbody>";
-	        var startAtIndex = table.settings.currentPage * table.settings.pageSize;
-	
-	        if (table.settings.data) {
-	            for (var i = startAtIndex; i < Math.min(startAtIndex + table.settings.pageSize, table.settings.data.length); i++) {
-	                rendered += table.settings.rowTemplate(table.settings.data[i]);
-	            }
-	
-	            rendered += "</tbody>";
-	
-	            if (table.settings.pages > 0) {
-	                rendered += getFooter(table);
-	            }
-	            resolve(rendered);
-	        } else {
-	            _espalierCore2["default"].sendRequest({
-	                url: table.settings.fetchUrl,
-	                type: "POST",
-	                data: {
-	                    Page: table.settings.currentPage,
-	                    PageSize: table.settings.pageSize,
-	                    Criteria: table.settings.filter
-	                }
-	            }).then(function (result) {
-	                if (table.settings.fetchCallback) {
-	                    table.settings.fetchCallback(result);
-	                }
-	
-	                table.settings.pages = Math.ceil(result.data.total / result.data.pageSize);
-	                for (var i = 0; i < result.data.records.length; i++) {
-	                    rendered += table.settings.rowTemplate(result.data.records[i]);
-	                }
-	                rendered += "</tbody>";
-	                rendered += getFooter(table);
-	                resolve(rendered);
-	            });
-	        }
-	    });
-	
-	    promise.then(function (rendered) {
-	        table.settings.container.html(rendered);
-	
-	        if (table.settings.renderedCallback) {
-	            table.settings.renderedCallback(table.settings.container[0].getElementsByTagName("table")[0]);
-	        }
-	    });
-	};
-	
-	var TableInstance = (function () {
-	    function TableInstance(args) {
-	        _classCallCheck(this, TableInstance);
-	
-	        this.settings = {
-	            container: undefined,
-	            currentPage: 0,
-	            data: undefined,
-	            fetchCallback: undefined,
-	            fetchUrl: "",
-	            headerTemplate: undefined,
-	            pageSize: 10,
-	            prefetchPages: 5,
-	            rowTemplate: undefined,
-	            tableClass: "espalier-table",
-	            renderedCallback: undefined
-	        };
-	
-	        $.extend(this.settings, args);
-	
-	        if (!this.settings.fetchUrl && !this.settings.data) {
-	            throw new TypeError("You must either specify a fetch url or pass in data for the table to display.");
-	        }
-	
-	        if (!this.settings.container) {
-	            throw new TypeError("You must specify a container to place the table in.");
-	        }
-	
-	        if (!this.settings.rowTemplate) {
-	            throw new TypeError("You must provide a row template.");
-	        }
-	
-	        if (this.settings.data) {
-	            this.settings.pages = Math.ceil(this.settings.data.length / this.settings.pageSize);
-	        }
-	
-	        $.extend(this.settings, args);
+	    if (this.message === undefined) {
+	        throw new TypeError("Must add a message prior to calling super.");
 	    }
 	
-	    _createClass(TableInstance, [{
-	        key: "next",
-	        value: function next() {
-	            this.settings.currentPage++;
-	            renderTable(this);
-	            return this;
-	        }
-	    }, {
-	        key: "previous",
-	        value: function previous() {
-	            this.settings.currentPage--;
-	            renderTable(this);
-	            return this;
-	        }
-	    }, {
-	        key: "filter",
-	        value: function filter(_filter) {
-	            this.settings.filter = _filter;
-	            this.settings.currentPage = 0;
-	            renderTable(this);
-	            return this;
-	        }
-	    }, {
-	        key: "goToPage",
-	        value: function goToPage(page) {
-	            if (page < 0 || page >= this.settings.pages) {
-	                return;
-	            }
+	    this.control = control;
+	};
 	
-	            this.settings.currentPage = page;
-	            renderTable(this);
-	            return this;
+	var Required = (function (_Validation) {
+	    function Required(control) {
+	        _classCallCheck(this, Required);
+	
+	        _get(Object.getPrototypeOf(Required.prototype), "constructor", this).call(this, control);
+	    }
+	
+	    _inherits(Required, _Validation);
+	
+	    _createClass(Required, [{
+	        key: "isValid",
+	        value: function isValid() {
+	            return !_espalierCore2["default"].isEmptyOrSpaces(this.control.val());
+	        }
+	    }, {
+	        key: "message",
+	        get: function get() {
+	            return "Field is required.";
 	        }
 	    }]);
 	
-	    return TableInstance;
-	})();
+	    return Required;
+	})(Validation);
 	
-	;
+	var Email = (function (_Validation2) {
+	    function Email(control) {
+	        _classCallCheck(this, Email);
 	
-	var tables = {
-	    create: function create(args) {
-	        var table = new TableInstance(args);
-	        table.settings.container.on("click", ".espalier-table-button", function () {
-	            table.goToPage($(this).data("page"));
-	        });
-	        renderTable(table);
-	        return table;
+	        _get(Object.getPrototypeOf(Email.prototype), "constructor", this).call(this, control);
 	    }
-	};
 	
-	exports["default"] = tables;
-	module.exports = exports["default"];
+	    _inherits(Email, _Validation2);
+	
+	    _createClass(Email, [{
+	        key: "isValid",
+	        value: function isValid() {
+	            return _espalierCore2["default"].isEmail(this.control.val());
+	        }
+	    }, {
+	        key: "message",
+	        get: function get() {
+	            return "Invalid email address.";
+	        }
+	    }]);
+	
+	    return Email;
+	})(Validation);
+	
+	var Date = (function (_Validation3) {
+	    function Date(control) {
+	        _classCallCheck(this, Date);
+	
+	        _get(Object.getPrototypeOf(Date.prototype), "constructor", this).call(this, control);
+	    }
+	
+	    _inherits(Date, _Validation3);
+	
+	    _createClass(Date, [{
+	        key: "isValid",
+	        value: function isValid() {
+	            return _espalierCore2["default"].isDate(this.control.val());
+	        }
+	    }, {
+	        key: "message",
+	        get: function get() {
+	            return "Invalid date.";
+	        }
+	    }]);
+	
+	    return Date;
+	})(Validation);
+	
+	var RequiredDependent = (function (_Validation4) {
+	    function RequiredDependent(control, whenVal, dependent) {
+	        _classCallCheck(this, RequiredDependent);
+	
+	        _get(Object.getPrototypeOf(RequiredDependent.prototype), "constructor", this).call(this, control);
+	        this.whenVal = whenVal;
+	        this.dependent = dependent;
+	    }
+	
+	    _inherits(RequiredDependent, _Validation4);
+	
+	    _createClass(RequiredDependent, [{
+	        key: "isValid",
+	        value: function isValid() {
+	            return this.control.val() !== this.whenVal || this.control.val() === this.whenVal && this.dependent.validate();
+	        }
+	    }, {
+	        key: "message",
+	        get: function get() {
+	            return false;
+	        }
+	    }]);
+	
+	    return RequiredDependent;
+	})(Validation);
+	
+	exports.Required = Required;
+	exports.Email = Email;
+	exports.Date = Date;
+	exports.RequiredDependent = RequiredDependent;
 
 /***/ },
 /* 12 */
@@ -1849,7 +1952,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _espalierCore = __webpack_require__(2);
+	var _espalierCore = __webpack_require__(4);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
@@ -1880,61 +1983,47 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function show() {
 	            var _this = this;
 	
-	            var height, scrollTop, top, windowHeight, dialog;
 	            _espalierCore2["default"].hideMainMessage();
 	            _espalierCommon2["default"].showVellum();
-	            windowHeight = _espalierCommon2["default"].window.height();
-	            dialog = this.settings.element;
+	            var dialog = this.settings.element;
 	            dialog.css("position", "absolute");
-	            $("a, button, input, select, textarea").attr("tabindex", "-1");
-	
 	            _espalierCommon2["default"].body.append(dialog);
-	
-	            scrollTop = _espalierCommon2["default"].window.scrollTop();
-	
-	            height = dialog.height();
-	            top = windowHeight / 2 - height / 2 + scrollTop;
-	            top = top > 0 ? top : 0;
-	            dialog.css("top", top);
-	            $(":focus").blur();
-	            $(".focus", dialog).first().focus();
-	
+	            this.center();
 	            dialog.css("display", "none");
 	
 	            dialog.velocity("transition.whirlIn", {
 	                duration: 450
 	            });
 	
-	            var _iteratorNormalCompletion = true;
-	            var _didIteratorError = false;
-	            var _iteratorError = undefined;
+	            _espalierCore2["default"].addEventListener(dialog[0], "click", function (event) {
+	                var _iteratorNormalCompletion = true;
+	                var _didIteratorError = false;
+	                var _iteratorError = undefined;
 	
-	            try {
-	                var _loop = function () {
-	                    var button = _step.value;
-	
-	                    $("#" + button.name, dialog).click(function () {
-	                        button.handler(_this);
-	                    });
-	                };
-	
-	                for (var _iterator = this.settings.buttons[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                    _loop();
-	                }
-	            } catch (err) {
-	                _didIteratorError = true;
-	                _iteratorError = err;
-	            } finally {
 	                try {
-	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
-	                        _iterator["return"]();
+	                    for (var _iterator = _this.settings.buttons[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                        var button = _step.value;
+	
+	                        //TODO: Maybe is a selector instead?
+	                        if (button.id === event.target.id) {
+	                            button.handler(_this);
+	                        }
 	                    }
+	                } catch (err) {
+	                    _didIteratorError = true;
+	                    _iteratorError = err;
 	                } finally {
-	                    if (_didIteratorError) {
-	                        throw _iteratorError;
+	                    try {
+	                        if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                            _iterator["return"]();
+	                        }
+	                    } finally {
+	                        if (_didIteratorError) {
+	                            throw _iteratorError;
+	                        }
 	                    }
 	                }
-	            }
+	            });
 	
 	            return this;
 	        }
@@ -1955,6 +2044,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	            });
 	            return this;
 	        }
+	    }, {
+	        key: "center",
+	        value: function center() {
+	            var windowHeight = _espalierCommon2["default"].window.height();
+	            var dialog = this.settings.element;
+	            var scrollTop = _espalierCommon2["default"].window.scrollTop();
+	            var height = dialog.height();
+	            var top = windowHeight / 2 - height / 2 + scrollTop;
+	            top = top > 0 ? top : 0;
+	            dialog.css("top", top);
+	        }
 	    }]);
 	
 	    return Dialog;
@@ -1964,6 +2064,224 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return new Dialog(args);
 	};
 	
+	module.exports = exports["default"];
+
+/***/ },
+/* 13 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var _espalierCore = __webpack_require__(4);
+	
+	var _espalierCore2 = _interopRequireDefault(_espalierCore);
+	
+	var keys = {
+	    container: new Object(),
+	    result: new Object(),
+	    currentStep: new Object(),
+	    steps: new Object(),
+	    transversed: new Object()
+	};
+	
+	var Graph = (function () {
+	    function Graph(args) {
+	        var _this = this;
+	
+	        _classCallCheck(this, Graph);
+	
+	        this._internals = new WeakMap();
+	
+	        if (!args.container.nodeName) {
+	            //NOTE: This is probably a jQuery selection array.
+	            args.container = args.container[0];
+	        }
+	
+	        this._internals.set(keys.container, args.container);
+	        this._internals.set(keys.result, _espalierCore2["default"].extend(args["default"], {}));
+	        this._internals.set(keys.currentStep, args.head);
+	        this._internals.set(keys.steps, args.steps);
+	        this._internals.set(keys.transversed, []);
+	
+	        var _iteratorNormalCompletion = true;
+	        var _didIteratorError = false;
+	        var _iteratorError = undefined;
+	
+	        try {
+	            for (var _iterator = args.steps[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                var step = _step.value;
+	
+	                step.cssClass = "graph-step-not-started";
+	                step.disabled = true;
+	                step.status = "Not started";
+	            }
+	        } catch (err) {
+	            _didIteratorError = true;
+	            _iteratorError = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                    _iterator["return"]();
+	                }
+	            } finally {
+	                if (_didIteratorError) {
+	                    throw _iteratorError;
+	                }
+	            }
+	        }
+	
+	        args.steps[0].cssClass = "graph-step-in-progress";
+	        args.steps[0].disabled = false;
+	        args.steps[0].status = "In progress";
+	
+	        this._internals.get(keys.currentStep).renderIn(this._internals.get(keys.container), this._internals.get(keys.result), args.steps);
+	
+	        _espalierCore2["default"].addEventListener(this._internals.get(keys.container), "click", function (e) {
+	            var event = e.target.getAttribute("data-graph-event");
+	
+	            switch (event) {
+	                case "next":
+	                    _this.next();
+	                    return;
+	                case "back":
+	                    _this.previous();
+	                    return;
+	            }
+	        });
+	    }
+	
+	    _createClass(Graph, [{
+	        key: "goto",
+	        value: function goto(index) {
+	            throw new Error("not implemented yet...");
+	            //         let transversed = this._internals.get(keys.transversed);
+	            //
+	            //         if (index === this.currentIndex) {
+	            //             return;
+	            //         }
+	            //
+	            //         if (index > this.currentIndex) {
+	            //             throw new Error("Use the next method to move forward in the wizard.");
+	            //         }
+	            //
+	            //         for (let i = this.currentIndex; i >= index; i--) {
+	            //            
+	            //         }
+	            //
+	            //         this.currentIndex = index;
+	            //         this.steps[this.currentIndex].renderIn(this._internals.get("container"), this._internals.get(keys.result));
+	        }
+	    }, {
+	        key: "next",
+	        value: function next() {
+	            var step = this._internals.get(keys.currentStep);
+	            var value = step.getValue();
+	
+	            if (value === undefined) {
+	                return;
+	            }
+	
+	            var transversed = this._internals.get(keys.transversed);
+	            _espalierCore2["default"].setProperty(this._internals.get(keys.result), step.propertyName, value);
+	            var nextStep = step.next();
+	            transversed.push(step);
+	            this._internals.set(keys.currentStep, nextStep);
+	
+	            var steps = this._internals.get(keys.steps);
+	            var lastStepIndex = step.stepIndex;
+	            var newStepIndex = nextStep.stepIndex;
+	
+	            if (lastStepIndex !== newStepIndex) {
+	                steps[lastStepIndex].cssClass = "graph-step-completed";
+	                steps[lastStepIndex].status = "Completed";
+	                steps[newStepIndex].cssClass = "graph-step-in-progress";
+	                steps[newStepIndex].disabled = false;
+	                steps[newStepIndex].status = "In progress";
+	            }
+	
+	            nextStep.renderIn(this._internals.get(keys.container), this._internals.get(keys.result), steps);
+	        }
+	    }, {
+	        key: "previous",
+	        value: function previous() {
+	            var transversed = this._internals.get(keys.transversed);
+	            var lastNode = transversed.pop();
+	            var currentNode = this._internals.get(keys.currentStep);
+	            _espalierCore2["default"].setProperty(this._internals.get(keys.result), currentNode.propertyName, null);
+	            this._internals.set(keys.currentStep, lastNode);
+	
+	            var steps = this._internals.get(keys.steps);
+	            var lastStepIndex = currentNode.stepIndex;
+	            var newStepIndex = lastNode.stepIndex;
+	
+	            if (lastStepIndex !== newStepIndex) {
+	                steps[lastStepIndex].cssClass = "graph-step-not-started";
+	                steps[lastStepIndex].disabled = true;
+	                steps[lastStepIndex].status = "Not started";
+	                steps[newStepIndex].cssClass = "graph-step-in-progress";
+	                steps[newStepIndex].status = "In progress";
+	            }
+	
+	            lastNode.renderIn(this._internals.get(keys.container), this._internals.get(keys.result), steps);
+	        }
+	    }]);
+	
+	    return Graph;
+	})();
+	
+	exports["default"] = function (args) {
+	    return new Graph(args);
+	};
+	
+	module.exports = exports["default"];
+
+/***/ },
+/* 14 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var GraphNode = function GraphNode(args) {
+	    _classCallCheck(this, GraphNode);
+	
+	    if (this.constructor === GraphNode) {
+	        throw new TypeError("Abstract class GraphNode cannot be instantiated.");
+	    }
+	
+	    if (this.getValue === undefined) {
+	        throw new TypeError("GraphNode derivations must implment getValue()");
+	    }
+	
+	    if (this.renderIn == undefined) {
+	        throw new TypeError("GraphNode derivations must implement renderIn(container, result, steps)");
+	    }
+	
+	    if (this.propertyName == undefined) {
+	        throw new TypeError("GraphNode derivations must define a propertyName that will be set with it's value.");
+	    }
+	
+	    if (this.next == undefined) {
+	        throw new TypeError("GraphNode derivations must implement a method next() that returns the next node in the graph.");
+	    }
+	};
+	
+	exports["default"] = GraphNode;
 	module.exports = exports["default"];
 
 /***/ }

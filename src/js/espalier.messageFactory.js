@@ -25,7 +25,7 @@ class MessageDisplayer {
 
     remove() {
         if (this.message) {
-            this.message.remove();
+            this.message.parentNode.removeChild(this.message);
             this.message = undefined;
             this.settings.onRemoved();
         }

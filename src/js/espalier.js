@@ -1,10 +1,11 @@
 import core from "./espalier.core";
-import validation from "./espalier.validation";
 import messageFactory from "./espalier.messageFactory";
 import forms from "./espalier.forms";
 import waitScreen from "./espalier.waitscreen";
 import tables from "./espalier.tables";
 import dialog from "./espalier.dialog";
+import graph from "./espalier.graph";
+import GraphNode from "./espalier.graph.node";
 
 var espalier = {
     showWarning: core.showWarning,
@@ -22,7 +23,9 @@ var espalier = {
     subscribe: core.subscribe,
     dialog: function (args) {
         return dialog(args).show();
-    }
+    },
+    graph,
+    GraphNode
 };
 
 export default espalier;

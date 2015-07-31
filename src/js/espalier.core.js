@@ -269,8 +269,29 @@ var core = {
             return false;
         }
     },
-    isString: function(toTest) {
+    isString: function (toTest) {
         return typeof toTest === 'string' || toTest instanceof String;
+    },
+    first: function (array, match) {
+        for (let arrayItem of array) {
+            if (match(arrayItem)) {
+                return arrayItem;
+            }
+        }
+
+        throw new Error("Unable to match that item.");
+    },
+    setProperty: function (obj, prop, value) {
+        if (core.isString(prop)) {
+            prop = prop.split(".");
+        }
+
+        if (prop.length > 1) {
+            var e = prop.shift();
+            core.setProperty(obj[e] = Object.prototype.toString.call(obj[e]) === "[object Object]" ? obj[e] : {}, prop, value);
+        } else {
+            obj[prop[0]] = value;
+        }
     }
 };
 

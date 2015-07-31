@@ -18,36 +18,26 @@ class Dialog {
     }
 
     show() {
-        var height, scrollTop, top, windowHeight, dialog;
         core.hideMainMessage();
         common.showVellum();
-        windowHeight = common.window.height();
-        dialog = this.settings.element;
+        let dialog = this.settings.element;
         dialog.css("position", "absolute");
-        $("a, button, input, select, textarea").attr("tabindex", "-1");
-
         common.body.append(dialog);
-
-        scrollTop = common.window.scrollTop();
-
-        height = dialog.height();
-        top = (windowHeight / 2) - (height / 2) + scrollTop;
-        top = top > 0 ? top : 0;
-        dialog.css("top", top);
-        $(":focus").blur();
-        $(".focus", dialog).first().focus();
-
+        this.center();
         dialog.css("display", "none");
 
         dialog.velocity("transition.whirlIn", {
             duration: 450
         });
 
-        for(let button of this.settings.buttons) {
-            $("#" + button.name, dialog).click(() => {
-                button.handler(this);
-            });
-        }
+        core.addEventListener(dialog[0], "click", (event) => {
+            for (let button of this.settings.buttons) {
+                //TODO: Maybe is a selector instead?
+                if (button.id === event.target.id) {
+                    button.handler(this);
+                }
+            }
+        });
 
         return this;
     }
@@ -66,6 +56,16 @@ class Dialog {
             }
         });
         return this;
+    }
+
+    center() {
+        let windowHeight = common.window.height();
+        let dialog = this.settings.element;
+        let scrollTop = common.window.scrollTop();
+        let height = dialog.height();
+        let top = (windowHeight / 2) - (height / 2) + scrollTop;
+        top = top > 0 ? top : 0;
+        dialog.css("top", top);
     }
 }
 

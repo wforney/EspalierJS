@@ -3,6 +3,8 @@ import espalier from "../espalier";
 espalier.showInfo("It seems the libraries have loaded!");
 espalier.wire("#standard-form");
 
+let graphProgress = Handlebars.compile($("#graph-progress-template").html());
+
 var dialogTemplate = Handlebars.compile($("#dialog-template").html());
 $(".datepicker").datepicker();
 
@@ -57,18 +59,160 @@ $("#show-dialog").click(function () {
         element: $($.trim(dialogTemplate())),
         buttons: [
             {
-                name: "submit",
+                id: "submit",
                 handler: function (dialog) {
                     alert("submit!");
                     dialog.hide();
                 }
             },
             {
-                name: "cancel",
+                id: "cancel",
                 handler: function (dialog) {
                     dialog.hide();
                 }
             }
         ]
     });
+});
+
+let nextKey = new Object();
+
+class Step1 extends espalier.GraphNode {
+    constructor() {
+        super();
+        this._internals = new WeakMap();
+    }
+
+    getValue() {
+        return "Step 1 value";
+    }
+
+    renderIn(container, result, steps) {
+        let progress = graphProgress(steps);
+        container.innerHTML = progress + "<h3>I am step 1. Hear me roar.</h3><a data-graph-event='next' href='javascript: void(0);' class='btn btn-primary'>Next</a>";
+    }
+
+    next() {
+        if (!this._internals.has(nextKey)) {
+            this._internals.set(nextKey, new Step2dot1());
+        }
+
+        return this._internals.get(nextKey);
+    }
+
+    get propertyName() {
+        return "StepOne";
+    }
+
+    get stepIndex() {
+        return 0;
+    }
+}
+
+class Step2dot1 extends espalier.GraphNode {
+    constructor() {
+        super();
+        this._internals = new WeakMap();
+    }
+
+    getValue() {
+        return "Step 2 value";
+    }
+
+    renderIn(container, result, steps) {
+        let progress = graphProgress(steps);
+        container.innerHTML = progress + "<h3>I am step 2.1. Hear me growl.</h3><a data-graph-event='back' href='javascript: void(0);' class='btn btn-primary'>Back</a> <a data-graph-event='next' href='javascript: void(0);' class='btn btn-primary'>Next</a>";
+    }
+
+    next() {
+        if (!this._internals.has(nextKey)) {
+            this._internals.set(nextKey, new Step2dot2());
+        }
+
+        return this._internals.get(nextKey);
+    }
+
+    get propertyName() {
+        return "StepTwo";
+    }
+
+    get stepIndex() {
+        return 1;
+    }
+}
+
+class Step2dot2 extends espalier.GraphNode {
+    constructor() {
+        super();
+        this._internals = new WeakMap();
+    }
+
+    getValue() {
+        return "Step 2.2 value";
+    }
+
+    renderIn(container, result, steps) {
+        let progress = graphProgress(steps);
+        container.innerHTML = progress + "<h3>I am step 2.2. Hear me howl.</h3><a data-graph-event='back' href='javascript: void(0);' class='btn btn-primary'>Back</a> <a data-graph-event='next' href='javascript: void(0);' class='btn btn-primary'>Next</a>";
+    }
+
+    next() {
+        if (!this._internals.has(nextKey)) {
+            this._internals.set(nextKey, new Step3());
+        }
+
+        return this._internals.get(nextKey);
+    }
+
+    get propertyName() {
+        return "StepTwo";
+    }
+
+    get stepIndex() {
+        return 1;
+    }
+}
+
+class Step3 extends espalier.GraphNode {
+    constructor() {
+        super();
+    }
+
+    getValue() {
+        return "Step 3 value";
+    }
+
+    renderIn(container, result, steps) {
+        let progress = graphProgress(steps);
+        container.innerHTML = progress + "<h3>I am step 3. Hear me whimper.</h3><a data-graph-event='back' href='javascript: void(0);' class='btn btn-primary'>Back</a>";
+    }
+
+    next() {
+        return false;
+    }
+
+    get propertyName() {
+        return "StepThree";
+    }
+
+    get stepIndex() {
+        return 2;
+    }
+}
+
+espalier.graph({
+    steps: [
+        {
+            title: "Step 1"
+        },
+        {
+            title: "Step 2"
+        },
+        {
+            title: "Step 3"
+        }
+    ],
+    head: new Step1(),
+    container: $("#wizard-container")[0],
+    default: {}
 });

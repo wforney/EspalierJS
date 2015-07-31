@@ -2,12 +2,28 @@ import core from "./espalier.core";
 import FormControl from "./espalier.forms.control";
 
 class EspalierForm {
-    constructor(formToWire) {
+    constructor(formToWire, args) {
         if (core.isString(formToWire)) {
             this.form = core.find(formToWire)[0];
         } else {
             this.form = formToWire[0];
         }
+
+        let options = {
+            submit: false
+        };
+
+        let onEnter = (event) => {
+            let code = (event.keyCode ? event.keyCode : event.which);
+
+            if (code == 13) {
+                event.preventDefault();
+                event.stopPropagation();
+                this.submit();
+            }
+        };
+
+        this.options = core.extend(options, args);
 
         this.form.setAttribute("novalidate", "");
         this.controls = new Set();
@@ -15,6 +31,7 @@ class EspalierForm {
         let rawControls = core.find("input, textarea, select", this.form);
 
         for (let control of rawControls) {
+            control.addEventListener("keypress", onEnter);
             var controlType = control.type ? control.type : control.getAttribute("type");
             var lowerCaseId = controlType == "radio" ? control.name.toLowerCase() : control.id.toLowerCase();
 
@@ -29,8 +46,8 @@ class EspalierForm {
             }
         }
 
-        core.addEventListener(this.form, "submit", (e) => {
-            e.preventDefault();
+        core.addEventListener(this.form, "submit", (event) => {
+            event.preventDefault();
             this.submit();
         });
 
@@ -41,9 +58,26 @@ class EspalierForm {
                 this.submit();
             });
         }
+
+        let hasFocus = core.find("[data-focus=\"true\"]", this.form);
+
+        for (let el of hasFocus) {
+            if (el.offsetParent === null || el.readOnly) {
+                continue;
+            }
+
+            el.focus();
+            el.select();
+            break;
+        }
     }
 
     submit() {
+        if (this.options.submit) {
+            this.options.submit();
+            return;
+        }
+
         if (this.validate()) {
             let method = this.form.getAttribute("method");
 
@@ -76,6 +110,6 @@ class EspalierForm {
     }
 }
 
-export default function (formToWire) {
-    return new EspalierForm(formToWire);
+export default function (formToWire, args) {
+    return new EspalierForm(formToWire, args);
 };

@@ -77,4 +77,26 @@ strong.message-container {
 a.btn {
     text-decoration: none;
     font-weight: bold;
+    
+    &.graph-step-completed,
+    &.graph-step-in-progress,
+    &.graph-step-not-started {
+        color: white;
+        border: 1px solid #BBB;
+        border-radius: 4px;
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    }
+    
+    &.graph-step-completed {
+        background: rgb(28, 184, 65);
+    }
+    
+    &.graph-step-in-progress {
+        background: rgb(223, 117, 20);
+    }
+    
+    &.graph-step-not-started {
+        background: white;
+        color: #BBB;
+    }
 }
