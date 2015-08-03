@@ -3,33 +3,33 @@ import waitscreen from "./espalier.waitscreen";
 import common from "./espalier.common";
 import core from "./espalier.core";
 
-var getFooter = function (table) {
-    var startAtPage = Math.max(0, table.settings.currentPage - 3);
-    var endAtPage = Math.min(table.settings.pages - 1, table.settings.currentPage + 3 + Math.max(3 - table.settings.currentPage, 0));
-    var pagingControl = "<ul class=\"pagination\">";
+let getFooter = (table) => {
+    let startAtPage = Math.max(0, table.settings.currentPage - 3);
+    let endAtPage = Math.min(table.settings.pages - 1, table.settings.currentPage + 3 + Math.max(3 - table.settings.currentPage, 0));
+    let pagingControl = "<ul class=\"pagination\">";
 
     pagingControl += `<li${table.settings.currentPage == 0 ? ` class="disabled"` : ""}><a data-page="${(table.settings.currentPage - 1) }" class="espalier-table-button" href="javascript: void(0);"><span aria-hidden="true">&laquo;</span></a></li>`;
 
-    for (var i = startAtPage; i <= endAtPage; i++) {
+    for (let i = startAtPage; i <= endAtPage; i++) {
         pagingControl += `<li${i === table.settings.currentPage ? ` class="active"` : ""}><a data-page="${i}" class="espalier-table-button" href="javascript: void(0);">${(i + 1) }</a></li>`;
     }
 
-    var nextPage = (table.settings.currentPage + 1);
+    let nextPage = (table.settings.currentPage + 1);
     pagingControl += `<li${nextPage == table.settings.pages ? ` class="disabled"` : ""}><a data-page="${nextPage}" class="espalier-table-button" href="javascript: void(0);"><span aria-hidden="true">&raquo;</span></a></li>`;
 
     return `<tfoot><tr><td colspan="42">${pagingControl}</td></tr></tfoot>`;
 };
 
-var renderTable = function (table) {
-    var promise = new Promise(function (resolve, reject) {
-        var rendered = `<table class="${table.settings.tableClass} table table-striped">`;
+let renderTable = (table) => {
+    let promise = new Promise(function (resolve, reject) {
+        let rendered = `<table class="${table.settings.tableClass} table table-striped">`;
 
         if (table.settings.headerTemplate) {
             rendered += table.settings.headerTemplate();
         }
 
         rendered += "<tbody>";
-        var startAtIndex = table.settings.currentPage * table.settings.pageSize;
+        let startAtIndex = table.settings.currentPage * table.settings.pageSize;
 
         if (table.settings.data) {
             for (var i = startAtIndex; i < Math.min(startAtIndex + table.settings.pageSize, table.settings.data.length); i++) {
@@ -77,7 +77,7 @@ var renderTable = function (table) {
         });
 };
 
-class TableInstance {
+export default class Table {
     constructor(args) {
         this.settings = {
             container: undefined,
@@ -112,6 +112,14 @@ class TableInstance {
         }
 
         $.extend(this.settings, args);
+
+        let table = this;
+        
+        this.settings.container.on("click", ".espalier-table-button", function () {
+            table.goToPage($(this).data("page"));
+        });
+
+        renderTable(this);
     }
 
     next() {
@@ -142,17 +150,4 @@ class TableInstance {
         renderTable(this);
         return this;
     }
-};
-
-var tables = {
-    create: function (args) {
-        var table = new TableInstance(args);
-        table.settings.container.on("click", ".espalier-table-button", function () {
-            table.goToPage($(this).data("page"));
-        });
-        renderTable(table);
-        return table;
-    }
-};
-
-export default tables;
+}

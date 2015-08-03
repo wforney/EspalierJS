@@ -85,9 +85,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
 	
-	var _espalierTables = __webpack_require__(2);
+	var _espalierTable = __webpack_require__(15);
 	
-	var _espalierTables2 = _interopRequireDefault(_espalierTables);
+	var _espalierTable2 = _interopRequireDefault(_espalierTable);
 	
 	var _espalierDialog = __webpack_require__(12);
 	
@@ -105,7 +105,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    showWarning: _espalierCore2["default"].showWarning,
 	    showInfo: _espalierCore2["default"].showInfo,
 	    sendRequest: _espalierCore2["default"].sendRequest,
-	    table: _espalierTables2["default"].create,
+	    Table: _espalierTable2["default"],
 	    wire: _espalierForms2["default"],
 	    showWaitScreen: _espalierWaitscreen2["default"].show,
 	    hideWaitScreen: _espalierWaitscreen2["default"].hide,
@@ -118,7 +118,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    dialog: function dialog(args) {
 	        return (0, _espalierDialog2["default"])(args).show();
 	    },
-	    graph: _espalierGraph2["default"],
+	    Graph: _espalierGraph2["default"],
 	    GraphNode: _espalierGraphNode2["default"]
 	};
 	
@@ -126,204 +126,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 2 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var _espalierMessageFactory = __webpack_require__(3);
-	
-	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
-	
-	var _espalierWaitscreen = __webpack_require__(5);
-	
-	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
-	
-	var _espalierCommon = __webpack_require__(6);
-	
-	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
-	
-	var _espalierCore = __webpack_require__(4);
-	
-	var _espalierCore2 = _interopRequireDefault(_espalierCore);
-	
-	var getFooter = function getFooter(table) {
-	    var startAtPage = Math.max(0, table.settings.currentPage - 3);
-	    var endAtPage = Math.min(table.settings.pages - 1, table.settings.currentPage + 3 + Math.max(3 - table.settings.currentPage, 0));
-	    var pagingControl = "<ul class=\"pagination\">";
-	
-	    pagingControl += "<li" + (table.settings.currentPage == 0 ? " class=\"disabled\"" : "") + "><a data-page=\"" + (table.settings.currentPage - 1) + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&laquo;</span></a></li>";
-	
-	    for (var i = startAtPage; i <= endAtPage; i++) {
-	        pagingControl += "<li" + (i === table.settings.currentPage ? " class=\"active\"" : "") + "><a data-page=\"" + i + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\">" + (i + 1) + "</a></li>";
-	    }
-	
-	    var nextPage = table.settings.currentPage + 1;
-	    pagingControl += "<li" + (nextPage == table.settings.pages ? " class=\"disabled\"" : "") + "><a data-page=\"" + nextPage + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&raquo;</span></a></li>";
-	
-	    return "<tfoot><tr><td colspan=\"42\">" + pagingControl + "</td></tr></tfoot>";
-	};
-	
-	var renderTable = function renderTable(table) {
-	    var promise = new Promise(function (resolve, reject) {
-	        var rendered = "<table class=\"" + table.settings.tableClass + " table table-striped\">";
-	
-	        if (table.settings.headerTemplate) {
-	            rendered += table.settings.headerTemplate();
-	        }
-	
-	        rendered += "<tbody>";
-	        var startAtIndex = table.settings.currentPage * table.settings.pageSize;
-	
-	        if (table.settings.data) {
-	            for (var i = startAtIndex; i < Math.min(startAtIndex + table.settings.pageSize, table.settings.data.length); i++) {
-	                rendered += table.settings.rowTemplate(table.settings.data[i]);
-	            }
-	
-	            rendered += "</tbody>";
-	
-	            if (table.settings.pages > 0) {
-	                rendered += getFooter(table);
-	            }
-	            resolve(rendered);
-	        } else {
-	            _espalierCore2["default"].sendRequest({
-	                url: table.settings.fetchUrl,
-	                type: "POST",
-	                data: {
-	                    Page: table.settings.currentPage,
-	                    PageSize: table.settings.pageSize,
-	                    Criteria: table.settings.filter
-	                }
-	            }).then(function (result) {
-	                if (table.settings.fetchCallback) {
-	                    table.settings.fetchCallback(result);
-	                }
-	
-	                table.settings.pages = Math.ceil(result.data.total / result.data.pageSize);
-	                for (var i = 0; i < result.data.records.length; i++) {
-	                    rendered += table.settings.rowTemplate(result.data.records[i]);
-	                }
-	                rendered += "</tbody>";
-	                rendered += getFooter(table);
-	                resolve(rendered);
-	            });
-	        }
-	    });
-	
-	    promise.then(function (rendered) {
-	        table.settings.container.html(rendered);
-	
-	        if (table.settings.renderedCallback) {
-	            table.settings.renderedCallback(table.settings.container[0].getElementsByTagName("table")[0]);
-	        }
-	    });
-	};
-	
-	var TableInstance = (function () {
-	    function TableInstance(args) {
-	        _classCallCheck(this, TableInstance);
-	
-	        this.settings = {
-	            container: undefined,
-	            currentPage: 0,
-	            data: undefined,
-	            fetchCallback: undefined,
-	            fetchUrl: "",
-	            headerTemplate: undefined,
-	            pageSize: 10,
-	            prefetchPages: 5,
-	            rowTemplate: undefined,
-	            tableClass: "espalier-table",
-	            renderedCallback: undefined
-	        };
-	
-	        $.extend(this.settings, args);
-	
-	        if (!this.settings.fetchUrl && !this.settings.data) {
-	            throw new TypeError("You must either specify a fetch url or pass in data for the table to display.");
-	        }
-	
-	        if (!this.settings.container) {
-	            throw new TypeError("You must specify a container to place the table in.");
-	        }
-	
-	        if (!this.settings.rowTemplate) {
-	            throw new TypeError("You must provide a row template.");
-	        }
-	
-	        if (this.settings.data) {
-	            this.settings.pages = Math.ceil(this.settings.data.length / this.settings.pageSize);
-	        }
-	
-	        $.extend(this.settings, args);
-	    }
-	
-	    _createClass(TableInstance, [{
-	        key: "next",
-	        value: function next() {
-	            this.settings.currentPage++;
-	            renderTable(this);
-	            return this;
-	        }
-	    }, {
-	        key: "previous",
-	        value: function previous() {
-	            this.settings.currentPage--;
-	            renderTable(this);
-	            return this;
-	        }
-	    }, {
-	        key: "filter",
-	        value: function filter(_filter) {
-	            this.settings.filter = _filter;
-	            this.settings.currentPage = 0;
-	            renderTable(this);
-	            return this;
-	        }
-	    }, {
-	        key: "goToPage",
-	        value: function goToPage(page) {
-	            if (page < 0 || page >= this.settings.pages) {
-	                return;
-	            }
-	
-	            this.settings.currentPage = page;
-	            renderTable(this);
-	            return this;
-	        }
-	    }]);
-	
-	    return TableInstance;
-	})();
-	
-	;
-	
-	var tables = {
-	    create: function create(args) {
-	        var table = new TableInstance(args);
-	        table.settings.container.on("click", ".espalier-table-button", function () {
-	            table.goToPage($(this).data("page"));
-	        });
-	        renderTable(table);
-	        return table;
-	    }
-	};
-	
-	exports["default"] = tables;
-	module.exports = exports["default"];
-
-/***/ },
+/* 2 */,
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -549,7 +352,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	
 	var parseDate;
-	var testDate = new Date("2011-06-02T09:34:29+02:00");
+	var testDate = new Date('2011-06-02T09:34:29+02:00');
 	
 	if (!testDate || +testDate !== 1307000069000) {
 	    parseDate = function (s) {
@@ -568,7 +371,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            if (p[5]) {
 	                tz = parseInt(p[5], 10) * 60;
 	                if (p[6]) tz += parseInt(p[6], 10);
-	                if (p[4] == "+") tz *= -1;
+	                if (p[4] == '+') tz *= -1;
 	                if (tz) day.setUTCMinutes(day.getUTCMinutes() + tz);
 	            }
 	            return day;
@@ -732,7 +535,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            for (var key in obj) {
 	                if (obj.hasOwnProperty(key)) {
-	                    if (typeof obj[key] === "object") core.extend(out[key], obj[key]);else out[key] = obj[key];
+	                    if (typeof obj[key] === 'object') core.extend(out[key], obj[key]);else out[key] = obj[key];
 	                }
 	            }
 	        }
@@ -766,21 +569,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (el.classList) {
 	            el.classList.add(className);
 	        } else {
-	            el.className += " " + className;
+	            el.className += ' ' + className;
 	        }
 	    },
 	    removeClass: function removeClass(el, className) {
 	        if (el.classList) {
 	            el.classList.remove(className);
 	        } else {
-	            el.className = el.className.replace(new RegExp("(^|\\b)" + className.split(" ").join("|") + "(\\b|$)", "gi"), " ");
+	            el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
 	        }
 	    },
 	    addEventListener: function addEventListener(el, eventName, handler) {
 	        if (el.addEventListener) {
 	            el.addEventListener(eventName, handler);
 	        } else {
-	            el.attachEvent("on" + eventName, function () {
+	            el.attachEvent('on' + eventName, function () {
 	                handler.call(el);
 	            });
 	        }
@@ -799,7 +602,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	    },
 	    isString: function isString(toTest) {
-	        return typeof toTest === "string" || toTest instanceof String;
+	        return typeof toTest === 'string' || toTest instanceof String;
 	    },
 	    first: function first(array, match) {
 	        var _iteratorNormalCompletion = true;
@@ -868,7 +671,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var pleaseWait = $("<div />");
 	pleaseWait.attr("id", pleaseWaitId);
 	
-	var hourglass = "data:image/svg+xml;utf8," + "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"uil-gears\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"xMidYMid meet\" width=\"120px\" height=\"120px\">" + "  <rect class=\"bk\" fill=\"none\" x=\"0\" y=\"0\" width=\"100\" height=\"100\" />" + "  <g transform=\"translate(-20 -20)\">" + "    <path fill=\"#fafafa\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"0 50 50\" from=\"90 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "  <g transform=\"translate(20 20) rotate(15 50.0002 50)\">" + "    <path fill=\"#efefef\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"90 50 50\" from=\"0 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "</svg>";
+	var hourglass = 'data:image/svg+xml;utf8,' + "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"uil-gears\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"xMidYMid meet\" width=\"120px\" height=\"120px\">" + "  <rect class=\"bk\" fill=\"none\" x=\"0\" y=\"0\" width=\"100\" height=\"100\" />" + "  <g transform=\"translate(-20 -20)\">" + "    <path fill=\"#fafafa\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"0 50 50\" from=\"90 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "  <g transform=\"translate(20 20) rotate(15 50.0002 50)\">" + "    <path fill=\"#efefef\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"90 50 50\" from=\"0 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "</svg>";
 	var waitImage = $("<img />");
 	waitImage.attr("src", hourglass);
 	var inner = $("<div />");
@@ -1496,7 +1299,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            case "radio":
 	                group = _espalierCore2["default"].closest(control, ".radio-group");
 	
-	                var radios = _espalierCore2["default"].find("input[type=\"radio\"]", group);
+	                var radios = _espalierCore2["default"].find('input[type="radio"]', group);
 	                var dependents = new Map();
 	
 	                var _iteratorNormalCompletion = true;
@@ -1807,7 +1610,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -1834,13 +1637,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	var Required = (function (_Validation) {
+	    _inherits(Required, _Validation);
+	
 	    function Required(control) {
 	        _classCallCheck(this, Required);
 	
 	        _get(Object.getPrototypeOf(Required.prototype), "constructor", this).call(this, control);
 	    }
-	
-	    _inherits(Required, _Validation);
 	
 	    _createClass(Required, [{
 	        key: "isValid",
@@ -1858,13 +1661,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	})(Validation);
 	
 	var Email = (function (_Validation2) {
+	    _inherits(Email, _Validation2);
+	
 	    function Email(control) {
 	        _classCallCheck(this, Email);
 	
 	        _get(Object.getPrototypeOf(Email.prototype), "constructor", this).call(this, control);
 	    }
-	
-	    _inherits(Email, _Validation2);
 	
 	    _createClass(Email, [{
 	        key: "isValid",
@@ -1882,13 +1685,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	})(Validation);
 	
 	var Date = (function (_Validation3) {
+	    _inherits(Date, _Validation3);
+	
 	    function Date(control) {
 	        _classCallCheck(this, Date);
 	
 	        _get(Object.getPrototypeOf(Date.prototype), "constructor", this).call(this, control);
 	    }
-	
-	    _inherits(Date, _Validation3);
 	
 	    _createClass(Date, [{
 	        key: "isValid",
@@ -1906,6 +1709,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	})(Validation);
 	
 	var RequiredDependent = (function (_Validation4) {
+	    _inherits(RequiredDependent, _Validation4);
+	
 	    function RequiredDependent(control, whenVal, dependent) {
 	        _classCallCheck(this, RequiredDependent);
 	
@@ -1913,8 +1718,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.whenVal = whenVal;
 	        this.dependent = dependent;
 	    }
-	
-	    _inherits(RequiredDependent, _Validation4);
 	
 	    _createClass(RequiredDependent, [{
 	        key: "isValid",
@@ -2091,7 +1894,49 @@ return /******/ (function(modules) { // webpackBootstrap
 	    result: new Object(),
 	    currentStep: new Object(),
 	    steps: new Object(),
-	    transversed: new Object()
+	    transversed: new Object(),
+	    indexHeadNodes: new Object(),
+	    valueChanged: new Object()
+	};
+	
+	var setStepStates = function setStepStates(graph) {
+	    var headNodes = graph._internals.get(keys.indexHeadNodes);
+	    var node = graph._internals.get(keys.currentStep);
+	    var currentIndex = node.stepIndex;
+	    var steps = graph._internals.get(keys.steps);
+	
+	    for (var i = 0; i < steps.length; i++) {
+	        if (i < currentIndex) {
+	            steps[i].cssClass = "graph-step-completed";
+	            steps[i].status = "Completed";
+	            continue;
+	        }
+	
+	        if (i === currentIndex) {
+	            steps[i].cssClass = "graph-step-in-progress";
+	            steps[i].status = "In progress";
+	            continue;
+	        }
+	
+	        if (i > currentIndex) {
+	            steps[i].cssClass = "graph-step-not-started";
+	            steps[i].disabled = true;
+	            steps[i].status = "Not started";
+	            headNodes.set(i, false);
+	        }
+	    }
+	
+	    if (!headNodes.get(currentIndex)) {
+	        headNodes.set(currentIndex, node);
+	    }
+	
+	    node.renderIn(graph._internals.get(keys.container), graph._internals.get(keys.result), steps);
+	
+	    var valueChanged = graph._internals.get(keys.valueChanged);
+	
+	    if (valueChanged) {
+	        valueChanged(graph._internals.get(keys.result));
+	    }
 	};
 	
 	var Graph = (function () {
@@ -2107,44 +1952,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	            args.container = args.container[0];
 	        }
 	
+	        var headNodes = new Map();
+	
 	        this._internals.set(keys.container, args.container);
 	        this._internals.set(keys.result, _espalierCore2["default"].extend(args["default"], {}));
 	        this._internals.set(keys.currentStep, args.head);
 	        this._internals.set(keys.steps, args.steps);
+	        this._internals.set(keys.valueChanged, args.valueChanged);
 	        this._internals.set(keys.transversed, []);
+	        this._internals.set(keys.indexHeadNodes, headNodes);
 	
-	        var _iteratorNormalCompletion = true;
-	        var _didIteratorError = false;
-	        var _iteratorError = undefined;
-	
-	        try {
-	            for (var _iterator = args.steps[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                var step = _step.value;
-	
-	                step.cssClass = "graph-step-not-started";
-	                step.disabled = true;
-	                step.status = "Not started";
-	            }
-	        } catch (err) {
-	            _didIteratorError = true;
-	            _iteratorError = err;
-	        } finally {
-	            try {
-	                if (!_iteratorNormalCompletion && _iterator["return"]) {
-	                    _iterator["return"]();
-	                }
-	            } finally {
-	                if (_didIteratorError) {
-	                    throw _iteratorError;
-	                }
-	            }
+	        for (var i = 0; i < args.steps.length; i++) {
+	            args.steps[i].index = i;
+	            headNodes.set(i, false);
 	        }
 	
-	        args.steps[0].cssClass = "graph-step-in-progress";
-	        args.steps[0].disabled = false;
-	        args.steps[0].status = "In progress";
-	
-	        this._internals.get(keys.currentStep).renderIn(this._internals.get(keys.container), this._internals.get(keys.result), args.steps);
+	        headNodes.set(0, args.head);
+	        this.goto(0);
 	
 	        _espalierCore2["default"].addEventListener(this._internals.get(keys.container), "click", function (e) {
 	            var event = e.target.getAttribute("data-graph-event");
@@ -2156,6 +1980,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                case "back":
 	                    _this.previous();
 	                    return;
+	                case "goto":
+	                    var index = e.target.getAttribute("data-graph-index");
+	                    _this.goto(Number(index));
+	                    return;
 	            }
 	        });
 	    }
@@ -2163,23 +1991,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _createClass(Graph, [{
 	        key: "goto",
 	        value: function goto(index) {
-	            throw new Error("not implemented yet...");
-	            //         let transversed = this._internals.get(keys.transversed);
-	            //
-	            //         if (index === this.currentIndex) {
-	            //             return;
-	            //         }
-	            //
-	            //         if (index > this.currentIndex) {
-	            //             throw new Error("Use the next method to move forward in the wizard.");
-	            //         }
-	            //
-	            //         for (let i = this.currentIndex; i >= index; i--) {
-	            //            
-	            //         }
-	            //
-	            //         this.currentIndex = index;
-	            //         this.steps[this.currentIndex].renderIn(this._internals.get("container"), this._internals.get(keys.result));
+	            var headNodes = this._internals.get(keys.indexHeadNodes);
+	            var nodeToGoTo = headNodes.get(index);
+	            var transversed = this._internals.get(keys.transversed);
+	            var result = this._internals.get(keys.result);
+	
+	            if (transversed.length > 0) {
+	                var poppedNode = undefined;
+	
+	                do {
+	                    poppedNode = transversed.pop();
+	                    delete result[poppedNode.propertyName];
+	                } while (poppedNode !== nodeToGoTo);
+	            }
+	
+	            this._internals.set(keys.currentStep, nodeToGoTo);
+	            setStepStates(this);
 	        }
 	    }, {
 	        key: "next",
@@ -2191,58 +2018,33 @@ return /******/ (function(modules) { // webpackBootstrap
 	                return;
 	            }
 	
-	            var transversed = this._internals.get(keys.transversed);
-	            _espalierCore2["default"].setProperty(this._internals.get(keys.result), step.propertyName, value);
 	            var nextStep = step.next();
-	            transversed.push(step);
-	            this._internals.set(keys.currentStep, nextStep);
 	
-	            var steps = this._internals.get(keys.steps);
-	            var lastStepIndex = step.stepIndex;
-	            var newStepIndex = nextStep.stepIndex;
-	
-	            if (lastStepIndex !== newStepIndex) {
-	                steps[lastStepIndex].cssClass = "graph-step-completed";
-	                steps[lastStepIndex].status = "Completed";
-	                steps[newStepIndex].cssClass = "graph-step-in-progress";
-	                steps[newStepIndex].disabled = false;
-	                steps[newStepIndex].status = "In progress";
+	            if (step.stepIndex > nextStep.stepIndex) {
+	                throw new Error("Invalid step index. It must be equal to or greater than the last step's index.");
 	            }
 	
-	            nextStep.renderIn(this._internals.get(keys.container), this._internals.get(keys.result), steps);
+	            var transversed = this._internals.get(keys.transversed);
+	            transversed.push(step);
+	            _espalierCore2["default"].setProperty(this._internals.get(keys.result), step.propertyName, value);
+	            this._internals.set(keys.currentStep, nextStep);
+	            setStepStates(this);
 	        }
 	    }, {
 	        key: "previous",
 	        value: function previous() {
 	            var transversed = this._internals.get(keys.transversed);
 	            var lastNode = transversed.pop();
-	            var currentNode = this._internals.get(keys.currentStep);
-	            _espalierCore2["default"].setProperty(this._internals.get(keys.result), currentNode.propertyName, null);
+	            delete this._internals.get(keys.result)[lastNode.propertyName];
 	            this._internals.set(keys.currentStep, lastNode);
-	
-	            var steps = this._internals.get(keys.steps);
-	            var lastStepIndex = currentNode.stepIndex;
-	            var newStepIndex = lastNode.stepIndex;
-	
-	            if (lastStepIndex !== newStepIndex) {
-	                steps[lastStepIndex].cssClass = "graph-step-not-started";
-	                steps[lastStepIndex].disabled = true;
-	                steps[lastStepIndex].status = "Not started";
-	                steps[newStepIndex].cssClass = "graph-step-in-progress";
-	                steps[newStepIndex].status = "In progress";
-	            }
-	
-	            lastNode.renderIn(this._internals.get(keys.container), this._internals.get(keys.result), steps);
+	            setStepStates(this);
 	        }
 	    }]);
 	
 	    return Graph;
 	})();
 	
-	exports["default"] = function (args) {
-	    return new Graph(args);
-	};
-	
+	exports["default"] = Graph;
 	module.exports = exports["default"];
 
 /***/ },
@@ -2282,6 +2084,199 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	exports["default"] = GraphNode;
+	module.exports = exports["default"];
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var _espalierMessageFactory = __webpack_require__(3);
+	
+	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
+	
+	var _espalierWaitscreen = __webpack_require__(5);
+	
+	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
+	
+	var _espalierCommon = __webpack_require__(6);
+	
+	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
+	
+	var _espalierCore = __webpack_require__(4);
+	
+	var _espalierCore2 = _interopRequireDefault(_espalierCore);
+	
+	var getFooter = function getFooter(table) {
+	    var startAtPage = Math.max(0, table.settings.currentPage - 3);
+	    var endAtPage = Math.min(table.settings.pages - 1, table.settings.currentPage + 3 + Math.max(3 - table.settings.currentPage, 0));
+	    var pagingControl = "<ul class=\"pagination\">";
+	
+	    pagingControl += "<li" + (table.settings.currentPage == 0 ? " class=\"disabled\"" : "") + "><a data-page=\"" + (table.settings.currentPage - 1) + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&laquo;</span></a></li>";
+	
+	    for (var i = startAtPage; i <= endAtPage; i++) {
+	        pagingControl += "<li" + (i === table.settings.currentPage ? " class=\"active\"" : "") + "><a data-page=\"" + i + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\">" + (i + 1) + "</a></li>";
+	    }
+	
+	    var nextPage = table.settings.currentPage + 1;
+	    pagingControl += "<li" + (nextPage == table.settings.pages ? " class=\"disabled\"" : "") + "><a data-page=\"" + nextPage + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&raquo;</span></a></li>";
+	
+	    return "<tfoot><tr><td colspan=\"42\">" + pagingControl + "</td></tr></tfoot>";
+	};
+	
+	var renderTable = function renderTable(table) {
+	    var promise = new Promise(function (resolve, reject) {
+	        var rendered = "<table class=\"" + table.settings.tableClass + " table table-striped\">";
+	
+	        if (table.settings.headerTemplate) {
+	            rendered += table.settings.headerTemplate();
+	        }
+	
+	        rendered += "<tbody>";
+	        var startAtIndex = table.settings.currentPage * table.settings.pageSize;
+	
+	        if (table.settings.data) {
+	            for (var i = startAtIndex; i < Math.min(startAtIndex + table.settings.pageSize, table.settings.data.length); i++) {
+	                rendered += table.settings.rowTemplate(table.settings.data[i]);
+	            }
+	
+	            rendered += "</tbody>";
+	
+	            if (table.settings.pages > 0) {
+	                rendered += getFooter(table);
+	            }
+	            resolve(rendered);
+	        } else {
+	            _espalierCore2["default"].sendRequest({
+	                url: table.settings.fetchUrl,
+	                type: "POST",
+	                data: {
+	                    Page: table.settings.currentPage,
+	                    PageSize: table.settings.pageSize,
+	                    Criteria: table.settings.filter
+	                }
+	            }).then(function (result) {
+	                if (table.settings.fetchCallback) {
+	                    table.settings.fetchCallback(result);
+	                }
+	
+	                table.settings.pages = Math.ceil(result.data.total / result.data.pageSize);
+	                for (var i = 0; i < result.data.records.length; i++) {
+	                    rendered += table.settings.rowTemplate(result.data.records[i]);
+	                }
+	                rendered += "</tbody>";
+	                rendered += getFooter(table);
+	                resolve(rendered);
+	            });
+	        }
+	    });
+	
+	    promise.then(function (rendered) {
+	        table.settings.container.html(rendered);
+	
+	        if (table.settings.renderedCallback) {
+	            table.settings.renderedCallback(table.settings.container[0].getElementsByTagName("table")[0]);
+	        }
+	    });
+	};
+	
+	var Table = (function () {
+	    function Table(args) {
+	        _classCallCheck(this, Table);
+	
+	        this.settings = {
+	            container: undefined,
+	            currentPage: 0,
+	            data: undefined,
+	            fetchCallback: undefined,
+	            fetchUrl: "",
+	            headerTemplate: undefined,
+	            pageSize: 10,
+	            prefetchPages: 5,
+	            rowTemplate: undefined,
+	            tableClass: "espalier-table",
+	            renderedCallback: undefined
+	        };
+	
+	        $.extend(this.settings, args);
+	
+	        if (!this.settings.fetchUrl && !this.settings.data) {
+	            throw new TypeError("You must either specify a fetch url or pass in data for the table to display.");
+	        }
+	
+	        if (!this.settings.container) {
+	            throw new TypeError("You must specify a container to place the table in.");
+	        }
+	
+	        if (!this.settings.rowTemplate) {
+	            throw new TypeError("You must provide a row template.");
+	        }
+	
+	        if (this.settings.data) {
+	            this.settings.pages = Math.ceil(this.settings.data.length / this.settings.pageSize);
+	        }
+	
+	        $.extend(this.settings, args);
+	
+	        var table = this;
+	
+	        this.settings.container.on("click", ".espalier-table-button", function () {
+	            table.goToPage($(this).data("page"));
+	        });
+	
+	        renderTable(this);
+	    }
+	
+	    _createClass(Table, [{
+	        key: "next",
+	        value: function next() {
+	            this.settings.currentPage++;
+	            renderTable(this);
+	            return this;
+	        }
+	    }, {
+	        key: "previous",
+	        value: function previous() {
+	            this.settings.currentPage--;
+	            renderTable(this);
+	            return this;
+	        }
+	    }, {
+	        key: "filter",
+	        value: function filter(_filter) {
+	            this.settings.filter = _filter;
+	            this.settings.currentPage = 0;
+	            renderTable(this);
+	            return this;
+	        }
+	    }, {
+	        key: "goToPage",
+	        value: function goToPage(page) {
+	            if (page < 0 || page >= this.settings.pages) {
+	                return;
+	            }
+	
+	            this.settings.currentPage = page;
+	            renderTable(this);
+	            return this;
+	        }
+	    }]);
+	
+	    return Table;
+	})();
+	
+	exports["default"] = Table;
 	module.exports = exports["default"];
 
 /***/ }

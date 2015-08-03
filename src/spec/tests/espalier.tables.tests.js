@@ -1,7 +1,3 @@
-/// <reference path="../../../typings/jquery/jquery.d.ts"/>
-/// <reference path="../../../typings/jasmine/jasmine.d.ts"/>
-/// <reference path="../../../typings/jasmine-jquery/jasmine-jquery.d.ts"/>
-/// <reference path="../../../typings/handlebars/handlebars.d.ts" />
 describe("Espalier tables", function () {
 	var tables;
 

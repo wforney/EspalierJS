@@ -5,10 +5,52 @@ let keys = {
     result: new Object(),
     currentStep: new Object(),
     steps: new Object(),
-    transversed: new Object()
+    transversed: new Object(),
+    indexHeadNodes: new Object(),
+    valueChanged: new Object()
 }
 
-class Graph {
+let setStepStates = (graph) => {
+    let headNodes = graph._internals.get(keys.indexHeadNodes);
+    let node = graph._internals.get(keys.currentStep);
+    let currentIndex = node.stepIndex;
+    let steps = graph._internals.get(keys.steps);
+
+    for (let i = 0; i < steps.length; i++) {
+        if (i < currentIndex) {
+            steps[i].cssClass = "graph-step-completed";
+            steps[i].status = "Completed";
+            continue;
+        }
+
+        if (i === currentIndex) {
+            steps[i].cssClass = "graph-step-in-progress";
+            steps[i].status = "In progress";
+            continue;
+        }
+
+        if (i > currentIndex) {
+            steps[i].cssClass = "graph-step-not-started";
+            steps[i].disabled = true;
+            steps[i].status = "Not started";
+            headNodes.set(i, false);
+        }
+    }
+
+    if (!headNodes.get(currentIndex)) {
+        headNodes.set(currentIndex, node);
+    }
+
+    node.renderIn(graph._internals.get(keys.container), graph._internals.get(keys.result), steps);
+
+    let valueChanged = graph._internals.get(keys.valueChanged);
+
+    if (valueChanged) {
+        valueChanged(graph._internals.get(keys.result));
+    }
+}
+
+export default class Graph {
     constructor(args) {
         this._internals = new WeakMap();
 
@@ -17,23 +59,23 @@ class Graph {
             args.container = args.container[0];
         }
 
+        let headNodes = new Map();
+
         this._internals.set(keys.container, args.container);
         this._internals.set(keys.result, core.extend(args.default, {}));
         this._internals.set(keys.currentStep, args.head);
         this._internals.set(keys.steps, args.steps);
+        this._internals.set(keys.valueChanged, args.valueChanged);
         this._internals.set(keys.transversed, []);
+        this._internals.set(keys.indexHeadNodes, headNodes);
 
-        for (let step of args.steps) {
-            step.cssClass = "graph-step-not-started";
-            step.disabled = true;
-            step.status = "Not started";
+        for (let i = 0; i < args.steps.length; i++) {
+            args.steps[i].index = i;
+            headNodes.set(i, false);
         }
 
-        args.steps[0].cssClass = "graph-step-in-progress";
-        args.steps[0].disabled = false;
-        args.steps[0].status = "In progress";
-
-        this._internals.get(keys.currentStep).renderIn(this._internals.get(keys.container), this._internals.get(keys.result), args.steps);
+        headNodes.set(0, args.head);
+        this.goto(0);
 
         core.addEventListener(this._internals.get(keys.container), "click", (e) => {
             let event = e.target.getAttribute("data-graph-event");
@@ -45,28 +87,31 @@ class Graph {
                 case "back":
                     this.previous();
                     return;
+                case "goto":
+                    var index = e.target.getAttribute("data-graph-index");
+                    this.goto(Number(index));
+                    return;
             }
         })
     }
 
     goto(index) {
-        throw new Error("not implemented yet...");
-        //         let transversed = this._internals.get(keys.transversed);
-        // 
-        //         if (index === this.currentIndex) {
-        //             return;
-        //         }
-        // 
-        //         if (index > this.currentIndex) {
-        //             throw new Error("Use the next method to move forward in the wizard.");
-        //         }
-        // 
-        //         for (let i = this.currentIndex; i >= index; i--) {
-        //             
-        //         }
-        // 
-        //         this.currentIndex = index;
-        //         this.steps[this.currentIndex].renderIn(this._internals.get("container"), this._internals.get(keys.result));
+        let headNodes = this._internals.get(keys.indexHeadNodes);
+        let nodeToGoTo = headNodes.get(index);
+        let transversed = this._internals.get(keys.transversed);
+        let result = this._internals.get(keys.result);
+
+        if (transversed.length > 0) {
+            let poppedNode;
+
+            do {
+                poppedNode = transversed.pop();
+                delete result[poppedNode.propertyName];
+            } while (poppedNode !== nodeToGoTo);
+        }
+
+        this._internals.set(keys.currentStep, nodeToGoTo);
+        setStepStates(this);
     }
 
     next() {
@@ -77,50 +122,24 @@ class Graph {
             return;
         }
 
-        let transversed = this._internals.get(keys.transversed);
-        core.setProperty(this._internals.get(keys.result), step.propertyName, value);
         let nextStep = step.next();
-        transversed.push(step);
-        this._internals.set(keys.currentStep, nextStep);
 
-        let steps = this._internals.get(keys.steps)
-        let lastStepIndex = step.stepIndex;
-        let newStepIndex = nextStep.stepIndex;
-
-        if (lastStepIndex !== newStepIndex) {
-            steps[lastStepIndex].cssClass = "graph-step-completed";
-            steps[lastStepIndex].status = "Completed";
-            steps[newStepIndex].cssClass = "graph-step-in-progress";
-            steps[newStepIndex].disabled = false;
-            steps[newStepIndex].status = "In progress";
+        if (step.stepIndex > nextStep.stepIndex) {
+            throw new Error("Invalid step index. It must be equal to or greater than the last step's index.")
         }
 
-        nextStep.renderIn(this._internals.get(keys.container), this._internals.get(keys.result), steps);
+        let transversed = this._internals.get(keys.transversed);
+        transversed.push(step);
+        core.setProperty(this._internals.get(keys.result), step.propertyName, value);
+        this._internals.set(keys.currentStep, nextStep);
+        setStepStates(this);
     }
 
     previous() {
         let transversed = this._internals.get(keys.transversed);
         let lastNode = transversed.pop();
-        let currentNode = this._internals.get(keys.currentStep);
-        core.setProperty(this._internals.get(keys.result), currentNode.propertyName, null);
+        delete this._internals.get(keys.result)[lastNode.propertyName];
         this._internals.set(keys.currentStep, lastNode);
-
-        let steps = this._internals.get(keys.steps)
-        let lastStepIndex = currentNode.stepIndex;
-        let newStepIndex = lastNode.stepIndex;
-
-        if (lastStepIndex !== newStepIndex) {
-            steps[lastStepIndex].cssClass = "graph-step-not-started";
-            steps[lastStepIndex].disabled = true;
-            steps[lastStepIndex].status = "Not started";
-            steps[newStepIndex].cssClass = "graph-step-in-progress";
-            steps[newStepIndex].status = "In progress";
-        }
-
-        lastNode.renderIn(this._internals.get(keys.container), this._internals.get(keys.result), steps);
+        setStepStates(this);
     }
-}
-
-export default function (args) {
-    return new Graph(args);
 }

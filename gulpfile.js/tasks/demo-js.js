@@ -14,11 +14,13 @@ gulp.task("demo:js", function(callback) {
     plugins: [],
     devtool: "#inline-source-map",
     resolve: {
-      extensions: ["", ".js"]
+      extensions: ["", ".js", ".hbs"]
     },
     module: {
       loaders: [
+        { test: /\.hbs/, loader: "handlebars-loader" },
         {
+          test: /\.js/,
           loader: "babel-loader?stage=1",
           exclude: "/node_modules/"
         }
