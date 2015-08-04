@@ -17,6 +17,8 @@ let setStepStates = (graph) => {
     let steps = graph._internals.get(keys.steps);
 
     for (let i = 0; i < steps.length; i++) {
+        steps[i].disabled = false;
+
         if (i < currentIndex) {
             steps[i].cssClass = "graph-step-completed";
             steps[i].status = "Completed";
@@ -78,19 +80,25 @@ export default class Graph {
         this.goto(0);
 
         core.addEventListener(this._internals.get(keys.container), "click", (e) => {
-            let event = e.target.getAttribute("data-graph-event");
+            let target = e.target;
 
-            switch (event) {
-                case "next":
-                    this.next();
-                    return;
-                case "back":
-                    this.previous();
-                    return;
-                case "goto":
-                    var index = e.target.getAttribute("data-graph-index");
-                    this.goto(Number(index));
-                    return;
+            while (target != args.container) {
+                let event = target.getAttribute("data-graph-event");
+
+                switch (event) {
+                    case "next":
+                        this.next();
+                        return;
+                    case "back":
+                        this.previous();
+                        return;
+                    case "goto":
+                        var index = target.getAttribute("data-graph-index");
+                        this.goto(Number(index));
+                        return;
+                }
+
+                target = target.parentNode;
             }
         })
     }
