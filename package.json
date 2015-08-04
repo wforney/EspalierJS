@@ -30,6 +30,7 @@
     "object-assign": "^3.0.0",
     "pubsub-js": "^1.5.2",
     "require-dir": "^0.3.0",
+    "run-sequence": "^1.1.2",
     "velocity-animate": "^1.2.2",
     "webpack": "^1.10.0"
   },

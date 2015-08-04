@@ -85,7 +85,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
 	
-	var _espalierTable = __webpack_require__(15);
+	var _espalierTable = __webpack_require__(2);
 	
 	var _espalierTable2 = _interopRequireDefault(_espalierTable);
 	
@@ -126,7 +126,199 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 2 */,
+/* 2 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var _espalierMessageFactory = __webpack_require__(3);
+	
+	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
+	
+	var _espalierWaitscreen = __webpack_require__(5);
+	
+	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
+	
+	var _espalierCommon = __webpack_require__(6);
+	
+	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
+	
+	var _espalierCore = __webpack_require__(4);
+	
+	var _espalierCore2 = _interopRequireDefault(_espalierCore);
+	
+	var getFooter = function getFooter(table) {
+	    var startAtPage = Math.max(0, table.settings.currentPage - 3);
+	    var endAtPage = Math.min(table.settings.pages - 1, table.settings.currentPage + 3 + Math.max(3 - table.settings.currentPage, 0));
+	    var pagingControl = "<ul class=\"pagination\">";
+	
+	    pagingControl += "<li" + (table.settings.currentPage == 0 ? " class=\"disabled\"" : "") + "><a data-page=\"" + (table.settings.currentPage - 1) + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&laquo;</span></a></li>";
+	
+	    for (var i = startAtPage; i <= endAtPage; i++) {
+	        pagingControl += "<li" + (i === table.settings.currentPage ? " class=\"active\"" : "") + "><a data-page=\"" + i + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\">" + (i + 1) + "</a></li>";
+	    }
+	
+	    var nextPage = table.settings.currentPage + 1;
+	    pagingControl += "<li" + (nextPage == table.settings.pages ? " class=\"disabled\"" : "") + "><a data-page=\"" + nextPage + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&raquo;</span></a></li>";
+	
+	    return "<tfoot><tr><td colspan=\"42\">" + pagingControl + "</td></tr></tfoot>";
+	};
+	
+	var renderTable = function renderTable(table) {
+	    var promise = new Promise(function (resolve, reject) {
+	        var rendered = "<table class=\"" + table.settings.tableClass + " table table-striped\">";
+	
+	        if (table.settings.headerTemplate) {
+	            rendered += table.settings.headerTemplate();
+	        }
+	
+	        rendered += "<tbody>";
+	        var startAtIndex = table.settings.currentPage * table.settings.pageSize;
+	
+	        if (table.settings.data) {
+	            for (var i = startAtIndex; i < Math.min(startAtIndex + table.settings.pageSize, table.settings.data.length); i++) {
+	                rendered += table.settings.rowTemplate(table.settings.data[i]);
+	            }
+	
+	            rendered += "</tbody>";
+	
+	            if (table.settings.pages > 0) {
+	                rendered += getFooter(table);
+	            }
+	            resolve(rendered);
+	        } else {
+	            _espalierCore2["default"].sendRequest({
+	                url: table.settings.fetchUrl,
+	                type: "POST",
+	                data: {
+	                    Page: table.settings.currentPage,
+	                    PageSize: table.settings.pageSize,
+	                    Criteria: table.settings.filter
+	                }
+	            }).then(function (result) {
+	                if (table.settings.fetchCallback) {
+	                    table.settings.fetchCallback(result);
+	                }
+	
+	                table.settings.pages = Math.ceil(result.data.total / result.data.pageSize);
+	                for (var i = 0; i < result.data.records.length; i++) {
+	                    rendered += table.settings.rowTemplate(result.data.records[i]);
+	                }
+	                rendered += "</tbody>";
+	                rendered += getFooter(table);
+	                resolve(rendered);
+	            });
+	        }
+	    });
+	
+	    promise.then(function (rendered) {
+	        table.settings.container.html(rendered);
+	
+	        if (table.settings.renderedCallback) {
+	            table.settings.renderedCallback(table.settings.container[0].getElementsByTagName("table")[0]);
+	        }
+	    });
+	};
+	
+	var Table = (function () {
+	    function Table(args) {
+	        _classCallCheck(this, Table);
+	
+	        this.settings = {
+	            container: undefined,
+	            currentPage: 0,
+	            data: undefined,
+	            fetchCallback: undefined,
+	            fetchUrl: "",
+	            headerTemplate: undefined,
+	            pageSize: 10,
+	            prefetchPages: 5,
+	            rowTemplate: undefined,
+	            tableClass: "espalier-table",
+	            renderedCallback: undefined
+	        };
+	
+	        $.extend(this.settings, args);
+	
+	        if (!this.settings.fetchUrl && !this.settings.data) {
+	            throw new TypeError("You must either specify a fetch url or pass in data for the table to display.");
+	        }
+	
+	        if (!this.settings.container) {
+	            throw new TypeError("You must specify a container to place the table in.");
+	        }
+	
+	        if (!this.settings.rowTemplate) {
+	            throw new TypeError("You must provide a row template.");
+	        }
+	
+	        if (this.settings.data) {
+	            this.settings.pages = Math.ceil(this.settings.data.length / this.settings.pageSize);
+	        }
+	
+	        $.extend(this.settings, args);
+	
+	        var table = this;
+	
+	        this.settings.container.on("click", ".espalier-table-button", function () {
+	            table.goToPage($(this).data("page"));
+	        });
+	
+	        renderTable(this);
+	    }
+	
+	    _createClass(Table, [{
+	        key: "next",
+	        value: function next() {
+	            this.settings.currentPage++;
+	            renderTable(this);
+	            return this;
+	        }
+	    }, {
+	        key: "previous",
+	        value: function previous() {
+	            this.settings.currentPage--;
+	            renderTable(this);
+	            return this;
+	        }
+	    }, {
+	        key: "filter",
+	        value: function filter(_filter) {
+	            this.settings.filter = _filter;
+	            this.settings.currentPage = 0;
+	            renderTable(this);
+	            return this;
+	        }
+	    }, {
+	        key: "goToPage",
+	        value: function goToPage(page) {
+	            if (page < 0 || page >= this.settings.pages) {
+	                return;
+	            }
+	
+	            this.settings.currentPage = page;
+	            renderTable(this);
+	            return this;
+	        }
+	    }]);
+	
+	    return Table;
+	})();
+	
+	exports["default"] = Table;
+	module.exports = exports["default"];
+
+/***/ },
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -2084,199 +2276,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 	
 	exports["default"] = GraphNode;
-	module.exports = exports["default"];
-
-/***/ },
-/* 15 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var _espalierMessageFactory = __webpack_require__(3);
-	
-	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
-	
-	var _espalierWaitscreen = __webpack_require__(5);
-	
-	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
-	
-	var _espalierCommon = __webpack_require__(6);
-	
-	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
-	
-	var _espalierCore = __webpack_require__(4);
-	
-	var _espalierCore2 = _interopRequireDefault(_espalierCore);
-	
-	var getFooter = function getFooter(table) {
-	    var startAtPage = Math.max(0, table.settings.currentPage - 3);
-	    var endAtPage = Math.min(table.settings.pages - 1, table.settings.currentPage + 3 + Math.max(3 - table.settings.currentPage, 0));
-	    var pagingControl = "<ul class=\"pagination\">";
-	
-	    pagingControl += "<li" + (table.settings.currentPage == 0 ? " class=\"disabled\"" : "") + "><a data-page=\"" + (table.settings.currentPage - 1) + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&laquo;</span></a></li>";
-	
-	    for (var i = startAtPage; i <= endAtPage; i++) {
-	        pagingControl += "<li" + (i === table.settings.currentPage ? " class=\"active\"" : "") + "><a data-page=\"" + i + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\">" + (i + 1) + "</a></li>";
-	    }
-	
-	    var nextPage = table.settings.currentPage + 1;
-	    pagingControl += "<li" + (nextPage == table.settings.pages ? " class=\"disabled\"" : "") + "><a data-page=\"" + nextPage + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&raquo;</span></a></li>";
-	
-	    return "<tfoot><tr><td colspan=\"42\">" + pagingControl + "</td></tr></tfoot>";
-	};
-	
-	var renderTable = function renderTable(table) {
-	    var promise = new Promise(function (resolve, reject) {
-	        var rendered = "<table class=\"" + table.settings.tableClass + " table table-striped\">";
-	
-	        if (table.settings.headerTemplate) {
-	            rendered += table.settings.headerTemplate();
-	        }
-	
-	        rendered += "<tbody>";
-	        var startAtIndex = table.settings.currentPage * table.settings.pageSize;
-	
-	        if (table.settings.data) {
-	            for (var i = startAtIndex; i < Math.min(startAtIndex + table.settings.pageSize, table.settings.data.length); i++) {
-	                rendered += table.settings.rowTemplate(table.settings.data[i]);
-	            }
-	
-	            rendered += "</tbody>";
-	
-	            if (table.settings.pages > 0) {
-	                rendered += getFooter(table);
-	            }
-	            resolve(rendered);
-	        } else {
-	            _espalierCore2["default"].sendRequest({
-	                url: table.settings.fetchUrl,
-	                type: "POST",
-	                data: {
-	                    Page: table.settings.currentPage,
-	                    PageSize: table.settings.pageSize,
-	                    Criteria: table.settings.filter
-	                }
-	            }).then(function (result) {
-	                if (table.settings.fetchCallback) {
-	                    table.settings.fetchCallback(result);
-	                }
-	
-	                table.settings.pages = Math.ceil(result.data.total / result.data.pageSize);
-	                for (var i = 0; i < result.data.records.length; i++) {
-	                    rendered += table.settings.rowTemplate(result.data.records[i]);
-	                }
-	                rendered += "</tbody>";
-	                rendered += getFooter(table);
-	                resolve(rendered);
-	            });
-	        }
-	    });
-	
-	    promise.then(function (rendered) {
-	        table.settings.container.html(rendered);
-	
-	        if (table.settings.renderedCallback) {
-	            table.settings.renderedCallback(table.settings.container[0].getElementsByTagName("table")[0]);
-	        }
-	    });
-	};
-	
-	var Table = (function () {
-	    function Table(args) {
-	        _classCallCheck(this, Table);
-	
-	        this.settings = {
-	            container: undefined,
-	            currentPage: 0,
-	            data: undefined,
-	            fetchCallback: undefined,
-	            fetchUrl: "",
-	            headerTemplate: undefined,
-	            pageSize: 10,
-	            prefetchPages: 5,
-	            rowTemplate: undefined,
-	            tableClass: "espalier-table",
-	            renderedCallback: undefined
-	        };
-	
-	        $.extend(this.settings, args);
-	
-	        if (!this.settings.fetchUrl && !this.settings.data) {
-	            throw new TypeError("You must either specify a fetch url or pass in data for the table to display.");
-	        }
-	
-	        if (!this.settings.container) {
-	            throw new TypeError("You must specify a container to place the table in.");
-	        }
-	
-	        if (!this.settings.rowTemplate) {
-	            throw new TypeError("You must provide a row template.");
-	        }
-	
-	        if (this.settings.data) {
-	            this.settings.pages = Math.ceil(this.settings.data.length / this.settings.pageSize);
-	        }
-	
-	        $.extend(this.settings, args);
-	
-	        var table = this;
-	
-	        this.settings.container.on("click", ".espalier-table-button", function () {
-	            table.goToPage($(this).data("page"));
-	        });
-	
-	        renderTable(this);
-	    }
-	
-	    _createClass(Table, [{
-	        key: "next",
-	        value: function next() {
-	            this.settings.currentPage++;
-	            renderTable(this);
-	            return this;
-	        }
-	    }, {
-	        key: "previous",
-	        value: function previous() {
-	            this.settings.currentPage--;
-	            renderTable(this);
-	            return this;
-	        }
-	    }, {
-	        key: "filter",
-	        value: function filter(_filter) {
-	            this.settings.filter = _filter;
-	            this.settings.currentPage = 0;
-	            renderTable(this);
-	            return this;
-	        }
-	    }, {
-	        key: "goToPage",
-	        value: function goToPage(page) {
-	            if (page < 0 || page >= this.settings.pages) {
-	                return;
-	            }
-	
-	            this.settings.currentPage = page;
-	            renderTable(this);
-	            return this;
-	        }
-	    }]);
-	
-	    return Table;
-	})();
-	
-	exports["default"] = Table;
 	module.exports = exports["default"];
 
 /***/ }
