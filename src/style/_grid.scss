@@ -1,0 +1,123 @@
+@import "variables";
+
+.row {
+    display: block;
+    clear: both;
+}
+
+.column {
+    box-sizing: border-box;
+    display: inline-block;
+}
+
+@mixin grid($suffix){
+    .hide-#{$suffix} {
+        display: none;
+    }
+    
+    .one-half-#{$suffix} {
+        @extend .column;
+        width: (1/2) * 100%;
+    }
+    
+    .one-third-#{$suffix} {
+        @extend .column;
+        width: (1/3) * 100%;
+    }
+    
+    .two-thirds-#{$suffix} {
+        @extend .column;
+        width: (2/3) * 100%;
+    }
+
+    .one-quarter-#{$suffix} {
+        @extend .column;
+        width: (1/4) * 100%;
+    }
+    
+    .two-quarters-#{$suffix} {
+        @extend .column;
+        width: (2/4) * 100%;
+    }
+    
+    .three-quarters-#{$suffix} {
+        @extend .column;
+        width: (3/4) * 100%;
+    }
+    
+    .one-fifth-#{$suffix} {
+        @extend .column;
+        width: (1/5) * 100%;
+    }
+    
+    .two-fifths-#{$suffix} {
+        @extend .column;
+        width: (2/5) * 100%;
+    }
+    
+    .three-fifths-#{$suffix} {
+        @extend .column;
+        width: (3/5) * 100%;
+    }
+    
+    .four-fifths-#{$suffix} {
+        @extend .column;
+        width: (4/5) * 100%;
+    }
+    
+    .push-one-half-#{$suffix} {
+        margin-left: (1/2) * 100%;
+    }
+    
+    .push-one-third-#{$suffix} {
+        margin-left: (1/3) * 100%;
+    }
+    
+    .push-two-thirds-#{$suffix} {
+        margin-left: (2/3) * 100%;
+    }
+
+    .push-one-quarter-#{$suffix} {
+        margin-left: (1/4) * 100%;
+    }
+    
+    .push-two-quarters-#{$suffix} {
+        margin-left: (2/4) * 100%;
+    }
+    
+    .push-three-quarters-#{$suffix} {
+        margin-left: (3/4) * 100%;
+    }
+    
+    .push-one-fifth-#{$suffix} {
+        margin-left: (1/5) * 100%;
+    }
+    
+    .push-two-fifths-#{$suffix} {
+        margin-left: (2/5) * 100%;
+    }
+    
+    .push-three-fifths-#{$suffix} {
+        margin-left: (3/5) * 100%;
+    }
+    
+    .push-four-fifths-#{$suffix} {
+        margin-left: (4/5) * 100%;
+    }
+}
+
+@media screen and (min-width: $tablet-breakpoint) {
+    @include grid($tablet-grid-suffix);
+}
+
+@media screen and (min-width: $normal-grid-suffix) {
+    @include grid($normal-grid-suffix);
+}
+
+@media screen and (min-width: $big-breakpoint) {
+    @include grid($big-grid-suffix);
+}
+
+@media screen and (min-width: $huge-breakpoint) {
+    @include grid($huge-grid-suffix);
+}

@@ -1,0 +1,79 @@
+$ptsansurl: "/assets/fonts/PT-Sans/";
+$mplusurl: "/assets/fonts/mplus/";
+
+@font-face {
+    font-family: 'pt';
+    src: url('#{$ptsansurl}/ptsans_regular_macroman/PTS55F-webfont.eot');
+    src: url('#{$ptsansurl}/ptsans_regular_macroman/PTS55F-webfont.eot?#iefix') format('embedded-opentype'),
+         url('#{$ptsansurl}/ptsans_regular_macroman/PTS55F-webfont.woff') format('woff'),
+         url('#{$ptsansurl}/ptsans_regular_macroman/PTS55F-webfont.ttf') format('truetype'),
+         url('#{$ptsansurl}/ptsans_regular_macroman/PTS55F-webfont.svg#pt_sansregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'pt';
+    src: url('#{$ptsansurl}/ptsans_bold_macroman/PTS75F-webfont.eot');
+    src: url('#{$ptsansurl}/ptsans_bold_macroman/PTS75F-webfont.eot?#iefix') format('embedded-opentype'),
+         url('#{$ptsansurl}/ptsans_bold_macroman/PTS75F-webfont.woff') format('woff'),
+         url('#{$ptsansurl}/ptsans_bold_macroman/PTS75F-webfont.ttf') format('truetype'),
+         url('#{$ptsansurl}/ptsans_bold_macroman/PTS75F-webfont.svg#pt_sansbold') format('svg');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'pt';
+    src: url('#{$ptsansurl}/ptsans_bolditalic_macroman/PTS76F-webfont.eot');
+    src: url('#{$ptsansurl}/ptsans_bolditalic_macroman/PTS76F-webfont.eot?#iefix') format('embedded-opentype'),
+         url('#{$ptsansurl}/ptsans_bolditalic_macroman/PTS76F-webfont.woff') format('woff'),
+         url('#{$ptsansurl}/ptsans_bolditalic_macroman/PTS76F-webfont.ttf') format('truetype'),
+         url('#{$ptsansurl}/ptsans_bolditalic_macroman/PTS76F-webfont.svg#pt_sansbold_italic') format('svg');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'pt';
+    src: url('#{$ptsansurl}/ptsans_italic_macroman/PTS56F-webfont.eot');
+    src: url('#{$ptsansurl}/ptsans_italic_macroman/PTS56F-webfont.eot?#iefix') format('embedded-opentype'),
+         url('#{$ptsansurl}/ptsans_italic_macroman/PTS56F-webfont.woff') format('woff'),
+         url('#{$ptsansurl}/ptsans_italic_macroman/PTS56F-webfont.ttf') format('truetype'),
+         url('#{$ptsansurl}/ptsans_italic_macroman/PTS56F-webfont.svg#pt_sansitalic') format('svg');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'pt-narrow';
+    src: url('#{$ptsansurl}/ptsansnarrow_bold_macroman/PTN77F-webfont.eot');
+    src: url('#{$ptsansurl}/ptsansnarrow_bold_macroman/PTN77F-webfont.eot?#iefix') format('embedded-opentype'),
+         url('#{$ptsansurl}/ptsansnarrow_bold_macroman/PTN77F-webfont.woff') format('woff'),
+         url('#{$ptsansurl}/ptsansnarrow_bold_macroman/PTN77F-webfont.ttf') format('truetype'),
+         url('#{$ptsansurl}/ptsansnarrow_bold_macroman/PTN77F-webfont.svg#pt_sans_narrowbold') format('svg');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'pt-narrow';
+    src: url('#{$ptsansurl}/ptsansnarrow_regular_macroman/PTN57F-webfont.eot');
+    src: url('#{$ptsansurl}/ptsansnarrow_regular_macroman/PTN57F-webfont.eot?#iefix') format('embedded-opentype'),
+         url('#{$ptsansurl}/ptsansnarrow_regular_macroman/PTN57F-webfont.woff') format('woff'),
+         url('#{$ptsansurl}/ptsansnarrow_regular_macroman/PTN57F-webfont.ttf') format('truetype'),
+         url('#{$ptsansurl}/ptsansnarrow_regular_macroman/PTN57F-webfont.svg#pt_sans_narrowregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'mplus';
+    src: url('#{$mplusurl}mplus-1m-medium-webfont.eot');
+    src: url('#{$mplusurl}mplus-1m-medium-webfont.eot?#iefix') format('embedded-opentype'),
+         url('#{$mplusurl}mplus-1m-medium-webfont.woff') format('woff'),
+         url('#{$mplusurl}mplus-1m-medium-webfont.ttf') format('truetype'),
+         url('#{$mplusurl}mplus-1m-medium-webfont.svg#m_1mmedium') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}

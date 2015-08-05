@@ -1,4 +1,5 @@
 import core from "./espalier.core";
+import common from "./espalier.common";
 
 let keys = {
     container: new Object(),
@@ -7,8 +8,23 @@ let keys = {
     steps: new Object(),
     transversed: new Object(),
     indexHeadNodes: new Object(),
-    valueChanged: new Object()
+    valueChanged: new Object(),
+    nodeSubsciption: new Object()
 }
+
+let handleNavigation = function (graph, graphEvent, index) {
+    switch (graphEvent) {
+        case "next":
+            graph.next();
+            return;
+        case "back":
+            graph.previous();
+            return;
+        case "goto":
+            graph.goto(index);
+            return;
+    }
+};
 
 let setStepStates = (graph) => {
     let headNodes = graph._internals.get(keys.indexHeadNodes);
@@ -43,6 +59,16 @@ let setStepStates = (graph) => {
         headNodes.set(currentIndex, node);
     }
 
+    let currentEvent = graph._internals.get(keys.nodeSubsciption);
+
+    if (currentEvent) {
+        core.unsubscribe(currentEvent);
+    }
+
+    graph._internals.set(keys.nodeSubsciption, core.subscribe(node, (graphEvent) => {
+        handleNavigation(graph, graphEvent, -1);
+    }));
+
     node.renderIn(graph._internals.get(keys.container), graph._internals.get(keys.result), steps);
 
     let valueChanged = graph._internals.get(keys.valueChanged);
@@ -55,12 +81,7 @@ let setStepStates = (graph) => {
 export default class Graph {
     constructor(args) {
         this._internals = new WeakMap();
-
-        if (!args.container.nodeName) {
-            //NOTE: This is probably a jQuery selection array.
-            args.container = args.container[0];
-        }
-
+        args.container = common.singleOrError(args.container);
         let headNodes = new Map();
 
         this._internals.set(keys.container, args.container);
@@ -82,22 +103,9 @@ export default class Graph {
         core.addEventListener(this._internals.get(keys.container), "click", (e) => {
             let target = e.target;
 
-            while (target != args.container) {
+            while (target && target != args.container) {
                 let event = target.getAttribute("data-graph-event");
-
-                switch (event) {
-                    case "next":
-                        this.next();
-                        return;
-                    case "back":
-                        this.previous();
-                        return;
-                    case "goto":
-                        var index = target.getAttribute("data-graph-index");
-                        this.goto(Number(index));
-                        return;
-                }
-
+                handleNavigation(this, event, Number(target.getAttribute("data-graph-index")));
                 target = target.parentNode;
             }
         })
@@ -124,9 +132,8 @@ export default class Graph {
 
     next() {
         let step = this._internals.get(keys.currentStep);
-        let value = step.getValue();
 
-        if (value === undefined) {
+        if (!step.isValid()) {
             return;
         }
 
@@ -138,14 +145,26 @@ export default class Graph {
 
         let transversed = this._internals.get(keys.transversed);
         transversed.push(step);
-        core.setProperty(this._internals.get(keys.result), step.propertyName, value);
+
+        if (step.propertyName) {
+            let value = step.getValue();
+            core.setProperty(this._internals.get(keys.result), step.propertyName, value);
+        }
+
         this._internals.set(keys.currentStep, nextStep);
         setStepStates(this);
     }
 
     previous() {
+        let currentNode = this._internals.get(keys.currentStep);
+
+        if (currentNode.back) {
+            currentNode.back();
+        }
+
         let transversed = this._internals.get(keys.transversed);
         let lastNode = transversed.pop();
+
         delete this._internals.get(keys.result)[lastNode.propertyName];
         this._internals.set(keys.currentStep, lastNode);
         setStepStates(this);

@@ -1,0 +1,102 @@
+@import "../../src/style/_variables.scss";
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    color: $color-info-font;
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto Condensed', sans-serif;
+    padding-top: 5em;
+}
+
+div.body-content {
+    overflow: hidden;
+
+    div.wrapper {
+        padding: 0 1em 200px;
+        margin: 0 auto;
+    }
+}
+
+a {
+    text-decoration: underline;
+    color: $color-warning;
+    font-weight: bold;
+
+    span {
+        text-decoration: none;
+        color: $color-info-font;
+        transition: color .4s;
+    }
+
+    &:hover {
+        span {
+            color: $color-warning;
+        }
+    }
+}
+
+dl {
+    border: 1px solid $color-info;
+    border-radius: .15em;
+
+    dt {
+        display: block;
+        float: left;
+        clear: left;
+        width: 9em;
+        font-weight: bold;
+        margin: 0;
+        padding: 1em 0 1em 1em;
+        text-align: right;
+    }
+
+    dd {
+        border-bottom: 1px dotted $color-info;
+        display: block;
+        margin: 0;
+        padding: 1em 1em 1em 10em;
+
+        &:last-child {
+            border: none;
+        }
+    }
+}
+
+strong.message-container {
+    display: inline-block;
+    border-width: 2px;
+    border-style: solid;
+    padding: .5em;
+    border-radius: .15em;
+}
+
+a.btn {
+    text-decoration: none;
+    font-weight: bold;
+    
+    &.graph-step-completed,
+    &.graph-step-in-progress,
+    &.graph-step-not-started {
+        color: white;
+        border: 1px solid #BBB;
+        border-radius: 4px;
+        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    }
+    
+    &.graph-step-completed {
+        background: rgb(28, 184, 65);
+    }
+    
+    &.graph-step-in-progress {
+        background: rgb(223, 117, 20);
+    }
+    
+    &.graph-step-not-started {
+        background: white;
+        color: #BBB;
+    }
+}

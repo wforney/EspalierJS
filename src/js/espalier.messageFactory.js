@@ -1,8 +1,11 @@
-﻿import core from "./espalier.core";
+﻿import common from "./espalier.common";
 import bootstrapTemplates from "./templates/bootstrapTemplates";
+import EspalierNode from "./espalier.domnode";
 
 class MessageDisplayer {
     constructor(args) {
+        args.attachTo = new EspalierNode(args.attachTo);
+
         this.settings = {
             attachTo: null,
             messageContainerClass: "message-container",
@@ -16,7 +19,7 @@ class MessageDisplayer {
             onAdded: function () { }
         };
 
-        $.extend(this.settings, args);
+        this.settings = common.extend(this.settings, args);
 
         if (!this.settings.attachTo) {
             throw ("MessageFactory requires an attachTo argument.");
@@ -25,7 +28,7 @@ class MessageDisplayer {
 
     remove() {
         if (this.message) {
-            this.message.parentNode.removeChild(this.message);
+            this.message.remove();
             this.message = undefined;
             this.settings.onRemoved();
         }
@@ -41,7 +44,7 @@ class MessageDisplayer {
 
         //NOTE: Allow them to either use an array of messages or a
         //      single message.
-        if (core.isString(messageArgs.message)) {
+        if (common.isString(messageArgs.message)) {
             messageArgs.message = [messageArgs.message];
         }
 
@@ -50,7 +53,7 @@ class MessageDisplayer {
             message: []
         };
 
-        $.extend(messageSettings, messageArgs);
+        common.extend(messageSettings, messageArgs);
 
         if (messageSettings.message.length === 0) {
             console.log("No message to display.");
@@ -87,24 +90,24 @@ class MessageDisplayer {
                 break;
         }
 
-        this.message = bootstrapTemplates.message({
+        this.message = new EspalierNode(bootstrapTemplates.message({
             messageTypeClass: messageTypeClass,
             messages: messageSettings.message,
             messageContainerClass: this.settings.messageContainerClass,
             closeMessageClass: this.settings.closeMessageClass,
             messageAttachmentClass: messageAttachmentClass,
-            moreThanOne: (!core.isString(messageArgs.message) && messageArgs.message.length > 1)
-        });
+            moreThanOne: (!common.isString(messageArgs.message) && messageArgs.message.length > 1)
+        }));
 
-        this.settings.attachTo.appendChild(this.message);
-        this.settings.onAdded(this.message);
+        this.settings.attachTo.append(this.message.node);
+        this.settings.onAdded(this.message.node);
 
         let displayedMessage = this;
 
-        let closeButtons = Array.from(core.find(`.${this.settings.closeMessageClass}`, this.message));
+        let closeButtons = Array.from(common.find(`.${this.settings.closeMessageClass}`, this.message.node));
 
         for (let button of closeButtons) {
-            core.addEventListener(button, "click", () => {
+            common.addEventListener(button, "click", () => {
                 displayedMessage.remove();
             });
         }

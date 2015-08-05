@@ -84,7 +84,7 @@ class EspalierForm {
             core.sendRequest({
                 type: method ? method : "GET",
                 url: this.form.getAttribute("action"),
-                data: $(this.form).serialize() //TODO: Remove jQuery.
+                data: new FormData(this.form)
             }).then((data) => {
                 let onSuccess = this.form.getAttribute("data-success");
 

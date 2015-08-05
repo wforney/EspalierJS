@@ -2,6 +2,7 @@ import messageFactory from "./espalier.messageFactory";
 import waitscreen from "./espalier.waitscreen";
 import common from "./espalier.common";
 import core from "./espalier.core";
+import EspalierNode from "./espalier.domnode";
 
 let getFooter = (table) => {
     let startAtPage = Math.max(0, table.settings.currentPage - 3);
@@ -92,8 +93,10 @@ export default class Table {
             tableClass: "espalier-table",
             renderedCallback: undefined
         };
-
-        $.extend(this.settings, args);
+        
+        args.container = new EspalierNode(args.container);
+        
+        common.extend(this.settings, args);
 
         if (!this.settings.fetchUrl && !this.settings.data) {
             throw new TypeError("You must either specify a fetch url or pass in data for the table to display.");
@@ -111,12 +114,12 @@ export default class Table {
             this.settings.pages = Math.ceil(this.settings.data.length / this.settings.pageSize);
         }
 
-        $.extend(this.settings, args);
+        common.extend(this.settings, args);
 
         let table = this;
         
-        this.settings.container.on("click", ".espalier-table-button", function () {
-            table.goToPage($(this).data("page"));
+        this.settings.container.on("click", ".espalier-table-button", function (el) {
+            table.goToPage(el.getAttribute("data-page"));
         });
 
         renderTable(this);

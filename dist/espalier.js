@@ -69,7 +69,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
-	var _espalierCore = __webpack_require__(4);
+	var _espalierCore = __webpack_require__(8);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
@@ -77,11 +77,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
 	
-	var _espalierForms = __webpack_require__(9);
+	var _espalierForms = __webpack_require__(10);
 	
 	var _espalierForms2 = _interopRequireDefault(_espalierForms);
 	
-	var _espalierWaitscreen = __webpack_require__(5);
+	var _espalierWaitscreen = __webpack_require__(7);
 	
 	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
 	
@@ -89,15 +89,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierTable2 = _interopRequireDefault(_espalierTable);
 	
-	var _espalierDialog = __webpack_require__(12);
+	var _espalierDialog = __webpack_require__(13);
 	
 	var _espalierDialog2 = _interopRequireDefault(_espalierDialog);
 	
-	var _espalierGraph = __webpack_require__(13);
+	var _espalierGraph = __webpack_require__(14);
 	
 	var _espalierGraph2 = _interopRequireDefault(_espalierGraph);
 	
-	var _espalierGraphNode = __webpack_require__(14);
+	var _espalierGraphNode = __webpack_require__(15);
 	
 	var _espalierGraphNode2 = _interopRequireDefault(_espalierGraphNode);
 	
@@ -111,6 +111,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    hideWaitScreen: _espalierWaitscreen2["default"].hide,
 	    shortDate: _espalierCore2["default"].shortDate,
 	    shortTime: _espalierCore2["default"].shortTime,
+	    el: _espalierCore2["default"].find,
 	    numberWithCommas: _espalierCore2["default"].numberWithCommas,
 	    publish: _espalierCore2["default"].publish,
 	    parseISODate: _espalierCore2["default"].parseISODate,
@@ -145,17 +146,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
 	
-	var _espalierWaitscreen = __webpack_require__(5);
+	var _espalierWaitscreen = __webpack_require__(7);
 	
 	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
 	
-	var _espalierCommon = __webpack_require__(6);
+	var _espalierCommon = __webpack_require__(4);
 	
 	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
 	
-	var _espalierCore = __webpack_require__(4);
+	var _espalierCore = __webpack_require__(8);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
+	
+	var _espalierDomnode = __webpack_require__(6);
+	
+	var _espalierDomnode2 = _interopRequireDefault(_espalierDomnode);
 	
 	var getFooter = function getFooter(table) {
 	    var startAtPage = Math.max(0, table.settings.currentPage - 3);
@@ -248,7 +253,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            renderedCallback: undefined
 	        };
 	
-	        $.extend(this.settings, args);
+	        args.container = new _espalierDomnode2["default"](args.container);
+	
+	        _espalierCommon2["default"].extend(this.settings, args);
 	
 	        if (!this.settings.fetchUrl && !this.settings.data) {
 	            throw new TypeError("You must either specify a fetch url or pass in data for the table to display.");
@@ -266,12 +273,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            this.settings.pages = Math.ceil(this.settings.data.length / this.settings.pageSize);
 	        }
 	
-	        $.extend(this.settings, args);
+	        _espalierCommon2["default"].extend(this.settings, args);
 	
 	        var table = this;
 	
-	        this.settings.container.on("click", ".espalier-table-button", function () {
-	            table.goToPage($(this).data("page"));
+	        this.settings.container.on("click", ".espalier-table-button", function (el) {
+	            table.goToPage(el.getAttribute("data-page"));
 	        });
 	
 	        renderTable(this);
@@ -334,17 +341,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _espalierCore = __webpack_require__(4);
+	var _espalierCommon = __webpack_require__(4);
 	
-	var _espalierCore2 = _interopRequireDefault(_espalierCore);
+	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
 	
-	var _templatesBootstrapTemplates = __webpack_require__(8);
+	var _templatesBootstrapTemplates = __webpack_require__(5);
 	
 	var _templatesBootstrapTemplates2 = _interopRequireDefault(_templatesBootstrapTemplates);
+	
+	var _espalierDomnode = __webpack_require__(6);
+	
+	var _espalierDomnode2 = _interopRequireDefault(_espalierDomnode);
 	
 	var MessageDisplayer = (function () {
 	    function MessageDisplayer(args) {
 	        _classCallCheck(this, MessageDisplayer);
+	
+	        args.attachTo = new _espalierDomnode2["default"](args.attachTo);
 	
 	        this.settings = {
 	            attachTo: null,
@@ -359,7 +372,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            onAdded: function onAdded() {}
 	        };
 	
-	        $.extend(this.settings, args);
+	        this.settings = _espalierCommon2["default"].extend(this.settings, args);
 	
 	        if (!this.settings.attachTo) {
 	            throw "MessageFactory requires an attachTo argument.";
@@ -370,7 +383,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: "remove",
 	        value: function remove() {
 	            if (this.message) {
-	                this.message.parentNode.removeChild(this.message);
+	                this.message.remove();
 	                this.message = undefined;
 	                this.settings.onRemoved();
 	            }
@@ -389,7 +402,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            //NOTE: Allow them to either use an array of messages or a
 	            //      single message.
-	            if (_espalierCore2["default"].isString(messageArgs.message)) {
+	            if (_espalierCommon2["default"].isString(messageArgs.message)) {
 	                messageArgs.message = [messageArgs.message];
 	            }
 	
@@ -398,7 +411,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                message: []
 	            };
 	
-	            $.extend(messageSettings, messageArgs);
+	            _espalierCommon2["default"].extend(messageSettings, messageArgs);
 	
 	            if (messageSettings.message.length === 0) {
 	                console.log("No message to display.");
@@ -435,21 +448,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    break;
 	            }
 	
-	            this.message = _templatesBootstrapTemplates2["default"].message({
+	            this.message = new _espalierDomnode2["default"](_templatesBootstrapTemplates2["default"].message({
 	                messageTypeClass: messageTypeClass,
 	                messages: messageSettings.message,
 	                messageContainerClass: this.settings.messageContainerClass,
 	                closeMessageClass: this.settings.closeMessageClass,
 	                messageAttachmentClass: messageAttachmentClass,
-	                moreThanOne: !_espalierCore2["default"].isString(messageArgs.message) && messageArgs.message.length > 1
-	            });
+	                moreThanOne: !_espalierCommon2["default"].isString(messageArgs.message) && messageArgs.message.length > 1
+	            }));
 	
-	            this.settings.attachTo.appendChild(this.message);
-	            this.settings.onAdded(this.message);
+	            this.settings.attachTo.append(this.message.node);
+	            this.settings.onAdded(this.message.node);
 	
 	            var displayedMessage = this;
 	
-	            var closeButtons = Array.from(_espalierCore2["default"].find("." + this.settings.closeMessageClass, this.message));
+	            var closeButtons = Array.from(_espalierCommon2["default"].find("." + this.settings.closeMessageClass, this.message.node));
 	
 	            var _iteratorNormalCompletion = true;
 	            var _didIteratorError = false;
@@ -459,7 +472,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                for (var _iterator = closeButtons[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 	                    var button = _step.value;
 	
-	                    _espalierCore2["default"].addEventListener(button, "click", function () {
+	                    _espalierCommon2["default"].addEventListener(button, "click", function () {
 	                        displayedMessage.remove();
 	                    });
 	                }
@@ -508,6 +521,318 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 4 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, '__esModule', {
+	    value: true
+	});
+	var find = function find(selector, root) {
+	    root = root ? root : document;
+	    return root.querySelectorAll(selector);
+	};
+	
+	var extend = function extend(out) {
+	    out = out || {};
+	
+	    for (var i = 1; i < arguments.length; i++) {
+	        if (!arguments[i]) continue;
+	
+	        for (var key in arguments[i]) {
+	            if (arguments[i].hasOwnProperty(key)) out[key] = arguments[i][key];
+	        }
+	    }
+	
+	    return out;
+	};
+	
+	var addEventListener = function addEventListener(el, eventName, handler) {
+	    if (el.addEventListener) {
+	        el.addEventListener(eventName, handler);
+	    } else {
+	        el.attachEvent('on' + eventName, function () {
+	            handler.call(el);
+	        });
+	    }
+	};
+	
+	var isString = function isString(toTest) {
+	    return typeof toTest === 'string' || toTest instanceof String;
+	};
+	
+	var singleOrError = function singleOrError(val) {
+	    if (val.nodeName) {
+	        return val;
+	    }
+	
+	    if (val[0].nodeName) {
+	        return val[0];
+	    }
+	
+	    throw new Error('This was not a single node.');
+	};
+	
+	var matches = function matches(el, selector) {
+	    var _matches = el.matches || el.matchesSelector || el.msMatchesSelector || el.mozMatchesSelector || el.webkitMatchesSelector || el.oMatchesSelector;
+	
+	    if (_matches) {
+	        return _matches.call(el, selector);
+	    } else {
+	        var nodes = el.parentNode.querySelectorAll(selector);
+	        for (var i = nodes.length; i--;) {
+	            if (nodes[i] === el) return true;
+	        }
+	        return false;
+	    }
+	};
+	
+	var body = find('body');
+	
+	exports['default'] = {
+	    body: body,
+	    window: window,
+	    showVellum: function showVellum() {
+	        if (find('.espalier-vellum').length > 0) {
+	            return;
+	        }
+	
+	        body.append('<div class="vellum" />');
+	    },
+	    hideVellum: function hideVellum() {
+	        var vellum = find('.espalier-vellum');
+	
+	        if (vellum) {
+	            vellum.parentNode.removeChild(vellum);
+	        }
+	    },
+	    find: find,
+	    extend: extend,
+	    addEventListener: addEventListener,
+	    isString: isString,
+	    singleOrError: singleOrError,
+	    matches: matches
+	};
+	module.exports = exports['default'];
+
+/***/ },
+/* 5 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	var templates = {
+	    message: function message(data) {
+	        var message = "<div class=\"" + data.messageContainerClass + " " + data.messageTypeClass + " " + data.messageAttachmentClass + "\">" + ("<a href=\"javascript: void(0);\" class=\"" + data.closeMessageClass + "\"></a>");
+	
+	        if (data.moreThanOne) {
+	            message += "<ul>";
+	
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+	
+	            try {
+	                for (var _iterator = data.messages[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var _message = _step.value;
+	
+	                    _message += "<li>" + _message + "</li>";
+	                }
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                        _iterator["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+	
+	            message += "</ul>";
+	        } else {
+	            message += "<p>" + data.messages + "</p>";
+	        }
+	
+	        message += "</div>";
+	        return message;
+	    }
+	};
+	
+	exports["default"] = templates;
+	module.exports = exports["default"];
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var _espalierCommon = __webpack_require__(4);
+	
+	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
+	
+	var parser = new DOMParser();
+	var keys = {
+	    node: new Object()
+	};
+	
+	var EspalierNode = (function () {
+	    function EspalierNode(node) {
+	        _classCallCheck(this, EspalierNode);
+	
+	        this._internals = new WeakMap();
+	
+	        if (_espalierCommon2["default"].isString(node)) {
+	            node = _espalierCommon2["default"].find("body", parser.parseFromString(node, "text/html"))[0].firstChild;
+	        }
+	
+	        node = _espalierCommon2["default"].singleOrError(node);
+	
+	        this._internals.set(keys.node, node);
+	    }
+	
+	    _createClass(EspalierNode, [{
+	        key: "append",
+	        value: function append(stuff) {
+	            var node = this._internals.get(keys.node);
+	
+	            if (_espalierCommon2["default"].isString(stuff)) {
+	                stuff = _espalierCommon2["default"].find("body", parser.parseFromString(stuff, "text/html"))[0];
+	
+	                var _iteratorNormalCompletion = true;
+	                var _didIteratorError = false;
+	                var _iteratorError = undefined;
+	
+	                try {
+	                    for (var _iterator = stuff.childNodes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                        var child = _step.value;
+	
+	                        node.appendChild(child);
+	                    }
+	                } catch (err) {
+	                    _didIteratorError = true;
+	                    _iteratorError = err;
+	                } finally {
+	                    try {
+	                        if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                            _iterator["return"]();
+	                        }
+	                    } finally {
+	                        if (_didIteratorError) {
+	                            throw _iteratorError;
+	                        }
+	                    }
+	                }
+	
+	                return;
+	            }
+	
+	            node.appendChild(stuff);
+	        }
+	    }, {
+	        key: "html",
+	        value: function html(stuff) {
+	            this.node.innerHTML = "";
+	            this.append(stuff);
+	        }
+	    }, {
+	        key: "on",
+	        value: function on(event, selector, func) {
+	            var node = this.node;
+	
+	            _espalierCommon2["default"].addEventListener(node, event, function (e) {
+	                var target = e.target;
+	
+	                while (target && target != node) {
+	                    if (_espalierCommon2["default"].matches(target, selector)) {
+	                        func(target);
+	                    }
+	
+	                    target = target.parentNode;
+	                }
+	            });
+	        }
+	    }, {
+	        key: "remove",
+	        value: function remove() {
+	            this.node.parentNode.removeChild(this.node);
+	        }
+	    }, {
+	        key: "node",
+	        get: function get() {
+	            return this._internals.get(keys.node);
+	        }
+	    }]);
+	
+	    return EspalierNode;
+	})();
+	
+	exports["default"] = EspalierNode;
+	module.exports = exports["default"];
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	var _espalierCommon = __webpack_require__(4);
+	
+	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
+	
+	var _espalierCore = __webpack_require__(8);
+	
+	var _espalierCore2 = _interopRequireDefault(_espalierCore);
+	
+	var pleaseWaitId = "espalier-wait-screen";
+	var hourglass = "data:image/svg+xml;utf8," + "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"uil-gears\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"xMidYMid meet\" width=\"120px\" height=\"120px\">" + "  <rect class=\"bk\" fill=\"none\" x=\"0\" y=\"0\" width=\"100\" height=\"100\" />" + "  <g transform=\"translate(-20 -20)\">" + "    <path fill=\"#fafafa\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"0 50 50\" from=\"90 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "  <g transform=\"translate(20 20) rotate(15 50.0002 50)\">" + "    <path fill=\"#efefef\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"90 50 50\" from=\"0 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "</svg>";
+	
+	var pleaseWaitDiv = "<div id=\"" + pleaseWaitId + "\"><div><img src=\"" + hourglass + "\" alt=\"Please wait\" /></div></div>";
+	var pleaseWait = false;
+	
+	exports["default"] = {
+	    show: function show() {
+	        if (pleaseWait) {
+	            return pleaseWait;
+	        }
+	
+	        _espalierCommon2["default"].body.appendChild(pleaseWaitDiv);
+	        pleaseWait = _espalierCore2["default"].find("#" + pleaseWaitId);
+	        return pleaseWait;
+	    },
+	    hide: function hide() {
+	        pleaseWait.parentNode.removeChild(pleaseWait);
+	        pleaseWait = false;
+	    }
+	};
+	module.exports = exports["default"];
+
+/***/ },
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -522,25 +847,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
 	
-	var _espalierWaitscreen = __webpack_require__(5);
+	var _espalierWaitscreen = __webpack_require__(7);
 	
 	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
 	
-	var _espalierCommon = __webpack_require__(6);
+	var _espalierCommon = __webpack_require__(4);
 	
 	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
 	
-	var _pubsubJs = __webpack_require__(7);
+	var _pubsubJs = __webpack_require__(9);
 	
 	var _pubsubJs2 = _interopRequireDefault(_pubsubJs);
 	
-	var find = function find(selector, root) {
-	    root = root ? root : document;
-	    return root.querySelectorAll(selector);
-	};
-	
 	var mainMessage = _espalierMessageFactory2["default"].create({
-	    attachTo: find("body")[0]
+	    attachTo: _espalierCommon2["default"].body
 	});
 	
 	var parseDate;
@@ -576,72 +896,127 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	}
 	
-	testDate = undefined;
+	testDate = null;
 	
 	var core = {
 	    sendRequest: function sendRequest(req) {
 	        _espalierWaitscreen2["default"].show();
-	        $("." + mainMessage.settings.messageContainerClass).remove();
+	        var existingMessages = core.find("." + mainMessage.settings.messageContainerClass);
+	        existingMessages.parentNode.remove.remove(existingMessages);
 	
 	        var ajaxSettings = {
 	            type: "GET",
-	            xhrFields: {
-	                withCredentials: true
-	            },
-	            statusCode: {
-	                500: function _(error) {
-	                    core.showError({
-	                        message: error.responseJSON.Message,
-	                        cssClass: "error"
-	                    });
-	                },
-	                400: function _(response) {
-	                    var errors = [];
+	            withCredentials: true
+	        };
 	
-	                    $.each(response.responseJSON.errors, function (index, error) {
-	                        if (error.source && error.source.parameter) {
-	                            var specificField = $("#" + error.source.parameter.toLowerCase());
+	        core.extend(ajaxSettings, req);
 	
-	                            if (specificField) {
-	                                var fieldMessage = specificField.data("message");
+	        var promise = new Promise(function (resolve, reject) {
+	            var request = undefined;
 	
-	                                if (fieldMessage) {
-	                                    fieldMessage.show({
-	                                        message: error.detail,
-	                                        messageType: _espalierMessageFactory2["default"].messageType.Error
-	                                    });
+	            if (ajaxSettings.withCredentials) {
+	                if ("withCredentials" in request) {
+	                    request = new XMLHttpRequest();
+	                    request.open(ajaxSettings.type, ajaxSettings.url, true);
+	                } else if (typeof XDomainRequest != "undefined") {
+	                    request = new XDomainRequest();
+	                    request.open(ajaxSettings.type, ajaxSettings.url);
+	                }
+	            }
 	
-	                                    return;
+	            if (!request) {
+	                throw new Error("CORS not supported");
+	            }
+	
+	            request.onreadystatechange = function () {
+	                if (this.readyState === 4) {
+	                    _espalierWaitscreen2["default"].hide();
+	                    var jsonResponse = JSON.parse(this.responseText);
+	
+	                    if (this.status >= 200 && this.status < 400) {
+	                        if (req.event) {
+	                            _pubsubJs2["default"].publish(req.event, JSON.parse(jsonResponse));
+	                        }
+	
+	                        if (req.onSuccess) {
+	                            req.onSuccess(jsonResponse);
+	                        }
+	
+	                        resolve(jsonResponse);
+	                        return;
+	                    } else if (this.status == 500) {
+	                        core.showError({
+	                            message: jsonResponse.Message,
+	                            cssClass: "error"
+	                        });
+	                    } else {
+	                        var errors = [];
+	
+	                        var _iteratorNormalCompletion = true;
+	                        var _didIteratorError = false;
+	                        var _iteratorError = undefined;
+	
+	                        try {
+	                            for (var _iterator = jsonResponse.errors[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                                var error = _step.value;
+	
+	                                if (error.source && error.source.parameter) {
+	                                    var specificField = core.find("#" + error.source.parameter.toLowerCase());
+	
+	                                    if (specificField) {
+	                                        var fieldMessage = specificField.data("message");
+	
+	                                        if (fieldMessage) {
+	                                            fieldMessage.show({
+	                                                message: error.detail,
+	                                                messageType: _espalierMessageFactory2["default"].messageType.Error
+	                                            });
+	
+	                                            return;
+	                                        }
+	                                    }
+	                                }
+	
+	                                errors.push(error.detail);
+	                            }
+	                        } catch (err) {
+	                            _didIteratorError = true;
+	                            _iteratorError = err;
+	                        } finally {
+	                            try {
+	                                if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                                    _iterator["return"]();
+	                                }
+	                            } finally {
+	                                if (_didIteratorError) {
+	                                    throw _iteratorError;
 	                                }
 	                            }
 	                        }
 	
-	                        errors.push(error.detail);
-	                    });
-	
-	                    if (errors.length > 0) {
-	                        core.showError(errors);
+	                        if (errors.length > 0) {
+	                            core.showError(errors);
+	                        }
 	                    }
+	
+	                    reject(this.responseText);
 	                }
-	            },
-	            complete: function complete(response) {
-	                _espalierWaitscreen2["default"].hide();
+	            };
 	
-	                if (response.status === 200) {
-	                    if (req.event) {
-	                        _pubsubJs2["default"].publish(req.event, response.responseJSON);
-	                    }
-	
-	                    if (req.onSuccess) {
-	                        req.onSuccess(response.responseJSON);
-	                    }
-	                }
+	            switch (ajaxSettings.type) {
+	                case "GET":
+	                    request.send();
+	                    return;
+	                case "POST":
+	                    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+	                    request.send(ajaxSettings.data);
+	                    return;
 	            }
-	        };
 	
-	        $.extend(ajaxSettings, req);
+	            request = null;
+	        });
 	
-	        return $.ajax(ajaxSettings);
+	        return promise;
 	    },
 	    showWarning: function showWarning(messages) {
 	        mainMessage.show({
@@ -716,24 +1091,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            handler(message);
 	        });
 	    },
-	    find: find,
-	    extend: function extend(out) {
-	        out = out || {};
-	
-	        for (var i = 1; i < arguments.length; i++) {
-	            var obj = arguments[i];
-	
-	            if (!obj) continue;
-	
-	            for (var key in obj) {
-	                if (obj.hasOwnProperty(key)) {
-	                    if (typeof obj[key] === "object") core.extend(out[key], obj[key]);else out[key] = obj[key];
-	                }
-	            }
-	        }
-	
-	        return out;
+	    unsubscribe: function unsubscribe(token) {
+	        _pubsubJs2["default"].unsubscribe(token);
 	    },
+	    find: _espalierCommon2["default"].find,
+	    extend: _espalierCommon2["default"].extend,
 	    closest: function closest(el, selector) {
 	        var matchesFn;
 	
@@ -771,55 +1133,33 @@ return /******/ (function(modules) { // webpackBootstrap
 	            el.className = el.className.replace(new RegExp("(^|\\b)" + className.split(" ").join("|") + "(\\b|$)", "gi"), " ");
 	        }
 	    },
-	    addEventListener: function addEventListener(el, eventName, handler) {
-	        if (el.addEventListener) {
-	            el.addEventListener(eventName, handler);
-	        } else {
-	            el.attachEvent("on" + eventName, function () {
-	                handler.call(el);
-	            });
-	        }
-	    },
-	    matches: function matches(el, selector) {
-	        var _matches = el.matches || el.matchesSelector || el.msMatchesSelector || el.mozMatchesSelector || el.webkitMatchesSelector || el.oMatchesSelector;
-	
-	        if (_matches) {
-	            return _matches.call(el, selector);
-	        } else {
-	            var nodes = el.parentNode.querySelectorAll(selector);
-	            for (var i = nodes.length; i--;) {
-	                if (nodes[i] === el) return true;
-	            }
-	            return false;
-	        }
-	    },
-	    isString: function isString(toTest) {
-	        return typeof toTest === "string" || toTest instanceof String;
-	    },
+	    addEventListener: _espalierCommon2["default"].addEventListener,
+	    matches: _espalierCommon2["default"].matches,
+	    isString: _espalierCommon2["default"].isString,
 	    first: function first(array, match) {
-	        var _iteratorNormalCompletion = true;
-	        var _didIteratorError = false;
-	        var _iteratorError = undefined;
+	        var _iteratorNormalCompletion2 = true;
+	        var _didIteratorError2 = false;
+	        var _iteratorError2 = undefined;
 	
 	        try {
-	            for (var _iterator = array[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                var arrayItem = _step.value;
+	            for (var _iterator2 = array[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                var arrayItem = _step2.value;
 	
 	                if (match(arrayItem)) {
 	                    return arrayItem;
 	                }
 	            }
 	        } catch (err) {
-	            _didIteratorError = true;
-	            _iteratorError = err;
+	            _didIteratorError2 = true;
+	            _iteratorError2 = err;
 	        } finally {
 	            try {
-	                if (!_iteratorNormalCompletion && _iterator["return"]) {
-	                    _iterator["return"]();
+	                if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+	                    _iterator2["return"]();
 	                }
 	            } finally {
-	                if (_didIteratorError) {
-	                    throw _iteratorError;
+	                if (_didIteratorError2) {
+	                    throw _iteratorError2;
 	                }
 	            }
 	        }
@@ -844,79 +1184,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 5 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-	
-	var _espalierCommon = __webpack_require__(6);
-	
-	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
-	
-	var pleaseWaitId = "espalier-wait-screen";
-	var pleaseWait = $("<div />");
-	pleaseWait.attr("id", pleaseWaitId);
-	
-	var hourglass = "data:image/svg+xml;utf8," + "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"uil-gears\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"xMidYMid meet\" width=\"120px\" height=\"120px\">" + "  <rect class=\"bk\" fill=\"none\" x=\"0\" y=\"0\" width=\"100\" height=\"100\" />" + "  <g transform=\"translate(-20 -20)\">" + "    <path fill=\"#fafafa\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"0 50 50\" from=\"90 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "  <g transform=\"translate(20 20) rotate(15 50.0002 50)\">" + "    <path fill=\"#efefef\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"90 50 50\" from=\"0 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "</svg>";
-	var waitImage = $("<img />");
-	waitImage.attr("src", hourglass);
-	var inner = $("<div />");
-	inner.append(waitImage);
-	pleaseWait.append(inner);
-	
-	var waitScreen = {
-	    show: function show() {
-	        if ($("#" + pleaseWaitId).length > 0) {
-	            return pleaseWait;
-	        }
-	
-	        _espalierCommon2["default"].body.append(pleaseWait);
-	        return pleaseWait;
-	    },
-	    hide: function hide() {
-	        pleaseWait.remove();
-	    }
-	};
-	
-	exports["default"] = waitScreen;
-	module.exports = exports["default"];
-
-/***/ },
-/* 6 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	var body = $("body");
-	
-	exports["default"] = {
-	    body: body,
-	    window: $(window),
-	    showVellum: function showVellum() {
-	        if ($(".espalier-vellum").length > 0) {
-	            return;
-	        }
-	
-	        var vellum = $("<div class=\"espalier-vellum\" />");
-	        body.append(vellum);
-	    },
-	    hideVellum: function hideVellum() {
-	        $(".espalier-vellum").remove();
-	    }
-	};
-	module.exports = exports["default"];
-
-/***/ },
-/* 7 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -1167,48 +1435,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 
 /***/ },
-/* 8 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-		value: true
-	});
-	var templates = {
-		message: function message(data) {
-			var root = $("<div />");
-			root.addClass(data.messageContainerClass);
-			root.addClass(data.messageTypeClass);
-			root.addClass(data.messageAttachmentClass);
-	
-			var closeButton = $("<a />");
-			closeButton.attr("href", "javascript: void(0);");
-			closeButton.addClass(data.closeMessageClass);
-	
-			root.append(closeButton);
-	
-			if (data.moreThanOne) {
-				var list = $("<ul />");
-	
-				$.each(data.messages, function (index, message) {
-					list.append("<li>" + message + "</li>");
-				});
-	
-				root.append(list);
-			} else {
-				root.append("<p>" + data.messages + "</p>");
-			}
-	
-			return root[0];
-		}
-	};
-	
-	exports["default"] = templates;
-	module.exports = exports["default"];
-
-/***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1223,11 +1450,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _espalierCore = __webpack_require__(4);
+	var _espalierCore = __webpack_require__(8);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
-	var _espalierFormsControl = __webpack_require__(10);
+	var _espalierFormsControl = __webpack_require__(11);
 	
 	var _espalierFormsControl2 = _interopRequireDefault(_espalierFormsControl);
 	
@@ -1385,7 +1612,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                _espalierCore2["default"].sendRequest({
 	                    type: method ? method : "GET",
 	                    url: this.form.getAttribute("action"),
-	                    data: $(this.form).serialize() //TODO: Remove jQuery.
+	                    data: new FormData(this.form)
 	                }).then(function (data) {
 	                    var onSuccess = _this2.form.getAttribute("data-success");
 	
@@ -1444,7 +1671,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1459,11 +1686,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _espalierCore = __webpack_require__(4);
+	var _espalierCore = __webpack_require__(8);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
-	var _espalierValidation = __webpack_require__(11);
+	var _espalierValidation = __webpack_require__(12);
 	
 	var _espalierMessageFactory = __webpack_require__(3);
 	
@@ -1787,7 +2014,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1806,11 +2033,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _espalierCore = __webpack_require__(4);
+	var _espalierCore = __webpack_require__(8);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
-	var _espalierFormsControl = __webpack_require__(10);
+	var _espalierFormsControl = __webpack_require__(11);
 	
 	var _espalierFormsControl2 = _interopRequireDefault(_espalierFormsControl);
 	
@@ -1932,7 +2159,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.RequiredDependent = RequiredDependent;
 
 /***/ },
-/* 12 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1947,13 +2174,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _espalierCore = __webpack_require__(4);
+	var _espalierCore = __webpack_require__(8);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
-	var _espalierCommon = __webpack_require__(6);
+	var _espalierCommon = __webpack_require__(4);
 	
 	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
+	
+	var _espalierDomnode = __webpack_require__(6);
+	
+	var _espalierDomnode2 = _interopRequireDefault(_espalierDomnode);
 	
 	var Dialog = (function () {
 	    function Dialog(args) {
@@ -1964,13 +2195,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	            buttons: []
 	        };
 	
-	        $.extend(this.settings, args);
+	        _espalierCommon2["default"].extend(this.settings, args);
 	
 	        if (!this.settings.element) {
 	            throw new Error("You must pass an element.");
-	        } else if (this.settings.element.length !== 1) {
-	            throw new Error("element must have exactly one root element.");
 	        }
+	
+	        this.settings.element = new _espalierDomnode2["default"](this.settings.element);
 	    }
 	
 	    _createClass(Dialog, [{
@@ -1981,16 +2212,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	            _espalierCore2["default"].hideMainMessage();
 	            _espalierCommon2["default"].showVellum();
 	            var dialog = this.settings.element;
-	            dialog.css("position", "absolute");
-	            _espalierCommon2["default"].body.append(dialog);
+	            dialog.node.style.position = "absolute";
+	            _espalierCommon2["default"].body.appendChild(dialog.node);
 	            this.center();
-	            dialog.css("display", "none");
+	            dialog.node.style.display = "none";
 	
 	            dialog.velocity("transition.whirlIn", {
 	                duration: 450
 	            });
 	
-	            _espalierCore2["default"].addEventListener(dialog[0], "click", function (event) {
+	            _espalierCore2["default"].addEventListener(dialog.node, "click", function (event) {
 	                var _iteratorNormalCompletion = true;
 	                var _didIteratorError = false;
 	                var _iteratorError = undefined;
@@ -2025,14 +2256,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: "hide",
 	        value: function hide() {
-	            var dialog = $(this.settings.element);
+	            var dialog = this.settings.element;
 	            dialog.velocity("transition.whirlOut", {
 	                duration: 150,
 	                complete: function complete() {
 	                    dialog.remove();
-	                    $("#notificationMessage").remove();
+	                    var message = _espalierCommon2["default"].find("#notificationMessage");
+	                    message.parentNode.removeChild(message);
 	
-	                    if ($(".dialog").length == 0) {
+	                    if (_espalierCommon2["default"].find(".dialog").length == 0) {
 	                        _espalierCommon2["default"].hideVellum();
 	                    }
 	                }
@@ -2048,7 +2280,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var height = dialog.height();
 	            var top = windowHeight / 2 - height / 2 + scrollTop;
 	            top = top > 0 ? top : 0;
-	            dialog.css("top", top);
+	            dialog.style.top = top;
 	        }
 	    }]);
 	
@@ -2062,7 +2294,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2077,9 +2309,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _espalierCore = __webpack_require__(4);
+	var _espalierCore = __webpack_require__(8);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
+	
+	var _espalierCommon = __webpack_require__(4);
+	
+	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
 	
 	var keys = {
 	    container: new Object(),
@@ -2088,7 +2324,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	    steps: new Object(),
 	    transversed: new Object(),
 	    indexHeadNodes: new Object(),
-	    valueChanged: new Object()
+	    valueChanged: new Object(),
+	    nodeSubsciption: new Object()
+	};
+	
+	var handleNavigation = function handleNavigation(graph, graphEvent, index) {
+	    switch (graphEvent) {
+	        case "next":
+	            graph.next();
+	            return;
+	        case "back":
+	            graph.previous();
+	            return;
+	        case "goto":
+	            graph.goto(index);
+	            return;
+	    }
 	};
 	
 	var setStepStates = function setStepStates(graph) {
@@ -2124,6 +2375,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	        headNodes.set(currentIndex, node);
 	    }
 	
+	    var currentEvent = graph._internals.get(keys.nodeSubsciption);
+	
+	    if (currentEvent) {
+	        _espalierCore2["default"].unsubscribe(currentEvent);
+	    }
+	
+	    graph._internals.set(keys.nodeSubsciption, _espalierCore2["default"].subscribe(node, function (graphEvent) {
+	        handleNavigation(graph, graphEvent, -1);
+	    }));
+	
 	    node.renderIn(graph._internals.get(keys.container), graph._internals.get(keys.result), steps);
 	
 	    var valueChanged = graph._internals.get(keys.valueChanged);
@@ -2140,12 +2401,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _classCallCheck(this, Graph);
 	
 	        this._internals = new WeakMap();
-	
-	        if (!args.container.nodeName) {
-	            //NOTE: This is probably a jQuery selection array.
-	            args.container = args.container[0];
-	        }
-	
+	        args.container = _espalierCommon2["default"].singleOrError(args.container);
 	        var headNodes = new Map();
 	
 	        this._internals.set(keys.container, args.container);
@@ -2167,22 +2423,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        _espalierCore2["default"].addEventListener(this._internals.get(keys.container), "click", function (e) {
 	            var target = e.target;
 	
-	            while (target != args.container) {
+	            while (target && target != args.container) {
 	                var _event = target.getAttribute("data-graph-event");
-	
-	                switch (_event) {
-	                    case "next":
-	                        _this.next();
-	                        return;
-	                    case "back":
-	                        _this.previous();
-	                        return;
-	                    case "goto":
-	                        var index = target.getAttribute("data-graph-index");
-	                        _this.goto(Number(index));
-	                        return;
-	                }
-	
+	                handleNavigation(_this, _event, Number(target.getAttribute("data-graph-index")));
 	                target = target.parentNode;
 	            }
 	        });
@@ -2212,9 +2455,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: "next",
 	        value: function next() {
 	            var step = this._internals.get(keys.currentStep);
-	            var value = step.getValue();
 	
-	            if (value === undefined) {
+	            if (!step.isValid()) {
 	                return;
 	            }
 	
@@ -2226,15 +2468,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            var transversed = this._internals.get(keys.transversed);
 	            transversed.push(step);
-	            _espalierCore2["default"].setProperty(this._internals.get(keys.result), step.propertyName, value);
+	
+	            if (step.propertyName) {
+	                var value = step.getValue();
+	                _espalierCore2["default"].setProperty(this._internals.get(keys.result), step.propertyName, value);
+	            }
+	
 	            this._internals.set(keys.currentStep, nextStep);
 	            setStepStates(this);
 	        }
 	    }, {
 	        key: "previous",
 	        value: function previous() {
+	            var currentNode = this._internals.get(keys.currentStep);
+	
+	            if (currentNode.back) {
+	                currentNode.back();
+	            }
+	
 	            var transversed = this._internals.get(keys.transversed);
 	            var lastNode = transversed.pop();
+	
 	            delete this._internals.get(keys.result)[lastNode.propertyName];
 	            this._internals.set(keys.currentStep, lastNode);
 	            setStepStates(this);
@@ -2248,7 +2502,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2266,20 +2520,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	        throw new TypeError("Abstract class GraphNode cannot be instantiated.");
 	    }
 	
-	    if (this.getValue === undefined) {
-	        throw new TypeError("GraphNode derivations must implment getValue()");
+	    if (this.isValid === undefined) {
+	        throw new TypeError("GraphNode derivations must implment isValid()");
 	    }
 	
 	    if (this.renderIn == undefined) {
 	        throw new TypeError("GraphNode derivations must implement renderIn(container, result, steps)");
-	    }
-	
-	    if (this.propertyName == undefined) {
-	        throw new TypeError("GraphNode derivations must define a propertyName that will be set with it's value.");
-	    }
-	
-	    if (this.next == undefined) {
-	        throw new TypeError("GraphNode derivations must implement a method next() that returns the next node in the graph.");
 	    }
 	};
 	

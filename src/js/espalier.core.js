@@ -3,13 +3,8 @@ import waitscreen from "./espalier.waitscreen";
 import common from "./espalier.common";
 import pubsub from "pubsub-js";
 
-var find = function (selector, root) {
-    root = root ? root : document;
-    return root.querySelectorAll(selector);
-};
-
 var mainMessage = messageFactory.create({
-    attachTo: find("body")[0]
+    attachTo: common.body
 });
 
 var parseDate;
@@ -45,72 +40,106 @@ else {
     };
 }
 
-testDate = undefined;
+testDate = null;
 
-var core = {
+let core = {
     sendRequest: function (req) {
         waitscreen.show();
-        $("." + mainMessage.settings.messageContainerClass).remove();
+        let existingMessages = core.find("." + mainMessage.settings.messageContainerClass);
+        existingMessages.parentNode.remove.remove(existingMessages);
 
-        var ajaxSettings = {
+        let ajaxSettings = {
             type: "GET",
-            xhrFields: {
-                withCredentials: true
-            },
-            statusCode: {
-                500: function (error) {
-                    core.showError({
-                        message: error.responseJSON.Message,
-                        cssClass: "error"
-                    });
-                },
-                400: function (response) {
-                    var errors = [];
-
-                    $.each(response.responseJSON.errors, function (index, error) {
-                        if (error.source && error.source.parameter) {
-                            var specificField = $("#" + error.source.parameter.toLowerCase());
-
-                            if (specificField) {
-                                var fieldMessage = specificField.data("message");
-
-                                if (fieldMessage) {
-                                    fieldMessage.show({
-                                        message: error.detail,
-                                        messageType: messageFactory.messageType.Error
-                                    });
-
-                                    return;
-                                }
-                            }
-                        }
-
-                        errors.push(error.detail);
-                    });
-
-                    if (errors.length > 0) {
-                        core.showError(errors);
-                    }
-                }
-            },
-            complete: function (response) {
-                waitscreen.hide();
-
-                if (response.status === 200) {
-                    if (req.event) {
-                        pubsub.publish(req.event, response.responseJSON);
-                    }
-
-                    if (req.onSuccess) {
-                        req.onSuccess(response.responseJSON);
-                    }
-                }
-            }
+            withCredentials: true
         };
 
-        $.extend(ajaxSettings, req);
+        core.extend(ajaxSettings, req);
 
-        return $.ajax(ajaxSettings);
+        let promise = new Promise((resolve, reject) => {
+            let request;
+
+            if (ajaxSettings.withCredentials) {
+                if ("withCredentials" in request) {
+                    request = new XMLHttpRequest();
+                    request.open(ajaxSettings.type, ajaxSettings.url, true);
+                } else if (typeof XDomainRequest != "undefined") {
+                    request = new XDomainRequest();
+                    request.open(ajaxSettings.type, ajaxSettings.url);
+                }
+            }
+
+            if (!request) {
+                throw new Error("CORS not supported");
+            }
+
+            request.onreadystatechange = function () {
+                if (this.readyState === 4) {
+                    waitscreen.hide();
+                    let jsonResponse = JSON.parse(this.responseText);
+
+                    if (this.status >= 200 && this.status < 400) {
+                        if (req.event) {
+                            pubsub.publish(req.event, JSON.parse(jsonResponse));
+                        }
+
+                        if (req.onSuccess) {
+                            req.onSuccess(jsonResponse);
+                        }
+
+                        resolve(jsonResponse);
+                        return;
+                    } else if (this.status == 500) {
+                        core.showError({
+                            message: jsonResponse.Message,
+                            cssClass: "error"
+                        });
+                    } else {
+                        let errors = [];
+
+                        for (let error of jsonResponse.errors) {
+                            if (error.source && error.source.parameter) {
+                                var specificField = core.find("#" + error.source.parameter.toLowerCase());
+
+                                if (specificField) {
+                                    var fieldMessage = specificField.data("message");
+
+                                    if (fieldMessage) {
+                                        fieldMessage.show({
+                                            message: error.detail,
+                                            messageType: messageFactory.messageType.Error
+                                        });
+
+                                        return;
+                                    }
+                                }
+                            }
+
+                            errors.push(error.detail);
+                        }
+
+                        if (errors.length > 0) {
+                            core.showError(errors);
+                        }
+                    }
+
+                    reject(this.responseText);
+                }
+            };
+
+            switch (ajaxSettings.type) {
+                case "GET":
+                    request.send();
+                    return;
+                case "POST":
+                    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
+                    request.send(ajaxSettings.data);
+                    return;
+            }
+
+            request = null;
+        });
+
+        return promise;
     },
     showWarning: function (messages) {
         mainMessage.show({
@@ -187,28 +216,11 @@ var core = {
             handler(message);
         });
     },
-    find,
-    extend: function (out) {
-        out = out || {};
-
-        for (var i = 1; i < arguments.length; i++) {
-            var obj = arguments[i];
-
-            if (!obj)
-                continue;
-
-            for (var key in obj) {
-                if (obj.hasOwnProperty(key)) {
-                    if (typeof obj[key] === 'object')
-                        core.extend(out[key], obj[key]);
-                    else
-                        out[key] = obj[key];
-                }
-            }
-        }
-
-        return out;
+    unsubscribe: function (token) {
+        pubsub.unsubscribe(token);
     },
+    find: common.find,
+    extend: common.extend,
     closest: function closest(el, selector) {
         var matchesFn;
 
@@ -246,32 +258,9 @@ var core = {
             el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
         }
     },
-    addEventListener: function (el, eventName, handler) {
-        if (el.addEventListener) {
-            el.addEventListener(eventName, handler);
-        } else {
-            el.attachEvent('on' + eventName, function () {
-                handler.call(el);
-            });
-        }
-    },
-    matches: function (el, selector) {
-        var _matches = (el.matches || el.matchesSelector || el.msMatchesSelector || el.mozMatchesSelector || el.webkitMatchesSelector || el.oMatchesSelector);
-
-        if (_matches) {
-            return _matches.call(el, selector);
-        } else {
-            var nodes = el.parentNode.querySelectorAll(selector);
-            for (var i = nodes.length; i--;) {
-                if (nodes[i] === el)
-                    return true;
-            }
-            return false;
-        }
-    },
-    isString: function (toTest) {
-        return typeof toTest === 'string' || toTest instanceof String;
-    },
+    addEventListener: common.addEventListener,
+    matches: common.matches,
+    isString: common.isString,
     first: function (array, match) {
         for (let arrayItem of array) {
             if (match(arrayItem)) {

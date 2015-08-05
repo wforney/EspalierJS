@@ -1,30 +1,23 @@
-var templates = {
-	message: function(data) {
-		var root = $("<div />");
-		root.addClass(data.messageContainerClass);
-		root.addClass(data.messageTypeClass);
-		root.addClass(data.messageAttachmentClass);
+let templates = {
+    message: function (data) {
+        let message = `<div class="${data.messageContainerClass} ${data.messageTypeClass} ${data.messageAttachmentClass}">` +
+            `<a href="javascript: void(0);" class="${data.closeMessageClass}"></a>`;
 
-		var closeButton = $("<a />");
-		closeButton.attr("href", "javascript: void(0);");
-		closeButton.addClass(data.closeMessageClass);
+        if (data.moreThanOne) {
+            message += "<ul>";
 
-		root.append(closeButton);
+            for (let message of data.messages) {
+                message += `<li>${message}</li>`;
+            }
 
-		if (data.moreThanOne) {
-			var list = $("<ul />");
+            message += "</ul>";
+        } else {
+            message += `<p>${data.messages}</p>`;
+        }
 
-			$.each(data.messages, function(index, message) {
-				list.append("<li>" + message + "</li>");
-			});
-
-			root.append(list);
-		} else {
-			root.append("<p>" + data.messages + "</p>");
-		}
-
-		return root[0];
-	}
+        message += "</div>";
+        return message;
+    }
 }
 
 export default templates;

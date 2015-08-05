@@ -1,10 +1,8 @@
 import common from "./espalier.common";
+import core from "./espalier.core";
 
-var pleaseWaitId = "espalier-wait-screen";
-var pleaseWait = $("<div />");
-pleaseWait.attr("id", pleaseWaitId);
-
-var hourglass = 'data:image/svg+xml;utf8,' +
+let pleaseWaitId = "espalier-wait-screen";
+let hourglass = 'data:image/svg+xml;utf8,' +
     "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"uil-gears\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"xMidYMid meet\" width=\"120px\" height=\"120px\">" +
     "  <rect class=\"bk\" fill=\"none\" x=\"0\" y=\"0\" width=\"100\" height=\"100\" />" +
     "  <g transform=\"translate(-20 -20)\">" +
@@ -18,24 +16,22 @@ var hourglass = 'data:image/svg+xml;utf8,' +
     "    </path>" +
     "  </g>" +
     "</svg>";
-var waitImage = $("<img />");
-waitImage.attr("src", hourglass);
-var inner = $("<div />");
-inner.append(waitImage);
-pleaseWait.append(inner);
 
-var waitScreen = {
+let pleaseWaitDiv = `<div id="${pleaseWaitId}"><div><img src="${hourglass}" alt="Please wait" /></div></div>`;
+let pleaseWait = false;
+
+export default {
     show: function () {
-        if ($("#" + pleaseWaitId).length > 0) {
+        if (pleaseWait) {
             return pleaseWait;
         }
 
-        common.body.append(pleaseWait);
+        common.body.appendChild(pleaseWaitDiv);
+        pleaseWait = core.find(`#${pleaseWaitId}`);
         return pleaseWait;
     },
     hide: function () {
-        pleaseWait.remove();
+        pleaseWait.parentNode.removeChild(pleaseWait);
+        pleaseWait = false;
     }
 };
-
-export default waitScreen;

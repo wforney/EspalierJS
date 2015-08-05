@@ -1,5 +1,6 @@
 import core from "./espalier.core";
 import common from "./espalier.common";
+import EspalierNode from "./espalier.domnode";
 
 class Dialog {
     constructor(args) {
@@ -8,29 +9,29 @@ class Dialog {
             buttons: []
         };
 
-        $.extend(this.settings, args);
+        common.extend(this.settings, args);
 
         if (!this.settings.element) {
             throw new Error("You must pass an element.");
-        } else if (this.settings.element.length !== 1) {
-            throw new Error("element must have exactly one root element.");
         }
+
+        this.settings.element = new EspalierNode(this.settings.element);
     }
 
     show() {
         core.hideMainMessage();
         common.showVellum();
         let dialog = this.settings.element;
-        dialog.css("position", "absolute");
-        common.body.append(dialog);
+        dialog.node.style.position = "absolute";
+        common.body.appendChild(dialog.node);
         this.center();
-        dialog.css("display", "none");
+        dialog.node.style.display = "none";
 
         dialog.velocity("transition.whirlIn", {
             duration: 450
         });
 
-        core.addEventListener(dialog[0], "click", (event) => {
+        core.addEventListener(dialog.node, "click", (event) => {
             for (let button of this.settings.buttons) {
                 //TODO: Maybe is a selector instead?
                 if (button.id === event.target.id) {
@@ -43,14 +44,15 @@ class Dialog {
     }
 
     hide() {
-        var dialog = $(this.settings.element);
+        var dialog = this.settings.element;
         dialog.velocity("transition.whirlOut", {
             duration: 150,
             complete: function () {
                 dialog.remove();
-                $("#notificationMessage").remove();
+                let message = common.find("#notificationMessage");
+                message.parentNode.removeChild(message);
 
-                if ($(".dialog").length == 0) {
+                if (common.find(".dialog").length == 0) {
                     common.hideVellum();
                 }
             }
@@ -65,7 +67,7 @@ class Dialog {
         let height = dialog.height();
         let top = (windowHeight / 2) - (height / 2) + scrollTop;
         top = top > 0 ? top : 0;
-        dialog.css("top", top);
+        dialog.style.top = top;
     }
 }
 

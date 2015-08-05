@@ -17,6 +17,7 @@ var espalier = {
     hideWaitScreen: waitScreen.hide,
     shortDate: core.shortDate,
     shortTime: core.shortTime,
+    el: core.find,
     numberWithCommas: core.numberWithCommas,
     publish: core.publish,
     parseISODate: core.parseISODate,

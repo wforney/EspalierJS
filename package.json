@@ -1,6 +1,6 @@
 {
   "name": "espalier-js",
-  "version": "0.3.26",
+  "version": "0.3.31",
   "description": "Tightly pruned HTML, CSS, and JavaScript for a productive web development experience.",
   "main": "gulpfile.js",
   "dependencies": {},
@@ -27,6 +27,7 @@
     "karma": "^0.13.3",
     "karma-jasmine": "^0.3.6",
     "node-libs-browser": "^0.5.2",
+    "normalize.css": "^3.0.3",
     "object-assign": "^3.0.0",
     "pubsub-js": "^1.5.2",
     "require-dir": "^0.3.0",

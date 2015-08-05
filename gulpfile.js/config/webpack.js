@@ -3,7 +3,7 @@ var config    = require("./");
 var webpack   = require("webpack");
 
 module.exports = function(env) {
-  var jsSrc = path.resolve(config.jsPath);
+  var jsSrc = path.resolve(config.src + "/js");
 
   var webpackConfig = {
     context: jsSrc,
