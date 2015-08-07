@@ -143,8 +143,10 @@ let factory = function (control, form, explicitValidations) {
             for (let validation of validations) {
                 if (!validation.isValid()) {
                     hasErrors = true;
-                    if (validation.message) {
-                        errors.push(validation.message);
+                    let message = validation.getMessage();
+                    
+                    if (message) {
+                        errors.push(message);
                     }
                 }
             }

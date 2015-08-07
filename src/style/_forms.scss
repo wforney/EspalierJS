@@ -1,0 +1,19 @@
+@import "variables";
+
+.form-group {
+	label {
+		display: block;
+	}
+}
+
+.form-control {
+	font-size: 1rem;
+	width: 100%;
+	border: 1px solid $color-border;
+	padding: .5em;
+}
+
+input, select {
+	@extend .form-control;
+	border-radius: .15em;
+}

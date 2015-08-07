@@ -1,0 +1,23 @@
+@import "variables";
+
+.pagination {
+	li {
+		display: inline-block;
+		border: 1px solid $color-border;
+		border-right: none;
+		
+		&:last-child {
+			border-right: 1px solid $color-border;
+		}
+		
+		&.active > a {
+			background: $color-border;
+		}
+	}
+	
+	a {
+		display: block;
+		text-decoration: none;
+		padding: .5em;
+	}
+}

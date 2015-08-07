@@ -1,3 +1,6 @@
+$color-primary: red;
+$color-border: lighten($color-primary, 40%);
+
 $color-success:         	#5cb85c;
 $color-success-dark:    	darken($color-success, 15%);
 $color-success-font:     	darken($color-success, 35%);
