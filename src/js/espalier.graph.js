@@ -1,5 +1,5 @@
 import core from "./espalier.core";
-import common from "./espalier.common";
+import singleOrError from "./helpers/single-or-error";
 
 let keys = {
     container: new Object(),
@@ -29,7 +29,7 @@ let handleNavigation = function (graph, graphEvent, index) {
 let setStepStates = (graph) => {
     let headNodes = graph._internals.get(keys.indexHeadNodes);
     let node = graph._internals.get(keys.currentStep);
-    let currentIndex = node.stepIndex;
+    let currentIndex = node.getStepIndex();
     let steps = graph._internals.get(keys.steps);
 
     for (let i = 0; i < steps.length; i++) {
@@ -81,7 +81,7 @@ let setStepStates = (graph) => {
 export default class Graph {
     constructor(args) {
         this._internals = new WeakMap();
-        args.container = common.singleOrError(args.container);
+        args.container = singleOrError(args.container);
         let headNodes = new Map();
 
         this._internals.set(keys.container, args.container);
@@ -112,21 +112,31 @@ export default class Graph {
     }
 
     goto(index) {
-        let headNodes = this._internals.get(keys.indexHeadNodes);
-        let nodeToGoTo = headNodes.get(index);
-        let transversed = this._internals.get(keys.transversed);
-        let result = this._internals.get(keys.result);
+        let currentNode = this._internals.get(keys.currentStep);
 
-        if (transversed.length > 0) {
-            let poppedNode;
-
-            do {
-                poppedNode = transversed.pop();
-                delete result[poppedNode.propertyName];
-            } while (poppedNode !== nodeToGoTo);
+        if (index > currentNode.getStepIndex()) {
+            throw new Error("You can only goto an index less than or equal to the current node's index.");
         }
 
-        this._internals.set(keys.currentStep, nodeToGoTo);
+        let headNodes = this._internals.get(keys.indexHeadNodes);
+        let nodeToGoTo = headNodes.get(index);
+
+        if (nodeToGoTo !== currentNode) {
+            let transversed = this._internals.get(keys.transversed);
+            let result = this._internals.get(keys.result);
+
+            if (transversed.length > 0) {
+                let poppedNode;
+
+                do {
+                    poppedNode = transversed.pop();
+                    delete result[poppedNode.getPropertyName()];
+                } while (poppedNode !== nodeToGoTo);
+            }
+
+            this._internals.set(keys.currentStep, nodeToGoTo);
+        }
+
         setStepStates(this);
     }
 
@@ -139,16 +149,16 @@ export default class Graph {
 
         let nextStep = step.next();
 
-        if (step.stepIndex > nextStep.stepIndex) {
+        if (step.getStepIndex() > nextStep.getStepIndex()) {
             throw new Error("Invalid step index. It must be equal to or greater than the last step's index.")
         }
 
         let transversed = this._internals.get(keys.transversed);
         transversed.push(step);
 
-        if (step.propertyName) {
+        if (step.getPropertyName()) {
             let value = step.getValue();
-            core.setProperty(this._internals.get(keys.result), step.propertyName, value);
+            core.setProperty(this._internals.get(keys.result), step.getPropertyName(), value);
         }
 
         this._internals.set(keys.currentStep, nextStep);
@@ -165,7 +175,7 @@ export default class Graph {
         let transversed = this._internals.get(keys.transversed);
         let lastNode = transversed.pop();
 
-        delete this._internals.get(keys.result)[lastNode.propertyName];
+        delete this._internals.get(keys.result)[lastNode.getPropertyName()];
         this._internals.set(keys.currentStep, lastNode);
         setStepStates(this);
     }

@@ -1,4 +1,5 @@
 import core from "./espalier.core";
+import config from "./config/index";
 import { Required, Email, Date, RequiredDependent } from "./espalier.validation";
 import messageFactory from "./espalier.messageFactory";
 
@@ -91,10 +92,7 @@ class FormControl {
             },
             onAdded: function () {
                 core.addClass(group, "has-error");
-                //TODO: Get rid of jQuery
-                $(group).velocity("callout.tada", {
-                    duration: 500
-                });
+                config.fieldMessageAnimation(group);
             }
         });
 

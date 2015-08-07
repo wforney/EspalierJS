@@ -2,9 +2,12 @@ import messageFactory from "./espalier.messageFactory";
 import waitscreen from "./espalier.waitscreen";
 import common from "./espalier.common";
 import pubsub from "pubsub-js";
+import isString from "./helpers/is-string";
+import addListener from "./helpers/add-listener";
+import matches from "./helpers/matches";
 
 var mainMessage = messageFactory.create({
-    attachTo: common.body
+    attachTo: common.body.getNode()
 });
 
 var parseDate;
@@ -222,21 +225,9 @@ let core = {
     find: common.find,
     extend: common.extend,
     closest: function closest(el, selector) {
-        var matchesFn;
-
-        // find vendor prefix
-        ["matches", "webkitMatchesSelector", "mozMatchesSelector", "msMatchesSelector", "oMatchesSelector"].some(function (fn) {
-            if (typeof document.body[fn] == "function") {
-                matchesFn = fn;
-                return true;
-            }
-            return false;
-        })
-
-        // traverse parents
         while (el !== null) {
             let parent = el.parentElement;
-            if (parent !== null && parent[matchesFn](selector)) {
+            if (parent !== null && matches(parent, selector)) {
                 return parent;
             }
             el = parent;
@@ -258,9 +249,9 @@ let core = {
             el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
         }
     },
-    addEventListener: common.addEventListener,
-    matches: common.matches,
-    isString: common.isString,
+    addEventListener: addListener,
+    matches: matches,
+    isString: isString,
     first: function (array, match) {
         for (let arrayItem of array) {
             if (match(arrayItem)) {

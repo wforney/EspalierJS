@@ -1,6 +1,8 @@
 ﻿import common from "./espalier.common";
 import bootstrapTemplates from "./templates/bootstrapTemplates";
 import EspalierNode from "./espalier.domnode";
+import addListener from "./helpers/add-listener";
+import isString from "./helpers/is-string";
 
 class MessageDisplayer {
     constructor(args) {
@@ -44,7 +46,7 @@ class MessageDisplayer {
 
         //NOTE: Allow them to either use an array of messages or a
         //      single message.
-        if (common.isString(messageArgs.message)) {
+        if (isString(messageArgs.message)) {
             messageArgs.message = [messageArgs.message];
         }
 
@@ -96,18 +98,18 @@ class MessageDisplayer {
             messageContainerClass: this.settings.messageContainerClass,
             closeMessageClass: this.settings.closeMessageClass,
             messageAttachmentClass: messageAttachmentClass,
-            moreThanOne: (!common.isString(messageArgs.message) && messageArgs.message.length > 1)
+            moreThanOne: (!isString(messageArgs.message) && messageArgs.message.length > 1)
         }));
 
-        this.settings.attachTo.append(this.message.node);
-        this.settings.onAdded(this.message.node);
+        this.settings.attachTo.append(this.message.getNode());
+        this.settings.onAdded(this.message.getNode());
 
         let displayedMessage = this;
 
-        let closeButtons = Array.from(common.find(`.${this.settings.closeMessageClass}`, this.message.node));
+        let closeButtons = Array.from(common.find(`.${this.settings.closeMessageClass}`, this.message.getNode()));
 
         for (let button of closeButtons) {
-            common.addEventListener(button, "click", () => {
+            addListener(button, "click", () => {
                 displayedMessage.remove();
             });
         }

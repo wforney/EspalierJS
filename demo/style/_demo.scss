@@ -74,7 +74,7 @@ strong.message-container {
     border-radius: .15em;
 }
 
-a.btn {
+.button {
     text-decoration: none;
     font-weight: bold;
     
@@ -83,8 +83,6 @@ a.btn {
     &.graph-step-not-started {
         color: white;
         border: 1px solid #BBB;
-        border-radius: 4px;
-        text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
     }
     
     &.graph-step-completed {
@@ -98,5 +96,6 @@ a.btn {
     &.graph-step-not-started {
         background: white;
         color: #BBB;
+        cursor: text;
     }
 }

@@ -7,7 +7,7 @@ class Validation {
             throw new TypeError("Must have an isValid method.");
         }
 
-        if (this.message === undefined) {
+        if (this.getMessage === undefined) {
             throw new TypeError("Must add a message prior to calling super.");
         }
 
@@ -24,7 +24,7 @@ class Required extends Validation {
         return !core.isEmptyOrSpaces(this.control.val());
     }
 
-    get message() {
+    getMessage() {
         return "Field is required.";
     }
 }
@@ -38,7 +38,7 @@ class Email extends Validation {
         return core.isEmail(this.control.val());
     }
 
-    get message() {
+    getMessage() {
         return "Invalid email address.";
     }
 }
@@ -52,7 +52,7 @@ class Date extends Validation {
         return core.isDate(this.control.val());
     }
 
-    get message() {
+    getMessage() {
         return "Invalid date.";
     }
 }
@@ -68,7 +68,7 @@ class RequiredDependent extends Validation {
         return this.control.val() !== this.whenVal || this.control.val() === this.whenVal && this.dependent.validate();
     }
 
-    get message() {
+    getMessage() {
         return false;
     }
 }

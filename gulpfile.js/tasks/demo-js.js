@@ -39,10 +39,8 @@ gulp.task("demo:js", function (callback) {
         logger(err, stats);
 
         gulp.src([
-            "./node_modules/babel-core/browser-polyfill.min.js",
-            "./node_modules/handlebars/dist/handlebars.runtime.js",
-            "./node_modules/velocity-animate/velocity.js",
-            "./node_modules/velocity-animate/velocity.ui.js"
+            "./node_modules/babel-core/browser-polyfill.js",
+            "./node_modules/handlebars/dist/handlebars.runtime.js"
         ]).pipe(concat("bundled.js"))
             .pipe(gulp.dest(config.demoOutput + "/assets/js"));
 

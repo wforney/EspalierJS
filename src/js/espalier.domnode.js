@@ -1,6 +1,9 @@
-import common from "./espalier.common";
+import isString from "./helpers/is-string";
+import addListener from "./helpers/add-listener";
+import singleOrError from "./helpers/single-or-error";
+import matches from "./helpers/matches";
 
-let parser = new DOMParser();
+let rootNode = document.createElement("div");
 let keys = {
     node: new Object()
 };
@@ -9,26 +12,27 @@ export default class EspalierNode {
     constructor(node) {
         this._internals = new WeakMap();
 
-        if (common.isString(node)) {
-            node = common.find("body", parser.parseFromString(node, "text/html"))[0].firstChild;
+        if (isString(node)) {
+            rootNode.innerHTML = node;
+            node = rootNode.firstChild;
         }
 
-        node = common.singleOrError(node);
+        node = singleOrError(node);
 
         this._internals.set(keys.node, node);
     }
 
-    get node() {
+    getNode() {
         return this._internals.get(keys.node);
     }
 
     append(stuff) {
-        let node = this._internals.get(keys.node);
+        let node = this.getNode();
 
-        if (common.isString(stuff)) {
-            stuff = common.find("body", parser.parseFromString(stuff, "text/html"))[0];
+        if (isString(stuff)) {
+            rootNode.innerHTML = stuff;
 
-            for (let child of stuff.childNodes) {
+            for (let child of rootNode.childNodes) {
                 node.appendChild(child);
             }
             return;
@@ -38,27 +42,28 @@ export default class EspalierNode {
     }
 
     html(stuff) {
-        this.node.innerHTML = "";
+        this.getNode().innerHTML = "";
         this.append(stuff);
     }
 
     on(event, selector, func) {
-        let node = this.node;
+        let node = this.getNode();
 
-        common.addEventListener(node, event, (e) => {
+        addListener(node, event, (e) => {
             let target = e.target;
 
             while (target && target != node) {
-                if (common.matches(target, selector)) {
+                if (matches(target, selector)) {
                     func(target);
                 }
 
                 target = target.parentNode;
             }
-        })
+        });
     }
 
     remove() {
-        this.node.parentNode.removeChild(this.node);
+        let node = this.getNode();
+        node.parentNode.removeChild(node);
     }
 }

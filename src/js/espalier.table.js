@@ -93,9 +93,9 @@ export default class Table {
             tableClass: "espalier-table",
             renderedCallback: undefined
         };
-        
+
         args.container = new EspalierNode(args.container);
-        
+
         common.extend(this.settings, args);
 
         if (!this.settings.fetchUrl && !this.settings.data) {
@@ -117,7 +117,7 @@ export default class Table {
         common.extend(this.settings, args);
 
         let table = this;
-        
+
         this.settings.container.on("click", ".espalier-table-button", function (el) {
             table.goToPage(el.getAttribute("data-page"));
         });
@@ -145,6 +145,8 @@ export default class Table {
     }
 
     goToPage(page) {
+        page = Number(page);
+
         if (page < 0 || page >= this.settings.pages) {
             return;
         }
