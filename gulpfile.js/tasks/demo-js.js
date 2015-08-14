@@ -39,6 +39,7 @@ gulp.task("demo:js", function (callback) {
         logger(err, stats);
 
         gulp.src([
+            "./node_modules/html5shiv/dist/html5shiv.js",
             "./node_modules/babel-core/browser-polyfill.js",
             "./node_modules/handlebars/dist/handlebars.runtime.js"
         ]).pipe(concat("bundled.js"))

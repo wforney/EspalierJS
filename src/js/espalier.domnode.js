@@ -3,7 +3,6 @@ import addListener from "./helpers/add-listener";
 import singleOrError from "./helpers/single-or-error";
 import matches from "./helpers/matches";
 
-let rootNode = document.createElement("div");
 let keys = {
     node: new Object()
 };
@@ -13,8 +12,9 @@ export default class EspalierNode {
         this._internals = new WeakMap();
 
         if (isString(node)) {
-            rootNode.innerHTML = node;
-            node = rootNode.firstChild;
+            let wrapper = document.createElement("div");
+            wrapper.innerHTML = node;
+            node = wrapper.firstChild;
         }
 
         node = singleOrError(node);
@@ -30,15 +30,28 @@ export default class EspalierNode {
         let node = this.getNode();
 
         if (isString(stuff)) {
-            rootNode.innerHTML = stuff;
+            let wrapper = document.createElement("div");
+            wrapper.innerHTML = stuff;
 
-            for (let child of rootNode.childNodes) {
+            for (let child of wrapper.childNodes) {
                 node.appendChild(child);
             }
             return;
         }
 
         node.appendChild(stuff);
+    }
+
+    closest(selector) {
+        let node = this.getNode().parentNode;
+
+        do {
+            if (matches(node, selector)) {
+                return node;
+            }
+        } while (node = node.parentNode);
+
+        return null;
     }
 
     html(stuff) {
@@ -64,6 +77,29 @@ export default class EspalierNode {
 
     remove() {
         let node = this.getNode();
-        node.parentNode.removeChild(node);
+
+        if (node.parentNode) {
+            node.parentNode.removeChild(node);
+        }
+    }
+
+    addClass(className) {
+        let node = this.getNode();
+
+        if (node.classList) {
+            node.classList.add(className);
+        } else {
+            node.className += ' ' + className;
+        }
+    }
+
+    removeClass(className) {
+        let node = this.getNode();
+
+        if (node.classList) {
+            node.classList.remove(className);
+        } else {
+            node.className = node.className.replace(new RegExp("(^|\\b)" + className.split(" ").join("|") + "(\\b|$)", "gi"), " ");
+        }
     }
 }

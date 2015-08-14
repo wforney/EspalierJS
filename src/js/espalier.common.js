@@ -5,6 +5,12 @@ let find = function (selector, root) {
     return Array.from(root.querySelectorAll(selector));
 };
 
+//TODO: This is a temporary hack around removing jQuery and the .data() method.
+//      Figure out a better way to resolve a control when submitting a request;
+//      allowing a user to pass an Espalier Form could be a good alternative and
+//      would better scope the controls.
+let controls = new WeakMap();
+
 let extend = function (out) {
     out = out || {};
 
@@ -21,25 +27,31 @@ let extend = function (out) {
     return out;
 };
 
+
+let browserSupportsCSSProperty = function (propertyName) {
+    let el = document.createElement('div');
+    propertyName = propertyName.toLowerCase();
+
+    if (el.style[propertyName] != undefined)
+        return true;
+
+    var propertyNameCapital = propertyName.charAt(0).toUpperCase() + propertyName.substr(1),
+        domPrefixes = 'Webkit Moz ms O'.split(' ');
+
+    for (var i = 0; i < domPrefixes.length; i++) {
+        if (el.style[domPrefixes[i] + propertyNameCapital] != undefined)
+            return true;
+    }
+
+    return false;
+};
+
 let body = new EspalierNode(find("body"));
 
 export default {
     body: body,
-    window: window,
-    showVellum: function () {
-        if (find(".vellum").length > 0) {
-            return;
-        }
-
-        body.append("<div class=\"vellum\" />");
-    },
-    hideVellum: function () {
-        let vellum = find(".vellum");
-
-        if (vellum.length > 0) {
-            vellum[0].parentNode.removeChild(vellum[0]);
-        }
-    },
     find,
-    extend
+    extend,
+    controls,
+    browserSupportsCSSProperty
 };

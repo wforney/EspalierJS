@@ -15,3 +15,5 @@ let table = demoTable(espalier.el("#demo-table"));
 let graph = new DemoGraph(espalier.el("#wizard-container"), (graphValue) => {
     espalier.el("#graph-value").innerHtml = JSON.stringify(graphValue, null, 2);
 });
+
+window.espalier = espalier;

@@ -1,6 +1,6 @@
 {
   "name": "espalier-js",
-  "version": "0.3.31",
+  "version": "0.3.61",
   "description": "Tightly pruned HTML, CSS, and JavaScript for a productive web development experience.",
   "main": "gulpfile.js",
   "dependencies": {},
@@ -21,6 +21,7 @@
     "gulp-watch": "^4.2.4",
     "handlebars": "^3.0.3",
     "handlebars-loader": "^1.1.0",
+    "html5shiv": "^3.7.3",
     "jasmine": "^2.3.1",
     "jasmine-core": "^2.3.4",
     "jquery": "^1.11.3",

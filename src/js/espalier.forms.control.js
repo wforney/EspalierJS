@@ -1,4 +1,5 @@
 import core from "./espalier.core";
+import common from "./espalier.common";
 import config from "./config/index";
 import { Required, Email, Date, RequiredDependent } from "./espalier.validation";
 import messageFactory from "./espalier.messageFactory";
@@ -107,6 +108,10 @@ class FormControl {
         control.setAttribute(lowerCaseId, "");
     }
 
+    getName() {
+        return this.control.name;
+    }
+
     val() {
         let controlType = this.control.type ? this.control.type : this.control.getAttribute("type");
 
@@ -114,8 +119,16 @@ class FormControl {
             case "checkbox":
                 return core.matches(this.control, ":checked") ? this.control.value : undefined;
             case "radio":
-                let selected = core.find(`[name="${this.control.name}"]:checked`);
-                return selected.length == 1 ? selected[0].value : undefined;
+                let radios = core.find(`[name="${this.control.name}"]`);
+                
+                //Loop through these instead of using the :checked selector...
+                for (let radio of radios) {
+                    if (radio.checked) {
+                        return radio.value;
+                    }
+                }
+
+                return undefined;
             default:
                 return this.control.value;
         }
@@ -144,7 +157,7 @@ let factory = function (control, form, explicitValidations) {
                 if (!validation.isValid()) {
                     hasErrors = true;
                     let message = validation.getMessage();
-                    
+
                     if (message) {
                         errors.push(message);
                     }
@@ -162,6 +175,7 @@ let factory = function (control, form, explicitValidations) {
         return !hasErrors;
     };
 
+    common.controls.set(formControl.control, formControl);
     return formControl;
 };
 

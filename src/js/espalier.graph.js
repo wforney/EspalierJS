@@ -156,7 +156,7 @@ export default class Graph {
         let transversed = this._internals.get(keys.transversed);
         transversed.push(step);
 
-        if (step.getPropertyName()) {
+        if (step.getPropertyName) {
             let value = step.getValue();
             core.setProperty(this._internals.get(keys.result), step.getPropertyName(), value);
         }

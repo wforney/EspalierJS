@@ -1,8 +1,15 @@
 import core from "./espalier.core";
 import FormControl from "./espalier.forms.control";
 
+let keys = {
+    controls: new Object()
+};
+
+
 class EspalierForm {
     constructor(formToWire, args) {
+        this._internals = new WeakMap();
+
         if (core.isString(formToWire)) {
             this.form = core.find(formToWire)[0];
         } else {
@@ -26,7 +33,9 @@ class EspalierForm {
         this.options = core.extend(options, args);
 
         this.form.setAttribute("novalidate", "");
-        this.controls = new Set();
+
+        let controls = new Set();
+
         let processedControls = new Set();
         let rawControls = core.find("input, textarea, select", this.form);
 
@@ -42,9 +51,11 @@ class EspalierForm {
             processedControls.add(lowerCaseId);
 
             if (lowerCaseId || (control.type ? control.type : control.getAttribute("type")) == "radio") {
-                this.controls.add(FormControl(control));
+                controls.add(FormControl(control));
             }
         }
+
+        this._internals.set(keys.controls, controls);
 
         core.addEventListener(this.form, "submit", (event) => {
             event.preventDefault();
@@ -84,7 +95,7 @@ class EspalierForm {
             core.sendRequest({
                 type: method ? method : "GET",
                 url: this.form.getAttribute("action"),
-                data: new FormData(this.form)
+                data: this.value()
             }).then((data) => {
                 let onSuccess = this.form.getAttribute("data-success");
 
@@ -95,10 +106,20 @@ class EspalierForm {
         }
     }
 
-    validate() {
-        var valid = true;
+    value() {
+        let value = {};
 
-        for (let control of this.controls) {
+        for (let control of this._internals.get(keys.controls)) {
+            core.setProperty(value, control.getName(), control.val());
+        }
+
+        return value;
+    }
+
+    validate() {
+        let valid = true;
+
+        for (let control of this._internals.get(keys.controls)) {
             control.message.remove();
 
             if (!control.validate()) {

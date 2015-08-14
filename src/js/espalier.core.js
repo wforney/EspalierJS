@@ -45,11 +45,28 @@ else {
 
 testDate = null;
 
+let ajaxSuccess = function (responseText, event, onSuccess) {
+    let jsonResponse = JSON.parse(responseText);
+
+    if (event) {
+        pubsub.publish(event, JSON.parse(jsonResponse));
+    }
+
+    if (onSuccess) {
+        onSuccess(jsonResponse);
+    }
+
+    return jsonResponse;
+};
+
 let core = {
     sendRequest: function (req) {
         waitscreen.show();
         let existingMessages = core.find("." + mainMessage.settings.messageContainerClass);
-        existingMessages.parentNode.remove.remove(existingMessages);
+
+        for (let message of existingMessages) {
+            message.parentNode.removeChild(message);
+        }
 
         let ajaxSettings = {
             type: "GET",
@@ -59,65 +76,72 @@ let core = {
         core.extend(ajaxSettings, req);
 
         let promise = new Promise((resolve, reject) => {
-            let request;
+            let request = new XMLHttpRequest();
+            let origin = `${window.location.protocol}//${window.location.host}`.toLowerCase();
+            let isCors = (ajaxSettings.url.slice(0, 7).toLowerCase() === "http://" || ajaxSettings.url.slice(0, 8).toLowerCase() === "https://") && ajaxSettings.url.slice(0, origin.length).toLowerCase() !== origin;
 
-            if (ajaxSettings.withCredentials) {
+            if (isCors && ajaxSettings.withCredentials) {
                 if ("withCredentials" in request) {
-                    request = new XMLHttpRequest();
                     request.open(ajaxSettings.type, ajaxSettings.url, true);
+                    request.withCredentials = true;
                 } else if (typeof XDomainRequest != "undefined") {
                     request = new XDomainRequest();
                     request.open(ajaxSettings.type, ajaxSettings.url);
+                    request.onload = function () {
+                        resolve(ajaxSuccess(this.responseText, req.event, req.onSuccess));
+                    }
+                } else {
+                    throw new Error("CORS not supported");
                 }
+            } else {
+                request.open(ajaxSettings.type, ajaxSettings.url, true);
             }
 
-            if (!request) {
-                throw new Error("CORS not supported");
+            if (ajaxSettings.type == "POST") {
+                request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
             }
 
             request.onreadystatechange = function () {
                 if (this.readyState === 4) {
-                    waitscreen.hide();
-                    let jsonResponse = JSON.parse(this.responseText);
+                    if (this.status < 200) {
+                        return;
+                    }
 
                     if (this.status >= 200 && this.status < 400) {
-                        if (req.event) {
-                            pubsub.publish(req.event, JSON.parse(jsonResponse));
-                        }
-
-                        if (req.onSuccess) {
-                            req.onSuccess(jsonResponse);
-                        }
-
-                        resolve(jsonResponse);
-                        return;
+                        resolve(ajaxSuccess(this.responseText, req.event, req.onSuccess));
                     } else if (this.status == 500) {
+                        let jsonResponse = JSON.parse(this.responseText);
                         core.showError({
                             message: jsonResponse.Message,
                             cssClass: "error"
                         });
                     } else {
+                        let jsonResponse = JSON.parse(this.responseText);
                         let errors = [];
 
                         for (let error of jsonResponse.errors) {
                             if (error.source && error.source.parameter) {
-                                var specificField = core.find("#" + error.source.parameter.toLowerCase());
+                                var specificField = core.find("#" + error.source.parameter.toLowerCase())[0];
 
                                 if (specificField) {
-                                    var fieldMessage = specificField.data("message");
+                                    let formControl = common.controls.get(specificField);
 
-                                    if (fieldMessage) {
-                                        fieldMessage.show({
-                                            message: error.detail,
-                                            messageType: messageFactory.messageType.Error
-                                        });
+                                    if (formControl) {
+                                        var fieldMessage = formControl.message;
 
-                                        return;
+                                        if (fieldMessage) {
+                                            fieldMessage.show({
+                                                message: error.detail,
+                                                messageType: messageFactory.messageType.Error
+                                            });
+                                        }
+                                    } else {
+                                        errors.push(error.detail);
                                     }
+                                } else {
+                                    errors.push(error.detail);
                                 }
                             }
-
-                            errors.push(error.detail);
                         }
 
                         if (errors.length > 0) {
@@ -126,6 +150,7 @@ let core = {
                     }
 
                     reject(this.responseText);
+                    waitscreen.hide();
                 }
             };
 
@@ -134,8 +159,7 @@ let core = {
                     request.send();
                     return;
                 case "POST":
-                    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-                    request.send(ajaxSettings.data);
+                    request.send(JSON.stringify(ajaxSettings.data));
                     return;
             }
 

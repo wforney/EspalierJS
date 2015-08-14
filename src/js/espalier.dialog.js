@@ -4,12 +4,28 @@ import common from "./espalier.common";
 import EspalierNode from "./espalier.domnode";
 
 let center = function (dialog) {
-    let windowHeight = common.window.innerHeight;
-    let scrollTop = common.window.scrollY;
+    let windowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight;
+    let scrollTop = window.scrollY ? window.scrollY : document.documentElement.scrollTop;
     let height = dialog.offsetHeight;
     let top = (windowHeight / 2) - (height / 2) + scrollTop;
     top = top > 0 ? top : 0;
     dialog.style.top = top + "px";
+};
+
+let showVellum = function () {
+    if (common.find(".dialog-vellum").length > 0) {
+        return;
+    }
+
+    common.body.append("<div class=\"vellum dialog-vellum\" />");
+};
+
+let hideVellum = function () {
+    let vellum = common.find(".dialog-vellum");
+
+    if (vellum.length > 0) {
+        vellum[0].parentNode.removeChild(vellum[0]);
+    }
 };
 
 class Dialog {
@@ -30,7 +46,7 @@ class Dialog {
 
     show() {
         core.hideMainMessage();
-        common.showVellum();
+        showVellum();
         let dialog = this.settings.element.getNode();
 
         dialog.style.position = "absolute";
@@ -57,7 +73,7 @@ class Dialog {
         config.hideDialogAnimation(dialog);
 
         if (common.find(".dialog").length == 0) {
-            common.hideVellum();
+            hideVellum();
         }
 
         return this;

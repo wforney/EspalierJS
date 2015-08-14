@@ -69,7 +69,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
-	var _espalierCore = __webpack_require__(12);
+	var _espalierCore = __webpack_require__(2);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
@@ -77,7 +77,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
 	
-	var _espalierForms = __webpack_require__(14);
+	var _espalierForms = __webpack_require__(13);
 	
 	var _espalierForms2 = _interopRequireDefault(_espalierForms);
 	
@@ -85,7 +85,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
 	
-	var _espalierTable = __webpack_require__(2);
+	var _espalierTable = __webpack_require__(22);
 	
 	var _espalierTable2 = _interopRequireDefault(_espalierTable);
 	
@@ -101,6 +101,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierGraphNode2 = _interopRequireDefault(_espalierGraphNode);
 	
+	var _espalierDomnode = __webpack_require__(5);
+	
+	var _espalierDomnode2 = _interopRequireDefault(_espalierDomnode);
+	
 	var espalier = {
 	    showWarning: _espalierCore2["default"].showWarning,
 	    showInfo: _espalierCore2["default"].showInfo,
@@ -112,6 +116,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    shortDate: _espalierCore2["default"].shortDate,
 	    shortTime: _espalierCore2["default"].shortTime,
 	    el: _espalierCore2["default"].find,
+	    node: function node(selector) {
+	        return new _espalierDomnode2["default"](selector);
+	    },
+	    extend: _espalierCore2["default"].extend,
 	    numberWithCommas: _espalierCore2["default"].numberWithCommas,
 	    publish: _espalierCore2["default"].publish,
 	    parseISODate: _espalierCore2["default"].parseISODate,
@@ -136,11 +144,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: true
 	});
 	
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var _espalierMessageFactory = __webpack_require__(3);
 	
@@ -154,177 +158,377 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
 	
-	var _espalierCore = __webpack_require__(12);
+	var _pubsubJs = __webpack_require__(12);
 	
-	var _espalierCore2 = _interopRequireDefault(_espalierCore);
+	var _pubsubJs2 = _interopRequireDefault(_pubsubJs);
 	
-	var _espalierDomnode = __webpack_require__(5);
+	var _helpersIsString = __webpack_require__(6);
 	
-	var _espalierDomnode2 = _interopRequireDefault(_espalierDomnode);
+	var _helpersIsString2 = _interopRequireDefault(_helpersIsString);
 	
-	var getFooter = function getFooter(table) {
-	    var startAtPage = Math.max(0, table.settings.currentPage - 3);
-	    var endAtPage = Math.min(table.settings.pages - 1, table.settings.currentPage + 3 + Math.max(3 - table.settings.currentPage, 0));
-	    var pagingControl = "<ul class=\"pagination\">";
+	var _helpersAddListener = __webpack_require__(7);
 	
-	    pagingControl += "<li" + (table.settings.currentPage == 0 ? " class=\"disabled\"" : "") + "><a data-page=\"" + (table.settings.currentPage - 1) + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&laquo;</span></a></li>";
+	var _helpersAddListener2 = _interopRequireDefault(_helpersAddListener);
 	
-	    for (var i = startAtPage; i <= endAtPage; i++) {
-	        pagingControl += "<li" + (i === table.settings.currentPage ? " class=\"active\"" : "") + "><a data-page=\"" + i + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\">" + (i + 1) + "</a></li>";
+	var _helpersMatches = __webpack_require__(9);
+	
+	var _helpersMatches2 = _interopRequireDefault(_helpersMatches);
+	
+	var mainMessage = _espalierMessageFactory2["default"].create({
+	    attachTo: _espalierCommon2["default"].body.getNode()
+	});
+	
+	var parseDate;
+	var testDate = new Date('2011-06-02T09:34:29+02:00');
+	
+	if (!testDate || +testDate !== 1307000069000) {
+	    parseDate = function (s) {
+	        var day,
+	            tz,
+	            rx = /^(\d{4}\-\d\d\-\d\d([tT ][\d:\.]*)?)([zZ]|([+\-])(\d\d):(\d\d))?$/,
+	            p = rx.exec(s) || [];
+	        if (p[1]) {
+	            day = p[1].split(/\D/);
+	            for (var i = 0, L = day.length; i < L; i++) {
+	                day[i] = parseInt(day[i], 10) || 0;
+	            };
+	            day[1] -= 1;
+	            day = new Date(Date.UTC.apply(Date, day));
+	            if (!day.getDate()) return NaN;
+	            if (p[5]) {
+	                tz = parseInt(p[5], 10) * 60;
+	                if (p[6]) tz += parseInt(p[6], 10);
+	                if (p[4] == '+') tz *= -1;
+	                if (tz) day.setUTCMinutes(day.getUTCMinutes() + tz);
+	            }
+	            return day;
+	        }
+	        return NaN;
+	    };
+	} else {
+	    parseDate = function (s) {
+	        return new Date(s);
+	    };
+	}
+	
+	testDate = null;
+	
+	var ajaxSuccess = function ajaxSuccess(responseText, event, onSuccess) {
+	    var jsonResponse = JSON.parse(responseText);
+	
+	    if (event) {
+	        _pubsubJs2["default"].publish(event, JSON.parse(jsonResponse));
 	    }
 	
-	    var nextPage = table.settings.currentPage + 1;
-	    pagingControl += "<li" + (nextPage == table.settings.pages ? " class=\"disabled\"" : "") + "><a data-page=\"" + nextPage + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&raquo;</span></a></li>";
+	    if (onSuccess) {
+	        onSuccess(jsonResponse);
+	    }
 	
-	    return "<tfoot><tr><td colspan=\"42\">" + pagingControl + "</td></tr></tfoot>";
+	    return jsonResponse;
 	};
 	
-	var renderTable = function renderTable(table) {
-	    var promise = new Promise(function (resolve, reject) {
-	        var rendered = "<table class=\"" + table.settings.tableClass + " table table-striped\">";
+	var core = {
+	    sendRequest: function sendRequest(req) {
+	        _espalierWaitscreen2["default"].show();
+	        var existingMessages = core.find("." + mainMessage.settings.messageContainerClass);
 	
-	        if (table.settings.headerTemplate) {
-	            rendered += table.settings.headerTemplate();
-	        }
+	        var _iteratorNormalCompletion = true;
+	        var _didIteratorError = false;
+	        var _iteratorError = undefined;
 	
-	        rendered += "<tbody>";
-	        var startAtIndex = table.settings.currentPage * table.settings.pageSize;
+	        try {
+	            for (var _iterator = existingMessages[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                var message = _step.value;
 	
-	        if (table.settings.data) {
-	            for (var i = startAtIndex; i < Math.min(startAtIndex + table.settings.pageSize, table.settings.data.length); i++) {
-	                rendered += table.settings.rowTemplate(table.settings.data[i]);
+	                message.parentNode.removeChild(message);
 	            }
-	
-	            rendered += "</tbody>";
-	
-	            if (table.settings.pages > 0) {
-	                rendered += getFooter(table);
+	        } catch (err) {
+	            _didIteratorError = true;
+	            _iteratorError = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                    _iterator["return"]();
+	                }
+	            } finally {
+	                if (_didIteratorError) {
+	                    throw _iteratorError;
+	                }
 	            }
-	            resolve(rendered);
-	        } else {
-	            _espalierCore2["default"].sendRequest({
-	                url: table.settings.fetchUrl,
-	                type: "POST",
-	                data: {
-	                    Page: table.settings.currentPage,
-	                    PageSize: table.settings.pageSize,
-	                    Criteria: table.settings.filter
-	                }
-	            }).then(function (result) {
-	                if (table.settings.fetchCallback) {
-	                    table.settings.fetchCallback(result);
-	                }
-	
-	                table.settings.pages = Math.ceil(result.data.total / result.data.pageSize);
-	                for (var i = 0; i < result.data.records.length; i++) {
-	                    rendered += table.settings.rowTemplate(result.data.records[i]);
-	                }
-	                rendered += "</tbody>";
-	                rendered += getFooter(table);
-	                resolve(rendered);
-	            });
 	        }
-	    });
 	
-	    promise.then(function (rendered) {
-	        table.settings.container.html(rendered);
-	
-	        if (table.settings.renderedCallback) {
-	            table.settings.renderedCallback(table.settings.container[0].getElementsByTagName("table")[0]);
-	        }
-	    });
-	};
-	
-	var Table = (function () {
-	    function Table(args) {
-	        _classCallCheck(this, Table);
-	
-	        this.settings = {
-	            container: undefined,
-	            currentPage: 0,
-	            data: undefined,
-	            fetchCallback: undefined,
-	            fetchUrl: "",
-	            headerTemplate: undefined,
-	            pageSize: 10,
-	            prefetchPages: 5,
-	            rowTemplate: undefined,
-	            tableClass: "espalier-table",
-	            renderedCallback: undefined
+	        var ajaxSettings = {
+	            type: "GET",
+	            withCredentials: true
 	        };
 	
-	        args.container = new _espalierDomnode2["default"](args.container);
+	        core.extend(ajaxSettings, req);
 	
-	        _espalierCommon2["default"].extend(this.settings, args);
+	        var promise = new Promise(function (resolve, reject) {
+	            var request = new XMLHttpRequest();
+	            var origin = (window.location.protocol + "//" + window.location.host).toLowerCase();
+	            var isCors = (ajaxSettings.url.slice(0, 7).toLowerCase() === "http://" || ajaxSettings.url.slice(0, 8).toLowerCase() === "https://") && ajaxSettings.url.slice(0, origin.length).toLowerCase() !== origin;
 	
-	        if (!this.settings.fetchUrl && !this.settings.data) {
-	            throw new TypeError("You must either specify a fetch url or pass in data for the table to display.");
-	        }
-	
-	        if (!this.settings.container) {
-	            throw new TypeError("You must specify a container to place the table in.");
-	        }
-	
-	        if (!this.settings.rowTemplate) {
-	            throw new TypeError("You must provide a row template.");
-	        }
-	
-	        if (this.settings.data) {
-	            this.settings.pages = Math.ceil(this.settings.data.length / this.settings.pageSize);
-	        }
-	
-	        _espalierCommon2["default"].extend(this.settings, args);
-	
-	        var table = this;
-	
-	        this.settings.container.on("click", ".espalier-table-button", function (el) {
-	            table.goToPage(el.getAttribute("data-page"));
-	        });
-	
-	        renderTable(this);
-	    }
-	
-	    _createClass(Table, [{
-	        key: "next",
-	        value: function next() {
-	            this.settings.currentPage++;
-	            renderTable(this);
-	            return this;
-	        }
-	    }, {
-	        key: "previous",
-	        value: function previous() {
-	            this.settings.currentPage--;
-	            renderTable(this);
-	            return this;
-	        }
-	    }, {
-	        key: "filter",
-	        value: function filter(_filter) {
-	            this.settings.filter = _filter;
-	            this.settings.currentPage = 0;
-	            renderTable(this);
-	            return this;
-	        }
-	    }, {
-	        key: "goToPage",
-	        value: function goToPage(page) {
-	            page = Number(page);
-	
-	            if (page < 0 || page >= this.settings.pages) {
-	                return;
+	            if (isCors && ajaxSettings.withCredentials) {
+	                if ("withCredentials" in request) {
+	                    request.open(ajaxSettings.type, ajaxSettings.url, true);
+	                    request.withCredentials = true;
+	                } else if (typeof XDomainRequest != "undefined") {
+	                    request = new XDomainRequest();
+	                    request.open(ajaxSettings.type, ajaxSettings.url);
+	                    request.onload = function () {
+	                        resolve(ajaxSuccess(this.responseText, req.event, req.onSuccess));
+	                    };
+	                } else {
+	                    throw new Error("CORS not supported");
+	                }
+	            } else {
+	                request.open(ajaxSettings.type, ajaxSettings.url, true);
 	            }
 	
-	            this.settings.currentPage = page;
-	            renderTable(this);
-	            return this;
+	            if (ajaxSettings.type == "POST") {
+	                request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+	            }
+	
+	            request.onreadystatechange = function () {
+	                if (this.readyState === 4) {
+	                    if (this.status < 200) {
+	                        return;
+	                    }
+	
+	                    if (this.status >= 200 && this.status < 400) {
+	                        resolve(ajaxSuccess(this.responseText, req.event, req.onSuccess));
+	                    } else if (this.status == 500) {
+	                        var jsonResponse = JSON.parse(this.responseText);
+	                        core.showError({
+	                            message: jsonResponse.Message,
+	                            cssClass: "error"
+	                        });
+	                    } else {
+	                        var jsonResponse = JSON.parse(this.responseText);
+	                        var errors = [];
+	
+	                        var _iteratorNormalCompletion2 = true;
+	                        var _didIteratorError2 = false;
+	                        var _iteratorError2 = undefined;
+	
+	                        try {
+	                            for (var _iterator2 = jsonResponse.errors[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                                var error = _step2.value;
+	
+	                                if (error.source && error.source.parameter) {
+	                                    var specificField = core.find("#" + error.source.parameter.toLowerCase())[0];
+	
+	                                    if (specificField) {
+	                                        var formControl = _espalierCommon2["default"].controls.get(specificField);
+	
+	                                        if (formControl) {
+	                                            var fieldMessage = formControl.message;
+	
+	                                            if (fieldMessage) {
+	                                                fieldMessage.show({
+	                                                    message: error.detail,
+	                                                    messageType: _espalierMessageFactory2["default"].messageType.Error
+	                                                });
+	                                            }
+	                                        } else {
+	                                            errors.push(error.detail);
+	                                        }
+	                                    } else {
+	                                        errors.push(error.detail);
+	                                    }
+	                                }
+	                            }
+	                        } catch (err) {
+	                            _didIteratorError2 = true;
+	                            _iteratorError2 = err;
+	                        } finally {
+	                            try {
+	                                if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+	                                    _iterator2["return"]();
+	                                }
+	                            } finally {
+	                                if (_didIteratorError2) {
+	                                    throw _iteratorError2;
+	                                }
+	                            }
+	                        }
+	
+	                        if (errors.length > 0) {
+	                            core.showError(errors);
+	                        }
+	                    }
+	
+	                    reject(this.responseText);
+	                    _espalierWaitscreen2["default"].hide();
+	                }
+	            };
+	
+	            switch (ajaxSettings.type) {
+	                case "GET":
+	                    request.send();
+	                    return;
+	                case "POST":
+	                    request.send(JSON.stringify(ajaxSettings.data));
+	                    return;
+	            }
+	
+	            request = null;
+	        });
+	
+	        return promise;
+	    },
+	    showWarning: function showWarning(messages) {
+	        mainMessage.show({
+	            message: messages,
+	            messageType: _espalierMessageFactory2["default"].messageType.Warning
+	        });
+	    },
+	    showError: function showError(messages) {
+	        mainMessage.show({
+	            message: messages,
+	            messageType: _espalierMessageFactory2["default"].messageType.Error
+	        });
+	    },
+	    showInfo: function showInfo(messages) {
+	        mainMessage.show({
+	            message: messages,
+	            messageType: _espalierMessageFactory2["default"].messageType.Info
+	        });
+	    },
+	    hideMainMessage: function hideMainMessage() {
+	        mainMessage.remove();
+	    },
+	    isEmptyOrSpaces: function isEmptyOrSpaces(str) {
+	        return str === undefined || str === null || str.match(/^\s*$/) !== null;
+	    },
+	    isEmail: function isEmail(str) {
+	        var emailRegex = /^(([\w-]+\.)+[\w-]+|([a-zA-Z]{1}|[\w-]{2,}))@((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|([a-zA-Z]+[\w-]+\.)+[a-zA-Z]{2,4})$/;
+	        return core.isEmptyOrSpaces(str) || str.match(emailRegex);
+	    },
+	    isDate: function isDate(str) {
+	        var d = new Date(str);
+	        return core.isEmptyOrSpaces(str) || d != "Invalid Date" && !isNaN(d);
+	    },
+	    numberWithCommas: function numberWithCommas(x) {
+	        var parts = x.toString().split(".");
+	        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+	        return parts.join(".");
+	    },
+	    parseISODate: parseDate,
+	    shortDate: function shortDate(date) {
+	        if (!(date instanceof Date)) {
+	            date = parseDate(date);
 	        }
-	    }]);
 	
-	    return Table;
-	})();
+	        return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
+	    },
+	    shortTime: function shortTime(date) {
+	        if (!(date instanceof Date)) {
+	            date = parseDate(date);
+	        }
 	
-	exports["default"] = Table;
+	        var hour = date.getHours();
+	        var ampm = "AM";
+	
+	        if (hour > 11) {
+	            hour -= 12;
+	            ampm = "PM";
+	        }
+	
+	        if (hour === 0) {
+	            hour = 12;
+	        }
+	
+	        var minutes = "00" + date.getMinutes();
+	        return hour + ":" + minutes.substring(minutes.length - 2) + " " + ampm;
+	    },
+	    publish: function publish(topic, message) {
+	        _pubsubJs2["default"].publish(topic, message);
+	    },
+	    subscribe: function subscribe(topic, handler) {
+	        return _pubsubJs2["default"].subscribe(topic, function (topic, message) {
+	            handler(message);
+	        });
+	    },
+	    unsubscribe: function unsubscribe(token) {
+	        _pubsubJs2["default"].unsubscribe(token);
+	    },
+	    find: _espalierCommon2["default"].find,
+	    extend: _espalierCommon2["default"].extend,
+	    closest: function closest(el, selector) {
+	        while (el !== null) {
+	            var _parent = el.parentElement;
+	            if (_parent !== null && (0, _helpersMatches2["default"])(_parent, selector)) {
+	                return _parent;
+	            }
+	            el = _parent;
+	        }
+	
+	        return null;
+	    },
+	    addClass: function addClass(el, className) {
+	        if (el.classList) {
+	            el.classList.add(className);
+	        } else {
+	            el.className += ' ' + className;
+	        }
+	    },
+	    removeClass: function removeClass(el, className) {
+	        if (el.classList) {
+	            el.classList.remove(className);
+	        } else {
+	            el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
+	        }
+	    },
+	    addEventListener: _helpersAddListener2["default"],
+	    matches: _helpersMatches2["default"],
+	    isString: _helpersIsString2["default"],
+	    first: function first(array, match) {
+	        var _iteratorNormalCompletion3 = true;
+	        var _didIteratorError3 = false;
+	        var _iteratorError3 = undefined;
+	
+	        try {
+	            for (var _iterator3 = array[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	                var arrayItem = _step3.value;
+	
+	                if (match(arrayItem)) {
+	                    return arrayItem;
+	                }
+	            }
+	        } catch (err) {
+	            _didIteratorError3 = true;
+	            _iteratorError3 = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
+	                    _iterator3["return"]();
+	                }
+	            } finally {
+	                if (_didIteratorError3) {
+	                    throw _iteratorError3;
+	                }
+	            }
+	        }
+	
+	        throw new Error("Unable to match that item.");
+	    },
+	    setProperty: function setProperty(obj, prop, value) {
+	        if (core.isString(prop)) {
+	            prop = prop.split(".");
+	        }
+	
+	        if (prop.length > 1) {
+	            var e = prop.shift();
+	            core.setProperty(obj[e] = Object.prototype.toString.call(obj[e]) === "[object Object]" ? obj[e] : {}, prop, value);
+	        } else {
+	            obj[prop[0]] = value;
+	        }
+	    }
+	};
+	
+	exports["default"] = core;
 	module.exports = exports["default"];
 
 /***/ },
@@ -533,13 +737,13 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
-	Object.defineProperty(exports, "__esModule", {
+	Object.defineProperty(exports, '__esModule', {
 	    value: true
 	});
 	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 	
 	var _espalierDomnode = __webpack_require__(5);
 	
@@ -549,6 +753,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    root = root ? root : document;
 	    return Array.from(root.querySelectorAll(selector));
 	};
+	
+	//TODO: This is a temporary hack around removing jQuery and the .data() method.
+	//      Figure out a better way to resolve a control when submitting a request;
+	//      allowing a user to pass an Espalier Form could be a good alternative and
+	//      would better scope the controls.
+	var controls = new WeakMap();
 	
 	var extend = function extend(out) {
 	    out = out || {};
@@ -564,29 +774,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return out;
 	};
 	
-	var body = new _espalierDomnode2["default"](find("body"));
+	var browserSupportsCSSProperty = function browserSupportsCSSProperty(propertyName) {
+	    var el = document.createElement('div');
+	    propertyName = propertyName.toLowerCase();
 	
-	exports["default"] = {
-	    body: body,
-	    window: window,
-	    showVellum: function showVellum() {
-	        if (find(".vellum").length > 0) {
-	            return;
-	        }
+	    if (el.style[propertyName] != undefined) return true;
 	
-	        body.append("<div class=\"vellum\" />");
-	    },
-	    hideVellum: function hideVellum() {
-	        var vellum = find(".vellum");
+	    var propertyNameCapital = propertyName.charAt(0).toUpperCase() + propertyName.substr(1),
+	        domPrefixes = 'Webkit Moz ms O'.split(' ');
 	
-	        if (vellum.length > 0) {
-	            vellum[0].parentNode.removeChild(vellum[0]);
-	        }
-	    },
-	    find: find,
-	    extend: extend
+	    for (var i = 0; i < domPrefixes.length; i++) {
+	        if (el.style[domPrefixes[i] + propertyNameCapital] != undefined) return true;
+	    }
+	
+	    return false;
 	};
-	module.exports = exports["default"];
+	
+	var body = new _espalierDomnode2['default'](find("body"));
+	
+	exports['default'] = {
+	    body: body,
+	    find: find,
+	    extend: extend,
+	    controls: controls,
+	    browserSupportsCSSProperty: browserSupportsCSSProperty
+	};
+	module.exports = exports['default'];
 
 /***/ },
 /* 5 */
@@ -620,7 +833,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _helpersMatches2 = _interopRequireDefault(_helpersMatches);
 	
-	var rootNode = document.createElement("div");
 	var keys = {
 	    node: new Object()
 	};
@@ -632,8 +844,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this._internals = new WeakMap();
 	
 	        if ((0, _helpersIsString2["default"])(node)) {
-	            rootNode.innerHTML = node;
-	            node = rootNode.firstChild;
+	            var wrapper = document.createElement("div");
+	            wrapper.innerHTML = node;
+	            node = wrapper.firstChild;
 	        }
 	
 	        node = (0, _helpersSingleOrError2["default"])(node);
@@ -652,14 +865,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var node = this.getNode();
 	
 	            if ((0, _helpersIsString2["default"])(stuff)) {
-	                rootNode.innerHTML = stuff;
+	                var wrapper = document.createElement("div");
+	                wrapper.innerHTML = stuff;
 	
 	                var _iteratorNormalCompletion = true;
 	                var _didIteratorError = false;
 	                var _iteratorError = undefined;
 	
 	                try {
-	                    for (var _iterator = rootNode.childNodes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    for (var _iterator = wrapper.childNodes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 	                        var child = _step.value;
 	
 	                        node.appendChild(child);
@@ -683,6 +897,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	
 	            node.appendChild(stuff);
+	        }
+	    }, {
+	        key: "closest",
+	        value: function closest(selector) {
+	            var node = this.getNode().parentNode;
+	
+	            do {
+	                if ((0, _helpersMatches2["default"])(node, selector)) {
+	                    return node;
+	                }
+	            } while (node = node.parentNode);
+	
+	            return null;
 	        }
 	    }, {
 	        key: "html",
@@ -711,7 +938,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        key: "remove",
 	        value: function remove() {
 	            var node = this.getNode();
-	            node.parentNode.removeChild(node);
+	
+	            if (node.parentNode) {
+	                node.parentNode.removeChild(node);
+	            }
 	        }
 	    }]);
 	
@@ -752,7 +982,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	        el.addEventListener(eventName, handler);
 	    } else {
 	        el.attachEvent('on' + eventName, function (args) {
+	            //IE 8 Support ....
 	            args.target = args.srcElement;
+	
+	            args.preventDefault = function () {
+	                args.cancelBubble = true;
+	            };
+	
+	            args.stopPropagation = function () {
+	                args.returnValue = false;
+	            };
+	
 	            handler(args);
 	        });
 	    }
@@ -880,387 +1120,65 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
 	
-	var _espalierCore = __webpack_require__(12);
+	var _espalierCore = __webpack_require__(2);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
-	var pleaseWaitId = "espalier-wait-screen";
-	var hourglass = 'data:image/svg+xml;utf8,' + "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"uil-gears\" viewBox=\"0 0 100 100\" preserveAspectRatio=\"xMidYMid meet\" width=\"120px\" height=\"120px\">" + "  <rect class=\"bk\" fill=\"none\" x=\"0\" y=\"0\" width=\"100\" height=\"100\" />" + "  <g transform=\"translate(-20 -20)\">" + "    <path fill=\"#fafafa\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"0 50 50\" from=\"90 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "  <g transform=\"translate(20 20) rotate(15 50.0002 50)\">" + "    <path fill=\"#efefef\" d=\"M 79.9 52.6 C 80 51.8 80 50.9 80 50 s 0 -1.8 -0.1 -2.6 l -5.1 -0.4 c -0.3 -2.4 -0.9 -4.6 -1.8 -6.7 l 4.2 -2.9 c -0.7 -1.6 -1.6 -3.1 -2.6 -4.5 L 70 35 c -1.4 -1.9 -3.1 -3.5 -4.9 -4.9 l 2.2 -4.6 c -1.4 -1 -2.9 -1.9 -4.5 -2.6 L 59.8 27 c -2.1 -0.9 -4.4 -1.5 -6.7 -1.8 l -0.4 -5.1 C 51.8 20 50.9 20 50 20 s -1.8 0 -2.6 0.1 l -0.4 5.1 c -2.4 0.3 -4.6 0.9 -6.7 1.8 l -2.9 -4.1 c -1.6 0.7 -3.1 1.6 -4.5 2.6 l 2.1 4.6 c -1.9 1.4 -3.5 3.1 -5 4.9 l -4.5 -2.1 c -1 1.4 -1.9 2.9 -2.6 4.5 l 4.1 2.9 c -0.9 2.1 -1.5 4.4 -1.8 6.8 l -5 0.4 C 20 48.2 20 49.1 20 50 s 0 1.8 0.1 2.6 l 5 0.4 c 0.3 2.4 0.9 4.7 1.8 6.8 l -4.1 2.9 c 0.7 1.6 1.6 3.1 2.6 4.5 l 4.5 -2.1 c 1.4 1.9 3.1 3.5 5 4.9 l -2.1 4.6 c 1.4 1 2.9 1.9 4.5 2.6 l 2.9 -4.1 c 2.1 0.9 4.4 1.5 6.7 1.8 l 0.4 5.1 C 48.2 80 49.1 80 50 80 s 1.8 0 2.6 -0.1 l 0.4 -5.1 c 2.3 -0.3 4.6 -0.9 6.7 -1.8 l 2.9 4.2 c 1.6 -0.7 3.1 -1.6 4.5 -2.6 L 65 69.9 c 1.9 -1.4 3.5 -3 4.9 -4.9 l 4.6 2.2 c 1 -1.4 1.9 -2.9 2.6 -4.5 L 73 59.8 c 0.9 -2.1 1.5 -4.4 1.8 -6.7 L 79.9 52.6 Z M 50 65 c -8.3 0 -15 -6.7 -15 -15 c 0 -8.3 6.7 -15 15 -15 s 15 6.7 15 15 C 65 58.3 58.3 65 50 65 Z\">" + "      <animateTransform type=\"rotate\" dur=\"2s\" repeatCount=\"indefinite\" to=\"90 50 50\" from=\"0 50 50\" attributeName=\"transform\" />" + "    </path>" + "  </g>" + "</svg>";
+	var _espalierDomnode = __webpack_require__(5);
 	
-	var pleaseWaitDiv = "<div id=\"" + pleaseWaitId + "\"><div><img src=\"" + hourglass + "\" alt=\"Please wait\" /></div></div>";
-	var pleaseWait = false;
+	var _espalierDomnode2 = _interopRequireDefault(_espalierDomnode);
+	
+	var animation = undefined;
+	
+	if (_espalierCommon2["default"].browserSupportsCSSProperty("animation")) {
+	    animation = "<div class=\"sk-folding-cube\">\n  <div class=\"sk-cube1 sk-cube\"></div>\n  <div class=\"sk-cube2 sk-cube\"></div>\n  <div class=\"sk-cube4 sk-cube\"></div>\n  <div class=\"sk-cube3 sk-cube\"></div>\n</div>";
+	} else {
+	    animation = "<div class=\"fallback\">\n  <div></div>\n</div>";
+	}
+	
+	var pleaseWaitDiv = new _espalierDomnode2["default"]("<div class=\"wait-screen\"><div>" + animation + "</div></div>");
+	var showing = false;
+	
+	var showVellum = function showVellum() {
+	    if (_espalierCommon2["default"].find(".wait-vellum").length > 0) {
+	        return;
+	    }
+	
+	    _espalierCommon2["default"].body.append("<div class=\"vellum wait-vellum\" />");
+	};
+	
+	var hideVellum = function hideVellum() {
+	    var vellum = _espalierCommon2["default"].find(".wait-vellum");
+	
+	    if (vellum.length > 0) {
+	        vellum[0].parentNode.removeChild(vellum[0]);
+	    }
+	};
 	
 	exports["default"] = {
 	    show: function show() {
-	        if (pleaseWait) {
-	            return pleaseWait;
+	        if (showing) {
+	            return pleaseWaitDiv.getNode();
 	        }
 	
-	        _espalierCommon2["default"].body.appendChild(pleaseWaitDiv);
-	        pleaseWait = _espalierCore2["default"].find("#" + pleaseWaitId);
-	        return pleaseWait;
+	        showVellum();
+	        _espalierCommon2["default"].body.append(pleaseWaitDiv.getNode());
+	        showing = true;
+	        return pleaseWaitDiv.getNode();
 	    },
 	    hide: function hide() {
-	        pleaseWait.parentNode.removeChild(pleaseWait);
-	        pleaseWait = false;
+	        if (showing) {
+	            hideVellum();
+	            var pleaseWait = pleaseWaitDiv.getNode();
+	            pleaseWait.parentNode.removeChild(pleaseWait);
+	            showing = false;
+	        }
 	    }
 	};
 	module.exports = exports["default"];
 
 /***/ },
 /* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-	
-	var _espalierMessageFactory = __webpack_require__(3);
-	
-	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
-	
-	var _espalierWaitscreen = __webpack_require__(11);
-	
-	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
-	
-	var _espalierCommon = __webpack_require__(4);
-	
-	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
-	
-	var _pubsubJs = __webpack_require__(13);
-	
-	var _pubsubJs2 = _interopRequireDefault(_pubsubJs);
-	
-	var _helpersIsString = __webpack_require__(6);
-	
-	var _helpersIsString2 = _interopRequireDefault(_helpersIsString);
-	
-	var _helpersAddListener = __webpack_require__(7);
-	
-	var _helpersAddListener2 = _interopRequireDefault(_helpersAddListener);
-	
-	var _helpersMatches = __webpack_require__(9);
-	
-	var _helpersMatches2 = _interopRequireDefault(_helpersMatches);
-	
-	var mainMessage = _espalierMessageFactory2["default"].create({
-	    attachTo: _espalierCommon2["default"].body.getNode()
-	});
-	
-	var parseDate;
-	var testDate = new Date('2011-06-02T09:34:29+02:00');
-	
-	if (!testDate || +testDate !== 1307000069000) {
-	    parseDate = function (s) {
-	        var day,
-	            tz,
-	            rx = /^(\d{4}\-\d\d\-\d\d([tT ][\d:\.]*)?)([zZ]|([+\-])(\d\d):(\d\d))?$/,
-	            p = rx.exec(s) || [];
-	        if (p[1]) {
-	            day = p[1].split(/\D/);
-	            for (var i = 0, L = day.length; i < L; i++) {
-	                day[i] = parseInt(day[i], 10) || 0;
-	            };
-	            day[1] -= 1;
-	            day = new Date(Date.UTC.apply(Date, day));
-	            if (!day.getDate()) return NaN;
-	            if (p[5]) {
-	                tz = parseInt(p[5], 10) * 60;
-	                if (p[6]) tz += parseInt(p[6], 10);
-	                if (p[4] == '+') tz *= -1;
-	                if (tz) day.setUTCMinutes(day.getUTCMinutes() + tz);
-	            }
-	            return day;
-	        }
-	        return NaN;
-	    };
-	} else {
-	    parseDate = function (s) {
-	        return new Date(s);
-	    };
-	}
-	
-	testDate = null;
-	
-	var core = {
-	    sendRequest: function sendRequest(req) {
-	        _espalierWaitscreen2["default"].show();
-	        var existingMessages = core.find("." + mainMessage.settings.messageContainerClass);
-	        existingMessages.parentNode.remove.remove(existingMessages);
-	
-	        var ajaxSettings = {
-	            type: "GET",
-	            withCredentials: true
-	        };
-	
-	        core.extend(ajaxSettings, req);
-	
-	        var promise = new Promise(function (resolve, reject) {
-	            var request = undefined;
-	
-	            if (ajaxSettings.withCredentials) {
-	                if ("withCredentials" in request) {
-	                    request = new XMLHttpRequest();
-	                    request.open(ajaxSettings.type, ajaxSettings.url, true);
-	                } else if (typeof XDomainRequest != "undefined") {
-	                    request = new XDomainRequest();
-	                    request.open(ajaxSettings.type, ajaxSettings.url);
-	                }
-	            }
-	
-	            if (!request) {
-	                throw new Error("CORS not supported");
-	            }
-	
-	            request.onreadystatechange = function () {
-	                if (this.readyState === 4) {
-	                    _espalierWaitscreen2["default"].hide();
-	                    var jsonResponse = JSON.parse(this.responseText);
-	
-	                    if (this.status >= 200 && this.status < 400) {
-	                        if (req.event) {
-	                            _pubsubJs2["default"].publish(req.event, JSON.parse(jsonResponse));
-	                        }
-	
-	                        if (req.onSuccess) {
-	                            req.onSuccess(jsonResponse);
-	                        }
-	
-	                        resolve(jsonResponse);
-	                        return;
-	                    } else if (this.status == 500) {
-	                        core.showError({
-	                            message: jsonResponse.Message,
-	                            cssClass: "error"
-	                        });
-	                    } else {
-	                        var errors = [];
-	
-	                        var _iteratorNormalCompletion = true;
-	                        var _didIteratorError = false;
-	                        var _iteratorError = undefined;
-	
-	                        try {
-	                            for (var _iterator = jsonResponse.errors[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                                var error = _step.value;
-	
-	                                if (error.source && error.source.parameter) {
-	                                    var specificField = core.find("#" + error.source.parameter.toLowerCase());
-	
-	                                    if (specificField) {
-	                                        var fieldMessage = specificField.data("message");
-	
-	                                        if (fieldMessage) {
-	                                            fieldMessage.show({
-	                                                message: error.detail,
-	                                                messageType: _espalierMessageFactory2["default"].messageType.Error
-	                                            });
-	
-	                                            return;
-	                                        }
-	                                    }
-	                                }
-	
-	                                errors.push(error.detail);
-	                            }
-	                        } catch (err) {
-	                            _didIteratorError = true;
-	                            _iteratorError = err;
-	                        } finally {
-	                            try {
-	                                if (!_iteratorNormalCompletion && _iterator["return"]) {
-	                                    _iterator["return"]();
-	                                }
-	                            } finally {
-	                                if (_didIteratorError) {
-	                                    throw _iteratorError;
-	                                }
-	                            }
-	                        }
-	
-	                        if (errors.length > 0) {
-	                            core.showError(errors);
-	                        }
-	                    }
-	
-	                    reject(this.responseText);
-	                }
-	            };
-	
-	            switch (ajaxSettings.type) {
-	                case "GET":
-	                    request.send();
-	                    return;
-	                case "POST":
-	                    request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8');
-	                    request.send(ajaxSettings.data);
-	                    return;
-	            }
-	
-	            request = null;
-	        });
-	
-	        return promise;
-	    },
-	    showWarning: function showWarning(messages) {
-	        mainMessage.show({
-	            message: messages,
-	            messageType: _espalierMessageFactory2["default"].messageType.Warning
-	        });
-	    },
-	    showError: function showError(messages) {
-	        mainMessage.show({
-	            message: messages,
-	            messageType: _espalierMessageFactory2["default"].messageType.Error
-	        });
-	    },
-	    showInfo: function showInfo(messages) {
-	        mainMessage.show({
-	            message: messages,
-	            messageType: _espalierMessageFactory2["default"].messageType.Info
-	        });
-	    },
-	    hideMainMessage: function hideMainMessage() {
-	        mainMessage.remove();
-	    },
-	    isEmptyOrSpaces: function isEmptyOrSpaces(str) {
-	        return str === undefined || str === null || str.match(/^\s*$/) !== null;
-	    },
-	    isEmail: function isEmail(str) {
-	        var emailRegex = /^(([\w-]+\.)+[\w-]+|([a-zA-Z]{1}|[\w-]{2,}))@((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|([a-zA-Z]+[\w-]+\.)+[a-zA-Z]{2,4})$/;
-	        return core.isEmptyOrSpaces(str) || str.match(emailRegex);
-	    },
-	    isDate: function isDate(str) {
-	        var d = new Date(str);
-	        return core.isEmptyOrSpaces(str) || d != "Invalid Date" && !isNaN(d);
-	    },
-	    numberWithCommas: function numberWithCommas(x) {
-	        var parts = x.toString().split(".");
-	        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-	        return parts.join(".");
-	    },
-	    parseISODate: parseDate,
-	    shortDate: function shortDate(date) {
-	        if (!(date instanceof Date)) {
-	            date = parseDate(date);
-	        }
-	
-	        return date.getMonth() + 1 + "/" + date.getDate() + "/" + date.getFullYear();
-	    },
-	    shortTime: function shortTime(date) {
-	        if (!(date instanceof Date)) {
-	            date = parseDate(date);
-	        }
-	
-	        var hour = date.getHours();
-	        var ampm = "AM";
-	
-	        if (hour > 11) {
-	            hour -= 12;
-	            ampm = "PM";
-	        }
-	
-	        if (hour === 0) {
-	            hour = 12;
-	        }
-	
-	        var minutes = "00" + date.getMinutes();
-	        return hour + ":" + minutes.substring(minutes.length - 2) + " " + ampm;
-	    },
-	    publish: function publish(topic, message) {
-	        _pubsubJs2["default"].publish(topic, message);
-	    },
-	    subscribe: function subscribe(topic, handler) {
-	        return _pubsubJs2["default"].subscribe(topic, function (topic, message) {
-	            handler(message);
-	        });
-	    },
-	    unsubscribe: function unsubscribe(token) {
-	        _pubsubJs2["default"].unsubscribe(token);
-	    },
-	    find: _espalierCommon2["default"].find,
-	    extend: _espalierCommon2["default"].extend,
-	    closest: function closest(el, selector) {
-	        while (el !== null) {
-	            var _parent = el.parentElement;
-	            if (_parent !== null && (0, _helpersMatches2["default"])(_parent, selector)) {
-	                return _parent;
-	            }
-	            el = _parent;
-	        }
-	
-	        return null;
-	    },
-	    addClass: function addClass(el, className) {
-	        if (el.classList) {
-	            el.classList.add(className);
-	        } else {
-	            el.className += ' ' + className;
-	        }
-	    },
-	    removeClass: function removeClass(el, className) {
-	        if (el.classList) {
-	            el.classList.remove(className);
-	        } else {
-	            el.className = el.className.replace(new RegExp('(^|\\b)' + className.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
-	        }
-	    },
-	    addEventListener: _helpersAddListener2["default"],
-	    matches: _helpersMatches2["default"],
-	    isString: _helpersIsString2["default"],
-	    first: function first(array, match) {
-	        var _iteratorNormalCompletion2 = true;
-	        var _didIteratorError2 = false;
-	        var _iteratorError2 = undefined;
-	
-	        try {
-	            for (var _iterator2 = array[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	                var arrayItem = _step2.value;
-	
-	                if (match(arrayItem)) {
-	                    return arrayItem;
-	                }
-	            }
-	        } catch (err) {
-	            _didIteratorError2 = true;
-	            _iteratorError2 = err;
-	        } finally {
-	            try {
-	                if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
-	                    _iterator2["return"]();
-	                }
-	            } finally {
-	                if (_didIteratorError2) {
-	                    throw _iteratorError2;
-	                }
-	            }
-	        }
-	
-	        throw new Error("Unable to match that item.");
-	    },
-	    setProperty: function setProperty(obj, prop, value) {
-	        if (core.isString(prop)) {
-	            prop = prop.split(".");
-	        }
-	
-	        if (prop.length > 1) {
-	            var e = prop.shift();
-	            core.setProperty(obj[e] = Object.prototype.toString.call(obj[e]) === "[object Object]" ? obj[e] : {}, prop, value);
-	        } else {
-	            obj[prop[0]] = value;
-	        }
-	    }
-	};
-	
-	exports["default"] = core;
-	module.exports = exports["default"];
-
-/***/ },
-/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*
@@ -1511,7 +1429,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 
 /***/ },
-/* 14 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1526,19 +1444,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _espalierCore = __webpack_require__(12);
+	var _espalierCore = __webpack_require__(2);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
-	var _espalierFormsControl = __webpack_require__(15);
+	var _espalierFormsControl = __webpack_require__(14);
 	
 	var _espalierFormsControl2 = _interopRequireDefault(_espalierFormsControl);
+	
+	var keys = {
+	    controls: new Object()
+	};
 	
 	var EspalierForm = (function () {
 	    function EspalierForm(formToWire, args) {
 	        var _this = this;
 	
 	        _classCallCheck(this, EspalierForm);
+	
+	        this._internals = new WeakMap();
 	
 	        if (_espalierCore2["default"].isString(formToWire)) {
 	            this.form = _espalierCore2["default"].find(formToWire)[0];
@@ -1563,7 +1487,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.options = _espalierCore2["default"].extend(options, args);
 	
 	        this.form.setAttribute("novalidate", "");
-	        this.controls = new Set();
+	
+	        var controls = new Set();
+	
 	        var processedControls = new Set();
 	        var rawControls = _espalierCore2["default"].find("input, textarea, select", this.form);
 	
@@ -1586,7 +1512,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                processedControls.add(lowerCaseId);
 	
 	                if (lowerCaseId || (control.type ? control.type : control.getAttribute("type")) == "radio") {
-	                    this.controls.add((0, _espalierFormsControl2["default"])(control));
+	                    controls.add((0, _espalierFormsControl2["default"])(control));
 	                }
 	            }
 	        } catch (err) {
@@ -1603,6 +1529,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            }
 	        }
+	
+	        this._internals.set(keys.controls, controls);
 	
 	        _espalierCore2["default"].addEventListener(this.form, "submit", function (event) {
 	            event.preventDefault();
@@ -1688,7 +1616,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                _espalierCore2["default"].sendRequest({
 	                    type: method ? method : "GET",
 	                    url: this.form.getAttribute("action"),
-	                    data: new FormData(this.form)
+	                    data: this.value()
 	                }).then(function (data) {
 	                    var onSuccess = _this2.form.getAttribute("data-success");
 	
@@ -1699,23 +1627,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	        }
 	    }, {
-	        key: "validate",
-	        value: function validate() {
-	            var valid = true;
+	        key: "value",
+	        value: function value() {
+	            var value = {};
 	
 	            var _iteratorNormalCompletion4 = true;
 	            var _didIteratorError4 = false;
 	            var _iteratorError4 = undefined;
 	
 	            try {
-	                for (var _iterator4 = this.controls[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	                for (var _iterator4 = this._internals.get(keys.controls)[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
 	                    var control = _step4.value;
 	
-	                    control.message.remove();
-	
-	                    if (!control.validate()) {
-	                        valid = false;
-	                    }
+	                    _espalierCore2["default"].setProperty(value, control.getName(), control.val());
 	                }
 	            } catch (err) {
 	                _didIteratorError4 = true;
@@ -1728,6 +1652,42 @@ return /******/ (function(modules) { // webpackBootstrap
 	                } finally {
 	                    if (_didIteratorError4) {
 	                        throw _iteratorError4;
+	                    }
+	                }
+	            }
+	
+	            return value;
+	        }
+	    }, {
+	        key: "validate",
+	        value: function validate() {
+	            var valid = true;
+	
+	            var _iteratorNormalCompletion5 = true;
+	            var _didIteratorError5 = false;
+	            var _iteratorError5 = undefined;
+	
+	            try {
+	                for (var _iterator5 = this._internals.get(keys.controls)[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	                    var control = _step5.value;
+	
+	                    control.message.remove();
+	
+	                    if (!control.validate()) {
+	                        valid = false;
+	                    }
+	                }
+	            } catch (err) {
+	                _didIteratorError5 = true;
+	                _iteratorError5 = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion5 && _iterator5["return"]) {
+	                        _iterator5["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError5) {
+	                        throw _iteratorError5;
 	                    }
 	                }
 	            }
@@ -1747,7 +1707,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 15 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -1762,15 +1722,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _espalierCore = __webpack_require__(12);
+	var _espalierCore = __webpack_require__(2);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
-	var _configIndex = __webpack_require__(16);
+	var _espalierCommon = __webpack_require__(4);
+	
+	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
+	
+	var _configIndex = __webpack_require__(15);
 	
 	var _configIndex2 = _interopRequireDefault(_configIndex);
 	
-	var _espalierValidation = __webpack_require__(22);
+	var _espalierValidation = __webpack_require__(21);
 	
 	var _espalierMessageFactory = __webpack_require__(3);
 	
@@ -2004,6 +1968,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	
 	    _createClass(FormControl, [{
+	        key: "getName",
+	        value: function getName() {
+	            return this.control.name;
+	        }
+	    }, {
 	        key: "val",
 	        value: function val() {
 	            var controlType = this.control.type ? this.control.type : this.control.getAttribute("type");
@@ -2012,8 +1981,37 @@ return /******/ (function(modules) { // webpackBootstrap
 	                case "checkbox":
 	                    return _espalierCore2["default"].matches(this.control, ":checked") ? this.control.value : undefined;
 	                case "radio":
-	                    var selected = _espalierCore2["default"].find("[name=\"" + this.control.name + "\"]:checked");
-	                    return selected.length == 1 ? selected[0].value : undefined;
+	                    var radios = _espalierCore2["default"].find("[name=\"" + this.control.name + "\"]");
+	
+	                    //Loop through these instead of using the :checked selector...
+	                    var _iteratorNormalCompletion6 = true;
+	                    var _didIteratorError6 = false;
+	                    var _iteratorError6 = undefined;
+	
+	                    try {
+	                        for (var _iterator6 = radios[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+	                            var radio = _step6.value;
+	
+	                            if (radio.checked) {
+	                                return radio.value;
+	                            }
+	                        }
+	                    } catch (err) {
+	                        _didIteratorError6 = true;
+	                        _iteratorError6 = err;
+	                    } finally {
+	                        try {
+	                            if (!_iteratorNormalCompletion6 && _iterator6["return"]) {
+	                                _iterator6["return"]();
+	                            }
+	                        } finally {
+	                            if (_didIteratorError6) {
+	                                throw _iteratorError6;
+	                            }
+	                        }
+	                    }
+	
+	                    return undefined;
 	                default:
 	                    return this.control.value;
 	            }
@@ -2043,13 +2041,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var hasErrors = false;
 	
 	        if (validations) {
-	            var _iteratorNormalCompletion6 = true;
-	            var _didIteratorError6 = false;
-	            var _iteratorError6 = undefined;
+	            var _iteratorNormalCompletion7 = true;
+	            var _didIteratorError7 = false;
+	            var _iteratorError7 = undefined;
 	
 	            try {
-	                for (var _iterator6 = validations[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-	                    var validation = _step6.value;
+	                for (var _iterator7 = validations[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+	                    var validation = _step7.value;
 	
 	                    if (!validation.isValid()) {
 	                        hasErrors = true;
@@ -2061,16 +2059,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    }
 	                }
 	            } catch (err) {
-	                _didIteratorError6 = true;
-	                _iteratorError6 = err;
+	                _didIteratorError7 = true;
+	                _iteratorError7 = err;
 	            } finally {
 	                try {
-	                    if (!_iteratorNormalCompletion6 && _iterator6["return"]) {
-	                        _iterator6["return"]();
+	                    if (!_iteratorNormalCompletion7 && _iterator7["return"]) {
+	                        _iterator7["return"]();
 	                    }
 	                } finally {
-	                    if (_didIteratorError6) {
-	                        throw _iteratorError6;
+	                    if (_didIteratorError7) {
+	                        throw _iteratorError7;
 	                    }
 	                }
 	            }
@@ -2086,10 +2084,47 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return !hasErrors;
 	    };
 	
+	    _espalierCommon2["default"].controls.set(formControl.control, formControl);
 	    return formControl;
 	};
 	
 	exports["default"] = factory;
+	module.exports = exports["default"];
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	var _fieldMessageAnimation = __webpack_require__(16);
+	
+	var _fieldMessageAnimation2 = _interopRequireDefault(_fieldMessageAnimation);
+	
+	var _fixedMessageAnimation = __webpack_require__(18);
+	
+	var _fixedMessageAnimation2 = _interopRequireDefault(_fixedMessageAnimation);
+	
+	var _showDialogAnimation = __webpack_require__(19);
+	
+	var _showDialogAnimation2 = _interopRequireDefault(_showDialogAnimation);
+	
+	var _hideDialogAnimation = __webpack_require__(20);
+	
+	var _hideDialogAnimation2 = _interopRequireDefault(_hideDialogAnimation);
+	
+	exports["default"] = {
+	    fieldMessageAnimation: _fieldMessageAnimation2["default"],
+	    fixedMessageAnimation: _fixedMessageAnimation2["default"],
+	    showDialogAnimation: _showDialogAnimation2["default"],
+	    hideDialogAnimation: _hideDialogAnimation2["default"]
+	};
 	module.exports = exports["default"];
 
 /***/ },
@@ -2104,43 +2139,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
-	var _fieldMessageAnimation = __webpack_require__(17);
-	
-	var _fieldMessageAnimation2 = _interopRequireDefault(_fieldMessageAnimation);
-	
-	var _fixedMessageAnimation = __webpack_require__(19);
-	
-	var _fixedMessageAnimation2 = _interopRequireDefault(_fixedMessageAnimation);
-	
-	var _showDialogAnimation = __webpack_require__(20);
-	
-	var _showDialogAnimation2 = _interopRequireDefault(_showDialogAnimation);
-	
-	var _hideDialogAnimation = __webpack_require__(21);
-	
-	var _hideDialogAnimation2 = _interopRequireDefault(_hideDialogAnimation);
-	
-	exports["default"] = {
-	    fieldMessageAnimation: _fieldMessageAnimation2["default"],
-	    fixedMessageAnimation: _fixedMessageAnimation2["default"],
-	    showDialogAnimation: _showDialogAnimation2["default"],
-	    hideDialogAnimation: _hideDialogAnimation2["default"]
-	};
-	module.exports = exports["default"];
-
-/***/ },
-/* 17 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-	
-	var _fadeIn = __webpack_require__(18);
+	var _fadeIn = __webpack_require__(17);
 	
 	var _fadeIn2 = _interopRequireDefault(_fadeIn);
 	
@@ -2151,7 +2150,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 18 */
+/* 17 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2190,6 +2189,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
+/* 18 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	var _fadeIn = __webpack_require__(17);
+	
+	var _fadeIn2 = _interopRequireDefault(_fadeIn);
+	
+	exports["default"] = function (el) {
+	    (0, _fadeIn2["default"])(el);
+	};
+	
+	module.exports = exports["default"];
+
+/***/ },
 /* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -2201,7 +2222,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
-	var _fadeIn = __webpack_require__(18);
+	var _fadeIn = __webpack_require__(17);
 	
 	var _fadeIn2 = _interopRequireDefault(_fadeIn);
 	
@@ -2213,28 +2234,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 20 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-	
-	var _fadeIn = __webpack_require__(18);
-	
-	var _fadeIn2 = _interopRequireDefault(_fadeIn);
-	
-	exports["default"] = function (el) {
-	    (0, _fadeIn2["default"])(el);
-	};
-	
-	module.exports = exports["default"];
-
-/***/ },
-/* 21 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2250,7 +2249,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 22 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2269,11 +2268,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _espalierCore = __webpack_require__(12);
+	var _espalierCore = __webpack_require__(2);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
-	var _espalierFormsControl = __webpack_require__(15);
+	var _espalierFormsControl = __webpack_require__(14);
 	
 	var _espalierFormsControl2 = _interopRequireDefault(_espalierFormsControl);
 	
@@ -2395,6 +2394,207 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.RequiredDependent = RequiredDependent;
 
 /***/ },
+/* 22 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var _espalierMessageFactory = __webpack_require__(3);
+	
+	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
+	
+	var _espalierWaitscreen = __webpack_require__(11);
+	
+	var _espalierWaitscreen2 = _interopRequireDefault(_espalierWaitscreen);
+	
+	var _espalierCommon = __webpack_require__(4);
+	
+	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
+	
+	var _espalierCore = __webpack_require__(2);
+	
+	var _espalierCore2 = _interopRequireDefault(_espalierCore);
+	
+	var _espalierDomnode = __webpack_require__(5);
+	
+	var _espalierDomnode2 = _interopRequireDefault(_espalierDomnode);
+	
+	var getFooter = function getFooter(table) {
+	    var startAtPage = Math.max(0, table.settings.currentPage - 3);
+	    var endAtPage = Math.min(table.settings.pages - 1, table.settings.currentPage + 3 + Math.max(3 - table.settings.currentPage, 0));
+	    var pagingControl = "<ul class=\"pagination\">";
+	
+	    pagingControl += "<li" + (table.settings.currentPage == 0 ? " class=\"disabled\"" : "") + "><a data-page=\"" + (table.settings.currentPage - 1) + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&laquo;</span></a></li>";
+	
+	    for (var i = startAtPage; i <= endAtPage; i++) {
+	        pagingControl += "<li" + (i === table.settings.currentPage ? " class=\"active\"" : "") + "><a data-page=\"" + i + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\">" + (i + 1) + "</a></li>";
+	    }
+	
+	    var nextPage = table.settings.currentPage + 1;
+	    pagingControl += "<li" + (nextPage == table.settings.pages ? " class=\"disabled\"" : "") + "><a data-page=\"" + nextPage + "\" class=\"espalier-table-button\" href=\"javascript: void(0);\"><span aria-hidden=\"true\">&raquo;</span></a></li>";
+	
+	    return "<tfoot><tr><td colspan=\"42\">" + pagingControl + "</td></tr></tfoot>";
+	};
+	
+	var renderTable = function renderTable(table) {
+	    var promise = new Promise(function (resolve, reject) {
+	        var rendered = "<table class=\"" + table.settings.tableClass + " table table-striped\">";
+	
+	        if (table.settings.headerTemplate) {
+	            rendered += table.settings.headerTemplate();
+	        }
+	
+	        rendered += "<tbody>";
+	        var startAtIndex = table.settings.currentPage * table.settings.pageSize;
+	
+	        if (table.settings.data) {
+	            for (var i = startAtIndex; i < Math.min(startAtIndex + table.settings.pageSize, table.settings.data.length); i++) {
+	                rendered += table.settings.rowTemplate(table.settings.data[i]);
+	            }
+	
+	            rendered += "</tbody>";
+	
+	            if (table.settings.pages > 0) {
+	                rendered += getFooter(table);
+	            }
+	            resolve(rendered);
+	        } else {
+	            _espalierCore2["default"].sendRequest({
+	                url: table.settings.fetchUrl,
+	                type: "POST",
+	                data: {
+	                    Page: table.settings.currentPage,
+	                    PageSize: table.settings.pageSize,
+	                    Criteria: table.settings.filter
+	                }
+	            }).then(function (result) {
+	                if (table.settings.fetchCallback) {
+	                    table.settings.fetchCallback(result);
+	                }
+	
+	                table.settings.pages = Math.ceil(result.data.total / result.data.pageSize);
+	                for (var i = 0; i < result.data.records.length; i++) {
+	                    rendered += table.settings.rowTemplate(result.data.records[i]);
+	                }
+	                rendered += "</tbody>";
+	                rendered += getFooter(table);
+	                resolve(rendered);
+	            });
+	        }
+	    });
+	
+	    promise.then(function (rendered) {
+	        table.settings.container.html(rendered);
+	
+	        if (table.settings.renderedCallback) {
+	            table.settings.renderedCallback(table.settings.container.getNode().getElementsByTagName("table")[0]);
+	        }
+	    });
+	};
+	
+	var Table = (function () {
+	    function Table(args) {
+	        _classCallCheck(this, Table);
+	
+	        this.settings = {
+	            container: undefined,
+	            currentPage: 0,
+	            data: undefined,
+	            fetchCallback: undefined,
+	            fetchUrl: "",
+	            headerTemplate: undefined,
+	            pageSize: 10,
+	            prefetchPages: 5,
+	            rowTemplate: undefined,
+	            tableClass: "espalier-table",
+	            renderedCallback: undefined
+	        };
+	
+	        args.container = new _espalierDomnode2["default"](args.container);
+	
+	        _espalierCommon2["default"].extend(this.settings, args);
+	
+	        if (!this.settings.fetchUrl && !this.settings.data) {
+	            throw new TypeError("You must either specify a fetch url or pass in data for the table to display.");
+	        }
+	
+	        if (!this.settings.container) {
+	            throw new TypeError("You must specify a container to place the table in.");
+	        }
+	
+	        if (!this.settings.rowTemplate) {
+	            throw new TypeError("You must provide a row template.");
+	        }
+	
+	        if (this.settings.data) {
+	            this.settings.pages = Math.ceil(this.settings.data.length / this.settings.pageSize);
+	        }
+	
+	        _espalierCommon2["default"].extend(this.settings, args);
+	
+	        var table = this;
+	
+	        this.settings.container.on("click", ".espalier-table-button", function (el) {
+	            table.goToPage(el.getAttribute("data-page"));
+	        });
+	
+	        renderTable(this);
+	    }
+	
+	    _createClass(Table, [{
+	        key: "next",
+	        value: function next() {
+	            this.settings.currentPage++;
+	            renderTable(this);
+	            return this;
+	        }
+	    }, {
+	        key: "previous",
+	        value: function previous() {
+	            this.settings.currentPage--;
+	            renderTable(this);
+	            return this;
+	        }
+	    }, {
+	        key: "filter",
+	        value: function filter(_filter) {
+	            this.settings.filter = _filter;
+	            this.settings.currentPage = 0;
+	            renderTable(this);
+	            return this;
+	        }
+	    }, {
+	        key: "goToPage",
+	        value: function goToPage(page) {
+	            page = Number(page);
+	
+	            if (page < 0 || page >= this.settings.pages) {
+	                return;
+	            }
+	
+	            this.settings.currentPage = page;
+	            renderTable(this);
+	            return this;
+	        }
+	    }]);
+	
+	    return Table;
+	})();
+	
+	exports["default"] = Table;
+	module.exports = exports["default"];
+
+/***/ },
 /* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -2410,11 +2610,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _espalierCore = __webpack_require__(12);
+	var _espalierCore = __webpack_require__(2);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
-	var _configIndex = __webpack_require__(16);
+	var _configIndex = __webpack_require__(15);
 	
 	var _configIndex2 = _interopRequireDefault(_configIndex);
 	
@@ -2427,12 +2627,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _espalierDomnode2 = _interopRequireDefault(_espalierDomnode);
 	
 	var center = function center(dialog) {
-	    var windowHeight = _espalierCommon2["default"].window.innerHeight;
-	    var scrollTop = _espalierCommon2["default"].window.scrollY;
+	    var windowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight;
+	    var scrollTop = window.scrollY ? window.scrollY : document.documentElement.scrollTop;
 	    var height = dialog.offsetHeight;
 	    var top = windowHeight / 2 - height / 2 + scrollTop;
 	    top = top > 0 ? top : 0;
 	    dialog.style.top = top + "px";
+	};
+	
+	var showVellum = function showVellum() {
+	    if (_espalierCommon2["default"].find(".dialog-vellum").length > 0) {
+	        return;
+	    }
+	
+	    _espalierCommon2["default"].body.append("<div class=\"vellum dialog-vellum\" />");
+	};
+	
+	var hideVellum = function hideVellum() {
+	    var vellum = _espalierCommon2["default"].find(".dialog-vellum");
+	
+	    if (vellum.length > 0) {
+	        vellum[0].parentNode.removeChild(vellum[0]);
+	    }
 	};
 	
 	var Dialog = (function () {
@@ -2459,7 +2675,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var _this = this;
 	
 	            _espalierCore2["default"].hideMainMessage();
-	            _espalierCommon2["default"].showVellum();
+	            showVellum();
 	            var dialog = this.settings.element.getNode();
 	
 	            dialog.style.position = "absolute";
@@ -2508,7 +2724,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            _configIndex2["default"].hideDialogAnimation(dialog);
 	
 	            if (_espalierCommon2["default"].find(".dialog").length == 0) {
-	                _espalierCommon2["default"].hideVellum();
+	                hideVellum();
 	            }
 	
 	            return this;
@@ -2540,7 +2756,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	var _espalierCore = __webpack_require__(12);
+	var _espalierCore = __webpack_require__(2);
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
@@ -2710,7 +2926,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var transversed = this._internals.get(keys.transversed);
 	            transversed.push(step);
 	
-	            if (step.getPropertyName()) {
+	            if (step.getPropertyName) {
 	                var value = step.getValue();
 	                _espalierCore2["default"].setProperty(this._internals.get(keys.result), step.getPropertyName(), value);
 	            }

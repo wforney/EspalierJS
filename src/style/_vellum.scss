@@ -7,4 +7,12 @@ div.vellum {
 	width: 100%;
 	height: 100%;
 	text-align: center;
+    
+    &.dialog-vellum {
+        z-index: 100000;
+    }
+    
+    &.wait-vellum {
+        z-index: 200000;
+    }
 }

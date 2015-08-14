@@ -1,6 +1,10 @@
 @import "variables";
 
-.pagination {
+ul.pagination {
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    
 	li {
 		display: inline-block;
 		border: 1px solid $color-border;

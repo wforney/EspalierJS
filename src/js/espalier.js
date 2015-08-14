@@ -6,6 +6,7 @@ import Table from "./espalier.table";
 import dialog from "./espalier.dialog";
 import Graph from "./espalier.graph";
 import GraphNode from "./espalier.graph.node";
+import EspalierNode from "./espalier.domnode";
 
 var espalier = {
     showWarning: core.showWarning,
@@ -18,6 +19,10 @@ var espalier = {
     shortDate: core.shortDate,
     shortTime: core.shortTime,
     el: core.find,
+    node: (selector) => {
+        return new EspalierNode(selector)
+    },
+    extend: core.extend,
     numberWithCommas: core.numberWithCommas,
     publish: core.publish,
     parseISODate: core.parseISODate,

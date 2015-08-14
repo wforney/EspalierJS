@@ -5,7 +5,8 @@
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width" />
         <title>EspalierJS - A well-pruned JavaScript library for creating a pleasing user experience.</title>
-        <link rel="stylesheet" href="assets/css/demo-site.css" />
+        <link rel="stylesheet" href="assets/css/demo-site.css"
+        />
         <script type="text/javascript" src="assets/js/bundled.js"></script>
     </head>
     
@@ -15,43 +16,45 @@
                 <div>
                     <h2>Graphs can have multiple steps</h2>
                     <div id="wizard-container"></div>
-                    
                     <pre id="graph-value"></pre>
-                    
                     <h2>Forms have validation messages</h2>
                     <form id="standard-form" class="one-third-big">
                         <div class="form-group">
-                            <label for="exampleInputEmail1">Email address</label>
-                            <input required type="email" class="form-control" data-focus="true" id="exampleInputEmail1" placeholder="Enter email">
+                            <label for="example-email">Email address</label>
+                            <input required type="email" data-focus="true" id="example-email" name="exampleEmail" placeholder="Enter email">
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputPassword1">Password</label>
-                            <input required type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                            <label for="example-password">Password</label>
+                            <input required type="password" id="example-password" name="examplePassword" placeholder="Password">
                         </div>
                         <div class="form-group">
-                            <label for="exampleInputFile">File input</label>
-                            <input type="file" id="exampleInputFile">
+                            <label for="example-file">File input</label>
+                            <input type="file" id="example-file" name="exampleFile">
                             <p class="help-block">Example block-level help text here.</p>
                         </div>
                         <div class="checkbox">
                             <label>
-                                <input required type="checkbox" id="exampleCheckBox">Check me out</label>
+                                <input required type="checkbox" id="example-checkbox" name="exampleCheckbox">Check me out</label>
                         </div>
                         <div class="radio-group">
                             <header>
                                 <h3>Radio buttons</h3>
                             </header>
                             <div class="radio">
-                                <label><input type="radio" required name="fruit" value="1">Apple</label>
+                                <label>
+                                    <input type="radio" required name="fruit" value="1">Apple</label>
                             </div>
                             <div class="radio">
-                                <label><input type="radio" name="fruit" value="2">Orange</label>
+                                <label>
+                                    <input type="radio" name="fruit" value="2">Orange</label>
                             </div>
                             <div class="radio">
-                                <label><input type="radio" name="fruit" value="3">Pear</label>
+                                <label>
+                                    <input type="radio" name="fruit" value="3">Pear</label>
                             </div>
                             <div class="radio">
-                                <label><input type="radio" data-require="#fruit-name" name="fruit" value="4">Other</label>
+                                <label>
+                                    <input type="radio" data-require="#fruit-name" name="fruit" value="4">Other</label>
                             </div>
                             <div class="form-group form-group-lg">
                                 <label for="fruit-name">Fruit</label>
@@ -71,7 +74,6 @@
                 </div>
             </div>
         </div>
-
         <script type="text/javascript" src="assets/js/demo_compiled.js"></script>
     </body>
 

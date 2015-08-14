@@ -73,7 +73,7 @@ let renderTable = (table) => {
             table.settings.container.html(rendered);
 
             if (table.settings.renderedCallback) {
-                table.settings.renderedCallback(table.settings.container[0].getElementsByTagName("table")[0]);
+                table.settings.renderedCallback(table.settings.container.getNode().getElementsByTagName("table")[0]);
             }
         });
 };
