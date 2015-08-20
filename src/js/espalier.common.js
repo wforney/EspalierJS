@@ -46,11 +46,19 @@ let browserSupportsCSSProperty = function (propertyName) {
     return false;
 };
 
+let isElement = function (toTest) {
+    return (
+        typeof HTMLElement === "object" ? toTest instanceof HTMLElement : //DOM2
+            toTest && typeof toTest === "object" && toTest !== null && toTest.nodeType === 1 && typeof toTest.nodeName === "string"
+        );
+}
+
 let body = new EspalierNode(find("body"));
 
 export default {
     body: body,
     find,
+    isElement,
     extend,
     controls,
     browserSupportsCSSProperty

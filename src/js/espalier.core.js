@@ -97,10 +97,6 @@ let core = {
                 request.open(ajaxSettings.type, ajaxSettings.url, true);
             }
 
-            if (ajaxSettings.type == "POST") {
-                request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-            }
-
             request.onreadystatechange = function () {
                 if (this.readyState === 4) {
                     if (this.status < 200) {
@@ -159,6 +155,8 @@ let core = {
                     request.send();
                     return;
                 case "POST":
+                case "PUT":
+                    request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
                     request.send(JSON.stringify(ajaxSettings.data));
                     return;
             }

@@ -1,4 +1,5 @@
 import core from "./espalier.core";
+import common from "./espalier.common";
 import FormControl from "./espalier.forms.control";
 
 let keys = {
@@ -12,6 +13,8 @@ class EspalierForm {
 
         if (core.isString(formToWire)) {
             this.form = core.find(formToWire)[0];
+        } else if (common.isElement(formToWire)) {
+            this.form = formToWire;
         } else {
             this.form = formToWire[0];
         }
@@ -120,6 +123,8 @@ class EspalierForm {
         let valid = true;
 
         for (let control of this._internals.get(keys.controls)) {
+            if (!control.message) continue;
+
             control.message.remove();
 
             if (!control.validate()) {

@@ -325,10 +325,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	                request.open(ajaxSettings.type, ajaxSettings.url, true);
 	            }
 	
-	            if (ajaxSettings.type == "POST") {
-	                request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-	            }
-	
 	            request.onreadystatechange = function () {
 	                if (this.readyState === 4) {
 	                    if (this.status < 200) {
@@ -408,6 +404,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    request.send();
 	                    return;
 	                case "POST":
+	                case "PUT":
+	                    request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
 	                    request.send(JSON.stringify(ajaxSettings.data));
 	                    return;
 	            }
@@ -829,11 +827,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return false;
 	};
 	
+	var isElement = function isElement(toTest) {
+	    return typeof HTMLElement === "object" ? toTest instanceof HTMLElement : //DOM2
+	    toTest && typeof toTest === "object" && toTest !== null && toTest.nodeType === 1 && typeof toTest.nodeName === "string";
+	};
+	
 	var body = new _espalierDomnode2['default'](find("body"));
 	
 	exports['default'] = {
 	    body: body,
 	    find: find,
+	    isElement: isElement,
 	    extend: extend,
 	    controls: controls,
 	    browserSupportsCSSProperty: browserSupportsCSSProperty
@@ -980,6 +984,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            if (node.parentNode) {
 	                node.parentNode.removeChild(node);
+	            }
+	        }
+	    }, {
+	        key: "addClass",
+	        value: function addClass(className) {
+	            var node = this.getNode();
+	
+	            if (node.classList) {
+	                node.classList.add(className);
+	            } else {
+	                node.className += ' ' + className;
+	            }
+	        }
+	    }, {
+	        key: "removeClass",
+	        value: function removeClass(className) {
+	            var node = this.getNode();
+	
+	            if (node.classList) {
+	                node.classList.remove(className);
+	            } else {
+	                node.className = node.className.replace(new RegExp("(^|\\b)" + className.split(" ").join("|") + "(\\b|$)", "gi"), " ");
 	            }
 	        }
 	    }]);
@@ -1487,6 +1513,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
+	var _espalierCommon = __webpack_require__(5);
+	
+	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
+	
 	var _espalierFormsControl = __webpack_require__(15);
 	
 	var _espalierFormsControl2 = _interopRequireDefault(_espalierFormsControl);
@@ -1505,6 +1535,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	        if (_espalierCore2["default"].isString(formToWire)) {
 	            this.form = _espalierCore2["default"].find(formToWire)[0];
+	        } else if (_espalierCommon2["default"].isElement(formToWire)) {
+	            this.form = formToWire;
 	        } else {
 	            this.form = formToWire[0];
 	        }
@@ -1710,6 +1742,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                for (var _iterator5 = this._internals.get(keys.controls)[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
 	                    var control = _step5.value;
 	
+	                    if (!control.message) continue;
+	
 	                    control.message.remove();
 	
 	                    if (!control.validate()) {
@@ -1796,6 +1830,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.form = form;
 	        var group;
 	        var required = false;
+	        control.setAttribute(lowerCaseId, "");
 	
 	        switch (controlType) {
 	            case "radio":
@@ -1978,6 +2013,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    control.datepicker().attr("type", "text");
 	                }
 	                break;
+	            case "hidden":
+	                return;
 	            default:
 	                group = _espalierCore2["default"].closest(control, ".form-group");
 	                break;
@@ -2002,8 +2039,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	            validations.push(new _espalierValidation.Required(this));
 	            _espalierCore2["default"].addClass(group, "required");
 	        }
-	
-	        control.setAttribute(lowerCaseId, "");
 	    }
 	
 	    _createClass(FormControl, [{

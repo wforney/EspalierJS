@@ -17,6 +17,7 @@ class FormControl {
         this.form = form;
         var group;
         let required = false;
+        control.setAttribute(lowerCaseId, "");
 
         switch (controlType) {
             case "radio":
@@ -80,6 +81,8 @@ class FormControl {
                     control.datepicker().attr("type", "text");
                 }
                 break;
+            case "hidden":
+                return;
             default:
                 group = core.closest(control, ".form-group");
                 break;
@@ -104,8 +107,6 @@ class FormControl {
             validations.push(new Required(this));
             core.addClass(group, "required");
         }
-
-        control.setAttribute(lowerCaseId, "");
     }
 
     getName() {
