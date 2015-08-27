@@ -134,6 +134,11 @@ class EspalierForm {
 
         return valid;
     }
+    
+    toJSON() {
+        //TODO: http://stackoverflow.com/questions/8330126/how-to-completely-convert-query-string-into-json-object
+        throw new Error("This hasn't been implemented yet.");
+    }
 }
 
 export default function (formToWire, args) {

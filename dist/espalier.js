@@ -2981,7 +2981,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var transversed = this._internals.get(keys.transversed);
 	            var lastNode = transversed.pop();
 	
-	            delete this._internals.get(keys.result)[lastNode.getPropertyName()];
+	            if (lastNode.getPropertyName) {
+	                delete this._internals.get(keys.result)[lastNode.getPropertyName()];
+	            }
+	
 	            this._internals.set(keys.currentStep, lastNode);
 	            setStepStates(this);
 	        }

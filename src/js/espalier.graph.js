@@ -175,7 +175,10 @@ export default class Graph {
         let transversed = this._internals.get(keys.transversed);
         let lastNode = transversed.pop();
 
-        delete this._internals.get(keys.result)[lastNode.getPropertyName()];
+        if (lastNode.getPropertyName) {
+            delete this._internals.get(keys.result)[lastNode.getPropertyName()];
+        }
+
         this._internals.set(keys.currentStep, lastNode);
         setStepStates(this);
     }
