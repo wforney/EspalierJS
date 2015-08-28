@@ -1728,6 +1728,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            return valid;
 	        }
+	    }, {
+	        key: "toJSON",
+	        value: function toJSON() {
+	            //TODO: http://stackoverflow.com/questions/8330126/how-to-completely-convert-query-string-into-json-object
+	            throw new Error("This hasn't been implemented yet.");
+	        }
 	    }]);
 	
 	    return EspalierForm;

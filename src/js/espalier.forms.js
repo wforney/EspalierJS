@@ -6,7 +6,6 @@ let keys = {
     controls: new Object()
 };
 
-
 class EspalierForm {
     constructor(formToWire, args) {
         this._internals = new WeakMap();
