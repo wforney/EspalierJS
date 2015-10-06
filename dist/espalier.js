@@ -73,10 +73,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
-	var _espalierMessageFactory = __webpack_require__(3);
-	
-	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
-	
 	var _espalierForms = __webpack_require__(13);
 	
 	var _espalierForms2 = _interopRequireDefault(_espalierForms);
@@ -106,6 +102,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _espalierDomnode2 = _interopRequireDefault(_espalierDomnode);
 	
 	var espalier = {
+	    isEmptyOrSpaces: _espalierCore2["default"].isEmptyOrSpaces,
+	    showError: _espalierCore2["default"].showError,
 	    showWarning: _espalierCore2["default"].showWarning,
 	    showInfo: _espalierCore2["default"].showInfo,
 	    sendRequest: _espalierCore2["default"].sendRequest,
@@ -124,6 +122,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    publish: _espalierCore2["default"].publish,
 	    parseISODate: _espalierCore2["default"].parseISODate,
 	    subscribe: _espalierCore2["default"].subscribe,
+	    unsubscribe: _espalierCore2["default"].unsubscribe,
 	    dialog: function dialog(args) {
 	        return (0, _espalierDialog2["default"])(args).show();
 	    },
@@ -278,6 +277,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    request.open(ajaxSettings.type, ajaxSettings.url);
 	                    request.onload = function () {
 	                        resolve(ajaxSuccess(this.responseText, req.event, req.onSuccess));
+	                        _espalierWaitscreen2["default"].hide();
 	                    };
 	                } else {
 	                    throw new Error("CORS not supported");
@@ -1485,6 +1485,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	var keys = {
 	    controls: new Object()
 	};
+	// var m = new Map();
+	// m.set("hello", 42);
+	// m.set(s, 34);
+	// m.get(s) == 34;
 	
 	var EspalierForm = (function () {
 	    function EspalierForm(formToWire, args) {
@@ -1520,8 +1524,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	        this.form.setAttribute("novalidate", "");
 	
-	        var controls = new Set();
-	
+	        var controls = new Map();
 	        var processedControls = new Set();
 	        var rawControls = _espalierCore2["default"].find("input, textarea, select", this.form);
 	
@@ -1544,7 +1547,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                processedControls.add(lowerCaseId);
 	
 	                if (lowerCaseId || (control.type ? control.type : control.getAttribute("type")) == "radio") {
-	                    controls.add((0, _espalierFormsControl2["default"])(control));
+	                    var espControl = (0, _espalierFormsControl2["default"])(control);
+	                    controls.set(espControl.getName(), espControl);
 	                }
 	            }
 	        } catch (err) {
@@ -1633,6 +1637,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	
 	    _createClass(EspalierForm, [{
+	        key: "getControl",
+	        value: function getControl(name) {
+	            var controls = this._internals.get(keys.controls);
+	            return controls.get(name);
+	        }
+	    }, {
 	        key: "submit",
 	        value: function submit() {
 	            var _this2 = this;
@@ -1668,7 +1678,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var _iteratorError4 = undefined;
 	
 	            try {
-	                for (var _iterator4 = this._internals.get(keys.controls)[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	                for (var _iterator4 = this._internals.get(keys.controls).values()[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
 	                    var control = _step4.value;
 	
 	                    _espalierCore2["default"].setProperty(value, control.getName(), control.val());
@@ -1700,7 +1710,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            var _iteratorError5 = undefined;
 	
 	            try {
-	                for (var _iterator5 = this._internals.get(keys.controls)[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	                for (var _iterator5 = this._internals.get(keys.controls).values()[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
 	                    var control = _step5.value;
 	
 	                    if (!control.message) continue;
@@ -1727,6 +1737,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	
 	            return valid;
+	        }
+	    }, {
+	        key: "toJSON",
+	        value: function toJSON() {
+	            //TODO: http://stackoverflow.com/questions/8330126/how-to-completely-convert-query-string-into-json-object
+	            throw new Error("This hasn't been implemented yet.");
 	        }
 	    }]);
 	
@@ -2661,7 +2677,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierDomnode2 = _interopRequireDefault(_espalierDomnode);
 	
-	var center = function center(dialog) {
+	var _center = function _center(dialog) {
 	    var windowHeight = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight;
 	    var scrollTop = window.scrollY ? window.scrollY : document.documentElement.scrollTop;
 	    var height = dialog.offsetHeight;
@@ -2715,7 +2731,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            dialog.style.position = "absolute";
 	            _espalierCommon2["default"].body.append(dialog);
-	            center(dialog);
+	            _center(dialog);
 	            dialog.style.display = "none";
 	
 	            _configIndex2["default"].showDialogAnimation(dialog);
@@ -2763,6 +2779,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	
 	            return this;
+	        }
+	    }, {
+	        key: "center",
+	        value: function center() {
+	            _center(this.settings.element.getNode());
 	        }
 	    }]);
 	
@@ -2867,13 +2888,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        handleNavigation(graph, graphEvent, -1);
 	    }));
 	
-	    node.renderIn(graph._internals.get(keys.container), graph._internals.get(keys.result), steps);
+	    node.renderIn(graph._internals.get(keys.container), graph._internals.get(keys.result), steps).then(function () {
+	        var valueChanged = graph._internals.get(keys.valueChanged);
 	
-	    var valueChanged = graph._internals.get(keys.valueChanged);
-	
-	    if (valueChanged) {
-	        valueChanged(graph._internals.get(keys.result));
-	    }
+	        if (valueChanged) {
+	            valueChanged(graph._internals.get(keys.result));
+	        }
+	    });;
 	};
 	
 	var Graph = (function () {
@@ -2987,6 +3008,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            this._internals.set(keys.currentStep, lastNode);
 	            setStepStates(this);
+	        }
+	    }, {
+	        key: "destroy",
+	        value: function destroy() {
+	            var currentEvent = this._internals.get(keys.nodeSubsciption);
+	
+	            if (currentEvent) {
+	                _espalierCore2["default"].unsubscribe(currentEvent);
+	            }
 	        }
 	    }]);
 	

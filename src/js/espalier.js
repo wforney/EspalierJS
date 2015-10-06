@@ -1,5 +1,4 @@
 import core from "./espalier.core";
-import messageFactory from "./espalier.messageFactory";
 import forms from "./espalier.forms";
 import waitScreen from "./espalier.waitscreen";
 import Table from "./espalier.table";
@@ -9,6 +8,8 @@ import GraphNode from "./espalier.graph.node";
 import EspalierNode from "./espalier.domnode";
 
 var espalier = {
+    isEmptyOrSpaces: core.isEmptyOrSpaces,
+    showError: core.showError,
     showWarning: core.showWarning,
     showInfo: core.showInfo,
     sendRequest: core.sendRequest,
@@ -27,6 +28,7 @@ var espalier = {
     publish: core.publish,
     parseISODate: core.parseISODate,
     subscribe: core.subscribe,
+    unsubscribe: core.unsubscribe,
     dialog: function (args) {
         return dialog(args).show();
     },

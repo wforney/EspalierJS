@@ -89,6 +89,7 @@ let core = {
                     request.open(ajaxSettings.type, ajaxSettings.url);
                     request.onload = function () {
                         resolve(ajaxSuccess(this.responseText, req.event, req.onSuccess));
+                        waitscreen.hide();
                     }
                 } else {
                     throw new Error("CORS not supported");
