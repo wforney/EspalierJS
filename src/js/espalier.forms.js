@@ -5,10 +5,14 @@ import FormControl from "./espalier.forms.control";
 let keys = {
     controls: new Object()
 };
+<<<<<<< HEAD
 // var m = new Map();
 // m.set("hello", 42);
 // m.set(s, 34);
 // m.get(s) == 34;
+=======
+
+>>>>>>> 0aa0729d33ad9ac1c8ee964884a700b7c2306104
 class EspalierForm {
     constructor(formToWire, args) {
         this._internals = new WeakMap();
