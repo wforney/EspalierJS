@@ -138,6 +138,8 @@ let core = {
                                 } else {
                                     errors.push(error.detail);
                                 }
+                            } else {
+                                errors.push(error.detail);
                             }
                         }
 

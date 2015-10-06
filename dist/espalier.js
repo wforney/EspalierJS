@@ -2,7 +2,7 @@
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define(factory);
+		define([], factory);
 	else if(typeof exports === 'object')
 		exports["espalier"] = factory();
 	else
@@ -333,6 +333,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                    } else {
 	                                        errors.push(error.detail);
 	                                    }
+	                                } else {
+	                                    errors.push(error.detail);
 	                                }
 	                            }
 	                        } catch (err) {
@@ -1224,12 +1226,12 @@ return /******/ (function(modules) { // webpackBootstrap
 		} else if (typeof exports === 'object') {
 			// CommonJS
 			factory(exports);
-		} else {
-			// Browser globals
-			var PubSub = {};
-			root.PubSub = PubSub;
-			factory(PubSub);
 		}
+	
+		// Browser globals
+		var PubSub = {};
+		root.PubSub = PubSub;
+		factory(PubSub);
 	})(typeof window === 'object' && window || undefined, function (PubSub) {
 		'use strict';
 	
@@ -1485,10 +1487,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	var keys = {
 	    controls: new Object()
 	};
-	// var m = new Map();
-	// m.set("hello", 42);
-	// m.set(s, 34);
-	// m.get(s) == 34;
 	
 	var EspalierForm = (function () {
 	    function EspalierForm(formToWire, args) {
@@ -2894,7 +2892,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (valueChanged) {
 	            valueChanged(graph._internals.get(keys.result));
 	        }
-	    });;
+	    });
 	};
 	
 	var Graph = (function () {
