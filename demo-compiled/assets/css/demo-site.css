@@ -470,6 +470,21 @@ div.vellum {
     border-color: #3d8b3d;
     color: #1e441e; }
 
+.popover {
+  z-index: 100001;
+  background: white;
+  padding: 1em;
+  border-radius: .15em;
+  box-shadow: 0 0 0.5em #81e181; }
+
+.popover-vellum {
+  z-index: 100000;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center; }
+
 ul.pagination {
   margin: 0;
   padding: 0;
