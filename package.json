@@ -1,6 +1,6 @@
 {
   "name": "espalier-js",
-  "version": "0.3.76",
+  "version": "0.3.77",
   "description": "Tightly pruned HTML, CSS, and JavaScript for a productive web development experience.",
   "main": "gulpfile.js",
   "dependencies": {},
