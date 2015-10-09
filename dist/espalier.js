@@ -2951,21 +2951,14 @@ return /******/ (function(modules) { // webpackBootstrap
 				x = parentPos.left - elementPos.width;
 				x = x < 0 ? parentPos.right : x;
 	
-				if (elementPos.height > parentPos.height) {
-					y = parentPos.top - (elementPos.relativeYMiddle - parentPos.relativeYMiddle);
-				} else {
-					y = parentPos.top + (parentPos.relativeYMiddle + elementPos.relativeYMiddle);
-				}
-	
+				y = parentPos.top;
+				y = y < 0 ? 0 : y;
 				break;
 			case "right":
 				x = parentPos.right;
 	
-				if (elementPos.height > parentPos.height) {
-					y = parentPos.top - (elementPos.relativeYMiddle - parentPos.relativeYMiddle);
-				} else {
-					y = parentPos.top + (parentPos.relativeYMiddle + elementPos.relativeYMiddle);
-				}
+				y = parentPos.top;
+				y = y < 0 ? 0 : y;
 				break;
 		}
 	
@@ -2973,22 +2966,16 @@ return /******/ (function(modules) { // webpackBootstrap
 		elementNode.style.left = x + "px";
 	};
 	
-	var showVellum = function showVellum() {
-		if (_espalierCommon2["default"].find(".popover-vellum").length > 0) {
-			return;
+	function isDescendant(parent, child) {
+		var node = child.parentNode;
+		while (node != null) {
+			if (node == parent) {
+				return true;
+			}
+			node = node.parentNode;
 		}
-	
-		_espalierCommon2["default"].body.append("<div class=\"popover-vellum\" />");
-	};
-	
-	var hideVellum = function hideVellum(listener) {
-		var vellum = _espalierCommon2["default"].find(".popover-vellum");
-	
-		if (vellum.length > 0) {
-			vellum[0].removeEventListener('click', listener, false);
-			vellum[0].parentNode.removeChild(vellum[0]);
-		}
-	};
+		return false;
+	}
 	
 	var Popover = (function () {
 		function Popover(args) {
@@ -2998,7 +2985,7 @@ return /******/ (function(modules) { // webpackBootstrap
 				element: undefined,
 				position: undefined,
 				parent: undefined,
-				vellumListener: undefined
+				hideListener: undefined
 			};
 			_espalierCommon2["default"].extend(this.settings, args);
 	
@@ -3020,21 +3007,25 @@ return /******/ (function(modules) { // webpackBootstrap
 				var _this = this;
 	
 				_espalierCore2["default"].hideMainMessage();
-				showVellum();
-				var popover = this.settings.element.getNode();
+				var popoverNode = this.settings.element.getNode();
+				var parentNode = this.settings.parent.getNode();
 	
 				this.settings.element.addClass("popover");
-				popover.style.position = "absolute";
-				_espalierCommon2["default"].body.append(popover);
+				popoverNode.style.position = "absolute";
+				_espalierCommon2["default"].body.append(popoverNode);
 				reposition(this);
-				popover.style.display = "none";
+				popoverNode.style.display = "none";
 	
-				_configIndex2["default"].showPopoverAnimation(popover);
+				_configIndex2["default"].showPopoverAnimation(popoverNode);
 	
-				var vellumNode = document.getElementsByClassName("popover-vellum")[0];
 				//For IE compatibility - a reference to the listener needs to used at removal.
-				this.settings.vellumListener = _espalierCore2["default"].addEventListener(vellumNode, "click", function (event) {
-					_this.hide(_this.settings.vellumListener);
+				this.settings.hideListener = _espalierCore2["default"].addEventListener(document, "click", function (event) {
+					debugger;
+					var target = event.target;
+					var shouldKeep = isDescendant(target, popoverNode);
+					if (!shouldKeep && target !== parentNode && target !== popoverNode) {
+						_this.hide();
+					}
 				});
 	
 				return this;
@@ -3044,11 +3035,7 @@ return /******/ (function(modules) { // webpackBootstrap
 			value: function hide() {
 				var popover = this.settings.element;
 				_configIndex2["default"].hidePopoverAnimation(popover);
-	
-				if (_espalierCommon2["default"].find(".popover").length == 0) {
-					hideVellum();
-				}
-	
+				document.removeEventListener("click", this.settings.hideListener, false);
 				return this;
 			}
 		}]);

@@ -71,22 +71,15 @@ let reposition = function(obj){
 			case "left":
 				x = parentPos.left - elementPos.width;
 				x = x < 0 ? parentPos.right: x;	
-
-				if(elementPos.height > parentPos.height){
-					y =	parentPos.top - (elementPos.relativeYMiddle - parentPos.relativeYMiddle);
-				} else {
-					y =	parentPos.top + (parentPos.relativeYMiddle + elementPos.relativeYMiddle );
-				}
-							
+				
+				y =	parentPos.top;
+				y = y < 0 ? 0 : y;		
 				break;
 			case "right":
 				x = parentPos.right;
-
-				if(elementPos.height > parentPos.height){
-					y =	parentPos.top - (elementPos.relativeYMiddle - parentPos.relativeYMiddle);
-				} else {
-					y =	parentPos.top + (parentPos.relativeYMiddle + elementPos.relativeYMiddle );
-				}
+				
+				y =	parentPos.top;
+				y = y < 0 ? 0 : y;	
 				break;
 		}
 		
@@ -96,22 +89,16 @@ let reposition = function(obj){
 		
 };
 
-let showVellum = function(){
-	if (common.find(".popover-vellum").length > 0) {
-		return;
-    }
-
-    common.body.append("<div class=\"popover-vellum\" />");
+function isDescendant(parent, child) {
+     var node = child.parentNode;
+     while (node != null) {
+         if (node == parent) {
+             return true;
+         }
+         node = node.parentNode;
+     }
+     return false;
 }
-
-let hideVellum = function (listener) {
-    let vellum = common.find(".popover-vellum");
-
-    if (vellum.length > 0) {
-		vellum[0].removeEventListener('click', listener, false)
-        vellum[0].parentNode.removeChild(vellum[0]);
-    }
-};
 
 class Popover {
 	constructor(args){
@@ -119,7 +106,7 @@ class Popover {
 			element: undefined,
 			position: undefined,
 			parent: undefined,
-			vellumListener: undefined
+			hideListener: undefined
 		};
 		common.extend(this.settings, args);
 		
@@ -137,21 +124,25 @@ class Popover {
 	
 	show() {
 		core.hideMainMessage();
-        showVellum();
-		let popover = this.settings.element.getNode();
-
+		let popoverNode = this.settings.element.getNode();
+		let parentNode = this.settings.parent.getNode();
+		
 		this.settings.element.addClass("popover");
-		popover.style.position = "absolute";
-		common.body.append(popover);
+		popoverNode.style.position = "absolute";
+		common.body.append(popoverNode);
 		reposition(this);
-		popover.style.display = "none";
+		popoverNode.style.display = "none";
 
-		config.showPopoverAnimation(popover);
+		config.showPopoverAnimation(popoverNode);
 
-		let vellumNode = document.getElementsByClassName("popover-vellum")[0];
 		//For IE compatibility - a reference to the listener needs to used at removal.
-		this.settings.vellumListener = core.addEventListener(vellumNode, "click", (event) =>{
-			this.hide(this.settings.vellumListener);
+		this.settings.hideListener = core.addEventListener(document, "click", (event) =>{
+			debugger;
+			let target = event.target;
+			let shouldKeep = isDescendant(target, popoverNode)
+			if(!shouldKeep && target !== parentNode && target !== popoverNode){
+				this.hide();
+			}
 		});
 		
 		return this;	
@@ -160,11 +151,7 @@ class Popover {
 	hide(){
 		var popover = this.settings.element;
 		config.hidePopoverAnimation(popover);
-		
-		if (common.find(".popover").length == 0) {
-            hideVellum();
-        }
-		
+		document.removeEventListener("click", this.settings.hideListener, false);
 		return this;	
 	}
 	
