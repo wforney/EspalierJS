@@ -36,8 +36,7 @@ class EspalierForm {
 
         this.form.setAttribute("novalidate", "");
 
-        let controls = new Set();
-
+        let controls = new Map();
         let processedControls = new Set();
         let rawControls = core.find("input, textarea, select", this.form);
 
@@ -53,7 +52,8 @@ class EspalierForm {
             processedControls.add(lowerCaseId);
 
             if (lowerCaseId || (control.type ? control.type : control.getAttribute("type")) == "radio") {
-                controls.add(FormControl(control));
+                let espControl = FormControl(control);
+                controls.set(espControl.getName(), espControl);
             }
         }
 
@@ -84,6 +84,11 @@ class EspalierForm {
             break;
         }
     }
+    
+    getControl(name) {
+        let controls = this._internals.get(keys.controls);
+        return controls.get(name);
+    }
 
     submit() {
         if (this.options.submit) {
@@ -111,7 +116,7 @@ class EspalierForm {
     value() {
         let value = {};
 
-        for (let control of this._internals.get(keys.controls)) {
+        for (let control of this._internals.get(keys.controls).values()) {
             core.setProperty(value, control.getName(), control.val());
         }
 
@@ -121,7 +126,7 @@ class EspalierForm {
     validate() {
         let valid = true;
 
-        for (let control of this._internals.get(keys.controls)) {
+        for (let control of this._internals.get(keys.controls).values()) {
             if (!control.message) continue;
 
             control.message.remove();

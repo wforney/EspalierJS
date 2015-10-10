@@ -78,6 +78,10 @@ class Dialog {
 
         return this;
     }
+    
+    center() {
+        center(this.settings.element.getNode());
+    }
 }
 
 export default function (args) {

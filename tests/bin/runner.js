@@ -8347,13 +8347,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        handleNavigation(graph, graphEvent, -1);
 	    }));
 	
-	    node.renderIn(graph._internals.get(keys.container), graph._internals.get(keys.result), steps);
+	    node.renderIn(graph._internals.get(keys.container), graph._internals.get(keys.result), steps).then(function () {
+	        var valueChanged = graph._internals.get(keys.valueChanged);
 	
-	    var valueChanged = graph._internals.get(keys.valueChanged);
-	
-	    if (valueChanged) {
-	        valueChanged(graph._internals.get(keys.result));
-	    }
+	        if (valueChanged) {
+	            valueChanged(graph._internals.get(keys.result));
+	        }
+	    });
 	};
 	
 	var Graph = (function () {
@@ -8467,6 +8467,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            this._internals.set(keys.currentStep, lastNode);
 	            setStepStates(this);
+	        }
+	    }, {
+	        key: "destroy",
+	        value: function destroy() {
+	            var currentEvent = this._internals.get(keys.nodeSubsciption);
+	
+	            if (currentEvent) {
+	                _espalierCore2["default"].unsubscribe(currentEvent);
+	            }
 	        }
 	    }]);
 	
@@ -8620,6 +8629,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    request.open(ajaxSettings.type, ajaxSettings.url);
 	                    request.onload = function () {
 	                        resolve(ajaxSuccess(this.responseText, req.event, req.onSuccess));
+	                        _espalierWaitscreen2["default"].hide();
 	                    };
 	                } else {
 	                    throw new Error("CORS not supported");
@@ -8675,6 +8685,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                    } else {
 	                                        errors.push(error.detail);
 	                                    }
+	                                } else {
+	                                    errors.push(error.detail);
 	                                }
 	                            }
 	                        } catch (err) {

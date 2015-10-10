@@ -89,6 +89,7 @@ let core = {
                     request.open(ajaxSettings.type, ajaxSettings.url);
                     request.onload = function () {
                         resolve(ajaxSuccess(this.responseText, req.event, req.onSuccess));
+                        waitscreen.hide();
                     }
                 } else {
                     throw new Error("CORS not supported");
@@ -137,6 +138,8 @@ let core = {
                                 } else {
                                     errors.push(error.detail);
                                 }
+                            } else {
+                                errors.push(error.detail);
                             }
                         }
 

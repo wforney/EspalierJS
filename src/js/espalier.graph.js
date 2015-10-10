@@ -69,13 +69,14 @@ let setStepStates = (graph) => {
         handleNavigation(graph, graphEvent, -1);
     }));
 
-    node.renderIn(graph._internals.get(keys.container), graph._internals.get(keys.result), steps);
+    node.renderIn(graph._internals.get(keys.container), graph._internals.get(keys.result), steps)
+        .then(() => {
+            let valueChanged = graph._internals.get(keys.valueChanged);
 
-    let valueChanged = graph._internals.get(keys.valueChanged);
-
-    if (valueChanged) {
-        valueChanged(graph._internals.get(keys.result));
-    }
+            if (valueChanged) {
+                valueChanged(graph._internals.get(keys.result));
+            }
+        });
 }
 
 export default class Graph {
@@ -181,5 +182,13 @@ export default class Graph {
 
         this._internals.set(keys.currentStep, lastNode);
         setStepStates(this);
+    }
+
+    destroy() {
+        let currentEvent = this._internals.get(keys.nodeSubsciption);
+
+        if (currentEvent) {
+            core.unsubscribe(currentEvent);
+        }
     }
 }
