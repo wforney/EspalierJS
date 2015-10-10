@@ -257,8 +257,14 @@ input[type="file"] {
 .button {
   display: inline-block;
   padding: 0.25em 0.75em;
-  border-radius: .15em;
-  cursor: pointer; }
+  border-radius: .1em;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: bold;
+  border: 1px solid #444;
+  box-shadow: 1px 1px 1px rgba(68, 68, 68, 0.4); }
+  .button:hover {
+    box-shadow: inset 0 0 0.5em 0.5em rgba(255, 255, 255, 0.25), 0 0 0 #444; }
 
 div.vellum {
   background: transparent;
@@ -328,6 +334,13 @@ div.vellum {
     background-color: rgba(92, 184, 92, 0.82);
     border-color: #3d8b3d;
     color: #1e441e; }
+
+.popover {
+  z-index: 100001;
+  background: white;
+  padding: 1em;
+  border-radius: .15em;
+  box-shadow: 0 0 0.5em #81e181; }
 
 ul.pagination {
   margin: 0;
@@ -440,3 +453,35 @@ div.wait-screen {
     -webkit-transform: perspective(140px) rotateY(180deg);
             transform: perspective(140px) rotateY(180deg);
     opacity: 0; } }
+
+.dialog {
+  z-index: 100001; }
+
+.graph-step-completed,
+.graph-step-in-progress,
+.graph-step-not-started {
+  color: white;
+  border: 1px solid #BBB; }
+
+.graph-step-completed {
+  background: #1cb841; }
+
+.graph-step-in-progress {
+  background: #df7514; }
+
+.graph-step-not-started {
+  background: white;
+  color: #BBB;
+  cursor: text; }
+
+.desired {
+  background-color: #5bc0de;
+  background-color: rgba(91, 192, 222, 0.82);
+  border-color: #28a1c5;
+  color: #175b70; }
+
+.destroy {
+  background-color: #d9534f;
+  background-color: rgba(217, 83, 79, 0.82);
+  border-color: #b52b27;
+  color: #611715; }

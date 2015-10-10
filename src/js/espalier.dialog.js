@@ -42,6 +42,7 @@ class Dialog {
         }
 
         this.settings.element = new EspalierNode(this.settings.element);
+        this.settings.element.addClass("dialog");
     }
 
     show() {

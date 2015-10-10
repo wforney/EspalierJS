@@ -1,0 +1,34 @@
+.graph-step-completed,
+.graph-step-in-progress,
+.graph-step-not-started {
+	color: white;
+	border: 1px solid #BBB;
+}
+
+.graph-step-completed {
+	background: rgb(28, 184, 65);
+}
+
+.graph-step-in-progress {
+	background: rgb(223, 117, 20);
+}
+
+.graph-step-not-started {
+	background: white;
+	color: #BBB;
+	cursor: text;
+}
+
+.desired {
+	background-color: $color-info;
+	background-color: transparentize($color-info, $fade-out-background);
+	border-color: $color-info-dark;
+	color: $color-info-font;
+}
+
+.destroy {
+	background-color: $color-error;
+	background-color: transparentize($color-error, $fade-out-background);
+	border-color: $color-error-dark;
+	color: $color-error-font;
+}

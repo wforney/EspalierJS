@@ -76,29 +76,3 @@ strong.message-container {
     padding: .5em;
     border-radius: .15em;
 }
-
-.button {
-    text-decoration: none;
-    font-weight: bold;
-    
-    &.graph-step-completed,
-    &.graph-step-in-progress,
-    &.graph-step-not-started {
-        color: white;
-        border: 1px solid #BBB;
-    }
-    
-    &.graph-step-completed {
-        background: rgb(28, 184, 65);
-    }
-    
-    &.graph-step-in-progress {
-        background: rgb(223, 117, 20);
-    }
-    
-    &.graph-step-not-started {
-        background: white;
-        color: #BBB;
-        cursor: text;
-    }
-}
