@@ -2,7 +2,7 @@
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define(factory);
+		define([], factory);
 	else if(typeof exports === 'object')
 		exports["tests"] = factory();
 	else
@@ -1408,10 +1408,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	
 	exports['default'] = function (el, eventName, handler) {
+	    var handlerRef = undefined;
+	
 	    if (el.addEventListener) {
+	        handlerRef = handler;
 	        el.addEventListener(eventName, handler);
 	    } else {
-	        el.attachEvent('on' + eventName, function (args) {
+	        var wrappedHandler = function wrappedHandler(args) {
 	            //IE 8 Support ....
 	            args.target = args.srcElement;
 	
@@ -1424,8 +1427,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            };
 	
 	            handler(args);
-	        });
+	        };
+	
+	        handlerRef = el.attachEvent('on' + eventName, wrappedHandler);
 	    }
+	
+	    return handlerRef;
 	};
 	
 	module.exports = exports['default'];
@@ -1630,12 +1637,12 @@ return /******/ (function(modules) { // webpackBootstrap
 		} else if (typeof exports === 'object') {
 			// CommonJS
 			factory(exports);
-		} else {
-			// Browser globals
-			var PubSub = {};
-			root.PubSub = PubSub;
-			factory(PubSub);
 		}
+	
+		// Browser globals
+		var PubSub = {};
+		root.PubSub = PubSub;
+		factory(PubSub);
 	})(typeof window === 'object' && window || undefined, function (PubSub) {
 		'use strict';
 	

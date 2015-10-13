@@ -2,7 +2,7 @@
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define(factory);
+		define([], factory);
 	else if(typeof exports === 'object')
 		exports["app"] = factory();
 	else
@@ -187,7 +187,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return (0, _espalierDialog2["default"])(args).show();
 	    },
 	    popover: function popover(args) {
-	        return (0, _espalierPopover2["default"])(args).show();
+	        return new _espalierPopover2["default"](args).show();
 	    },
 	    Graph: _espalierGraph2["default"],
 	    GraphNode: _espalierGraphNode2["default"]
@@ -1069,10 +1069,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	
 	exports['default'] = function (el, eventName, handler) {
+	    var handlerRef = undefined;
+	
 	    if (el.addEventListener) {
+	        handlerRef = handler;
 	        el.addEventListener(eventName, handler);
 	    } else {
-	        el.attachEvent('on' + eventName, function (args) {
+	        var wrappedHandler = function wrappedHandler(args) {
 	            //IE 8 Support ....
 	            args.target = args.srcElement;
 	
@@ -1085,8 +1088,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	            };
 	
 	            handler(args);
-	        });
+	        };
+	
+	        handlerRef = el.attachEvent('on' + eventName, wrappedHandler);
 	    }
+	
+	    return handlerRef;
 	};
 	
 	module.exports = exports['default'];
@@ -1291,12 +1298,12 @@ return /******/ (function(modules) { // webpackBootstrap
 		} else if (typeof exports === 'object') {
 			// CommonJS
 			factory(exports);
-		} else {
-			// Browser globals
-			var PubSub = {};
-			root.PubSub = PubSub;
-			factory(PubSub);
 		}
+	
+		// Browser globals
+		var PubSub = {};
+		root.PubSub = PubSub;
+		factory(PubSub);
 	})(typeof window === 'object' && window || undefined, function (PubSub) {
 		'use strict';
 	
@@ -2217,19 +2224,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
-	var _fieldMessageAnimation = __webpack_require__(18);
+	var _fieldMessageAnimation = __webpack_require__(17);
 	
 	var _fieldMessageAnimation2 = _interopRequireDefault(_fieldMessageAnimation);
 	
-	var _fixedMessageAnimation = __webpack_require__(20);
+	var _fixedMessageAnimation = __webpack_require__(19);
 	
 	var _fixedMessageAnimation2 = _interopRequireDefault(_fixedMessageAnimation);
 	
-	var _showDialogAnimation = __webpack_require__(21);
+	var _showDialogAnimation = __webpack_require__(20);
 	
 	var _showDialogAnimation2 = _interopRequireDefault(_showDialogAnimation);
 	
-	var _hideDialogAnimation = __webpack_require__(17);
+	var _hideDialogAnimation = __webpack_require__(21);
 	
 	var _hideDialogAnimation2 = _interopRequireDefault(_hideDialogAnimation);
 	
@@ -2253,22 +2260,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 17 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-	
-	exports["default"] = function (el) {
-	    el.remove();
-	};
-	
-	module.exports = exports["default"];
-
-/***/ },
-/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -2279,7 +2270,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
-	var _fadeIn = __webpack_require__(19);
+	var _fadeIn = __webpack_require__(18);
 	
 	var _fadeIn2 = _interopRequireDefault(_fadeIn);
 	
@@ -2290,7 +2281,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 19 */
+/* 18 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -2329,6 +2320,28 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
+/* 19 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	
+	var _fadeIn = __webpack_require__(18);
+	
+	var _fadeIn2 = _interopRequireDefault(_fadeIn);
+	
+	exports["default"] = function (el) {
+	    (0, _fadeIn2["default"])(el);
+	};
+	
+	module.exports = exports["default"];
+
+/***/ },
 /* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
@@ -2340,7 +2353,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
-	var _fadeIn = __webpack_require__(19);
+	var _fadeIn = __webpack_require__(18);
 	
 	var _fadeIn2 = _interopRequireDefault(_fadeIn);
 	
@@ -2352,7 +2365,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 21 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
 	"use strict";
 	
@@ -2360,14 +2373,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    value: true
 	});
 	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
-	
-	var _fadeIn = __webpack_require__(19);
-	
-	var _fadeIn2 = _interopRequireDefault(_fadeIn);
-	
 	exports["default"] = function (el) {
-	    (0, _fadeIn2["default"])(el);
+	    el.remove();
 	};
 	
 	module.exports = exports["default"];
@@ -2384,7 +2391,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
-	var _fadeIn = __webpack_require__(19);
+	var _fadeIn = __webpack_require__(18);
 	
 	var _fadeIn2 = _interopRequireDefault(_fadeIn);
 	
@@ -2915,7 +2922,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
-		value: true
+	    value: true
 	});
 	
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -2941,169 +2948,175 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _espalierDomnode2 = _interopRequireDefault(_espalierDomnode);
 	
 	var getPosition = function getPosition(element) {
-		var box = element.getBoundingClientRect();
+	    var box = element.getBoundingClientRect();
 	
-		var body = document.body;
-		var docEl = document.documentElement;
+	    var body = document.body;
+	    var docEl = document.documentElement;
 	
-		var scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
-		var scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
+	    var scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
+	    var scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
 	
-		var clientTop = docEl.clientTop || body.clientTop || 0;
-		var clientLeft = docEl.clientLeft || body.clientLeft || 0;
+	    var clientTop = docEl.clientTop || body.clientTop || 0;
+	    var clientLeft = docEl.clientLeft || body.clientLeft || 0;
 	
-		var top = box.top + scrollTop - clientTop;
-		var left = box.left + scrollLeft - clientLeft;
-		var height = element.offsetHeight;
-		var width = element.offsetWidth;
-		var right = box.left + width;
+	    var top = box.top + scrollTop - clientTop;
+	    var left = box.left + scrollLeft - clientLeft;
+	    var height = element.offsetHeight;
+	    var width = element.offsetWidth;
+	    var right = box.left + width;
 	
-		return {
-			top: Math.round(top),
-			left: Math.round(left),
-			right: Math.round(right),
-			bottom: Math.round(box.bottom),
-			height: Math.round(height),
-			width: Math.round(width),
-			relativeXMiddle: Math.round(width / 2),
-			relativeYMiddle: Math.round(height / 2)
-		};
+	    return {
+	        top: Math.round(top),
+	        left: Math.round(left),
+	        right: Math.round(right),
+	        bottom: Math.round(box.bottom),
+	        height: Math.round(height),
+	        width: Math.round(width),
+	        relativeXMiddle: Math.round(width / 2),
+	        relativeYMiddle: Math.round(height / 2)
+	    };
 	};
 	
 	var reposition = function reposition(obj) {
-		var parentNode = obj.settings.parent.getNode();
-		var elementNode = obj.settings.element.getNode();
+	    var parentNode = obj.settings.parent.getNode();
+	    var elementNode = obj.settings.element.getNode();
 	
-		var parentPos = getPosition(parentNode);
-		var elementPos = getPosition(elementNode);
-		var pos = obj.settings.position;
+	    var parentPos = getPosition(parentNode);
+	    var elementPos = getPosition(elementNode);
+	    var pos = obj.settings.position;
 	
-		var x = 0;
-		var y = 0;
-		switch (pos) {
-			case "top":
-				if (elementPos.width > parentPos.width) {
-					x = parentPos.left - (elementPos.relativeXMiddle - parentPos.relativeXMiddle);
-				} else {
-					x = parentPos.left + (parentPos.relativeXMiddle - elementPos.relativeXMiddle);
-				}
-				x = x < 0 ? 0 : x;
+	    var x = 0;
+	    var y = 0;
+	    switch (pos) {
+	        case "top":
+	            if (elementPos.width > parentPos.width) {
+	                x = parentPos.left - (elementPos.relativeXMiddle - parentPos.relativeXMiddle);
+	            } else {
+	                x = parentPos.left + (parentPos.relativeXMiddle - elementPos.relativeXMiddle);
+	            }
+	            x = x < 0 ? 0 : x;
 	
-				y = parentPos.top - elementPos.height;
-				y = y < 0 ? 0 : y;
+	            y = parentPos.top - elementPos.height;
+	            y = y < 0 ? 0 : y;
 	
-				break;
-			case "bottom":
-				if (elementPos.width > parentPos.width) {
-					x = parentPos.left - (elementPos.relativeXMiddle - parentPos.relativeXMiddle);
-				} else {
-					x = parentPos.left + (parentPos.relativeXMiddle - elementPos.relativeXMiddle);
-				}
-				x = x < 0 ? 0 : x;
+	            break;
+	        case "bottom":
+	            if (elementPos.width > parentPos.width) {
+	                x = parentPos.left - (elementPos.relativeXMiddle - parentPos.relativeXMiddle);
+	            } else {
+	                x = parentPos.left + (parentPos.relativeXMiddle - elementPos.relativeXMiddle);
+	            }
+	            x = x < 0 ? 0 : x;
 	
-				y = parentPos.top + parentPos.height;
-				y = y < 0 ? 0 : y;
+	            y = parentPos.top + parentPos.height;
+	            y = y < 0 ? 0 : y;
 	
-				break;
-			case "left":
-				x = parentPos.left - elementPos.width;
-				x = x < 0 ? parentPos.right : x;
+	            break;
+	        case "left":
+	            x = parentPos.left - elementPos.width;
+	            x = x < 0 ? parentPos.right : x;
 	
-				y = parentPos.top;
-				y = y < 0 ? 0 : y;
-				break;
-			case "right":
-				x = parentPos.right;
+	            y = parentPos.top;
+	            y = y < 0 ? 0 : y;
+	            break;
+	        case "right":
+	            x = parentPos.right;
 	
-				y = parentPos.top;
-				y = y < 0 ? 0 : y;
-				break;
-		}
+	            y = parentPos.top;
+	            y = y < 0 ? 0 : y;
+	            break;
+	    }
 	
-		elementNode.style.top = y + "px";
-		elementNode.style.left = x + "px";
+	    elementNode.style.top = y + "px";
+	    elementNode.style.left = x + "px";
 	};
 	
 	function isDescendant(parent, child) {
-		var node = child.parentNode;
-		while (node != null) {
-			if (node == parent) {
-				return true;
-			}
-			node = node.parentNode;
-		}
-		return false;
+	    var node = child.parentNode;
+	    while (node != null) {
+	        if (node == parent) {
+	            return true;
+	        }
+	        node = node.parentNode;
+	    }
+	    return false;
 	}
 	
 	var Popover = (function () {
-		function Popover(args) {
-			_classCallCheck(this, Popover);
+	    function Popover(args) {
+	        _classCallCheck(this, Popover);
 	
-			this.settings = {
-				element: undefined,
-				position: undefined,
-				parent: undefined,
-				hideListener: undefined
-			};
-			_espalierCommon2["default"].extend(this.settings, args);
+	        this.settings = {
+	            element: undefined,
+	            position: undefined,
+	            parent: undefined
+	        };
 	
-			if (!this.settings.element) {
-				throw new Error("You must pass an element.");
-			}
+	        _espalierCommon2["default"].extend(this.settings, args);
+	        this.hideEventHandler = undefined;
+	        this.isPoppedUp = false;
 	
-			if (!this.settings.parent) {
-				throw new Error("You must pass a parent element.");
-			}
-			this.position = this.position === undefined ? "bottom" : this.position;
-			this.settings.element = new _espalierDomnode2["default"](this.settings.element);
-			this.settings.parent = new _espalierDomnode2["default"](this.settings.parent);
-		}
+	        if (!this.settings.element) {
+	            throw new Error("You must pass an element.");
+	        }
 	
-		_createClass(Popover, [{
-			key: "show",
-			value: function show() {
-				var _this = this;
+	        if (!this.settings.parent) {
+	            throw new Error("You must pass a parent element.");
+	        }
+	        this.position = this.position === undefined ? "bottom" : this.position;
+	        this.settings.element = new _espalierDomnode2["default"](this.settings.element);
+	        this.settings.parent = new _espalierDomnode2["default"](this.settings.parent);
+	    }
 	
-				_espalierCore2["default"].hideMainMessage();
-				var popoverNode = this.settings.element.getNode();
-				var parentNode = this.settings.parent.getNode();
+	    _createClass(Popover, [{
+	        key: "show",
+	        value: function show() {
+	            var _this = this;
 	
-				this.settings.element.addClass("popover");
-				popoverNode.style.position = "absolute";
-				_espalierCommon2["default"].body.append(popoverNode);
-				reposition(this);
-				popoverNode.style.display = "none";
+	            var that = this;
+	            if (that.settings.hideEventHandler === undefined) {
+	                (function () {
+	                    _espalierCore2["default"].hideMainMessage();
+	                    var popoverNode = _this.settings.element.getNode();
 	
-				_configIndex2["default"].showPopoverAnimation(popoverNode);
+	                    _this.settings.element.addClass("popover");
+	                    popoverNode.style.position = "absolute";
+	                    _espalierCommon2["default"].body.append(popoverNode);
+	                    reposition(_this);
+	                    popoverNode.style.display = "none";
 	
-				//For IE compatibility - a reference to the listener needs to used at removal.
-				this.settings.hideListener = _espalierCore2["default"].addEventListener(document, "click", function (event) {
-					var target = event.target;
-					var shouldKeep = isDescendant(target, popoverNode);
-					if (!shouldKeep && target !== parentNode && target !== popoverNode) {
-						_this.hide();
-					}
-				});
+	                    _configIndex2["default"].showPopoverAnimation(popoverNode);
+	                    that.hideEventHandler = _espalierCore2["default"].addEventListener(document, "click", function (event) {
+	                        var target = event.target;
+	                        var shouldKeep = isDescendant(target, popoverNode);
+	                        if (!shouldKeep && that.isPoppedUp && target !== popoverNode) {
+	                            _this.hide();
+	                        }
+	                        //this clicks through the first time, ignore that one. (race issue?)
+	                        that.isPoppedUp = true;
+	                    });
+	                })();
+	            }
 	
-				return this;
-			}
-		}, {
-			key: "hide",
-			value: function hide() {
-				var popover = this.settings.element;
-				_configIndex2["default"].hidePopoverAnimation(popover);
-				document.removeEventListener("click", this.settings.hideListener, false);
-				return this;
-			}
-		}]);
+	            return this;
+	        }
+	    }, {
+	        key: "hide",
+	        value: function hide() {
+	            var that = this;
+	            var popover = this.settings.element;
+	            _configIndex2["default"].hidePopoverAnimation(popover);
+	            if (that.hideEventHandler !== undefined) {
+	                document.removeEventListener("click", that.settings.hideEventHandler, false);
+	            }
+	            return this;
+	        }
+	    }]);
 	
-		return Popover;
+	    return Popover;
 	})();
 	
-	exports["default"] = function (args) {
-		return new Popover(args);
-	};
-	
+	exports["default"] = Popover;
 	module.exports = exports["default"];
 
 /***/ },
@@ -3785,7 +3798,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.__esModule = true;
 	
-	var _import = __webpack_require__(36);
+	var _import = __webpack_require__(35);
 	
 	var base = _interopRequireWildcard(_import);
 	
@@ -3800,7 +3813,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _Exception2 = _interopRequireWildcard(_Exception);
 	
-	var _import2 = __webpack_require__(35);
+	var _import2 = __webpack_require__(36);
 	
 	var Utils = _interopRequireWildcard(_import2);
 	
@@ -3842,125 +3855,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 35 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	exports.__esModule = true;
-	exports.extend = extend;
-	
-	// Older IE versions do not directly support indexOf so we must implement our own, sadly.
-	exports.indexOf = indexOf;
-	exports.escapeExpression = escapeExpression;
-	exports.isEmpty = isEmpty;
-	exports.blockParams = blockParams;
-	exports.appendContextPath = appendContextPath;
-	var escape = {
-	  '&': '&amp;',
-	  '<': '&lt;',
-	  '>': '&gt;',
-	  '"': '&quot;',
-	  '\'': '&#x27;',
-	  '`': '&#x60;'
-	};
-	
-	var badChars = /[&<>"'`]/g,
-	    possible = /[&<>"'`]/;
-	
-	function escapeChar(chr) {
-	  return escape[chr];
-	}
-	
-	function extend(obj /* , ...source */) {
-	  for (var i = 1; i < arguments.length; i++) {
-	    for (var key in arguments[i]) {
-	      if (Object.prototype.hasOwnProperty.call(arguments[i], key)) {
-	        obj[key] = arguments[i][key];
-	      }
-	    }
-	  }
-	
-	  return obj;
-	}
-	
-	var toString = Object.prototype.toString;
-	
-	exports.toString = toString;
-	// Sourced from lodash
-	// https://github.com/bestiejs/lodash/blob/master/LICENSE.txt
-	/*eslint-disable func-style, no-var */
-	var isFunction = function isFunction(value) {
-	  return typeof value === 'function';
-	};
-	// fallback for older versions of Chrome and Safari
-	/* istanbul ignore next */
-	if (isFunction(/x/)) {
-	  exports.isFunction = isFunction = function (value) {
-	    return typeof value === 'function' && toString.call(value) === '[object Function]';
-	  };
-	}
-	var isFunction;
-	exports.isFunction = isFunction;
-	/*eslint-enable func-style, no-var */
-	
-	/* istanbul ignore next */
-	var isArray = Array.isArray || function (value) {
-	  return value && typeof value === 'object' ? toString.call(value) === '[object Array]' : false;
-	};exports.isArray = isArray;
-	
-	function indexOf(array, value) {
-	  for (var i = 0, len = array.length; i < len; i++) {
-	    if (array[i] === value) {
-	      return i;
-	    }
-	  }
-	  return -1;
-	}
-	
-	function escapeExpression(string) {
-	  if (typeof string !== 'string') {
-	    // don't escape SafeStrings, since they're already safe
-	    if (string && string.toHTML) {
-	      return string.toHTML();
-	    } else if (string == null) {
-	      return '';
-	    } else if (!string) {
-	      return string + '';
-	    }
-	
-	    // Force a string conversion as this will be done by the append regardless and
-	    // the regex test will do this transparently behind the scenes, causing issues if
-	    // an object's to string has escaped characters in it.
-	    string = '' + string;
-	  }
-	
-	  if (!possible.test(string)) {
-	    return string;
-	  }
-	  return string.replace(badChars, escapeChar);
-	}
-	
-	function isEmpty(value) {
-	  if (!value && value !== 0) {
-	    return true;
-	  } else if (isArray(value) && value.length === 0) {
-	    return true;
-	  } else {
-	    return false;
-	  }
-	}
-	
-	function blockParams(params, ids) {
-	  params.path = ids;
-	  return params;
-	}
-	
-	function appendContextPath(contextPath, id) {
-	  return (contextPath ? contextPath + '.' : '') + id;
-	}
-
-/***/ },
-/* 36 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3973,7 +3867,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.HandlebarsEnvironment = HandlebarsEnvironment;
 	exports.createFrame = createFrame;
 	
-	var _import = __webpack_require__(35);
+	var _import = __webpack_require__(36);
 	
 	var Utils = _interopRequireWildcard(_import);
 	
@@ -4240,6 +4134,125 @@ return /******/ (function(modules) { // webpackBootstrap
 	/* [args, ]options */
 
 /***/ },
+/* 36 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	exports.__esModule = true;
+	exports.extend = extend;
+	
+	// Older IE versions do not directly support indexOf so we must implement our own, sadly.
+	exports.indexOf = indexOf;
+	exports.escapeExpression = escapeExpression;
+	exports.isEmpty = isEmpty;
+	exports.blockParams = blockParams;
+	exports.appendContextPath = appendContextPath;
+	var escape = {
+	  '&': '&amp;',
+	  '<': '&lt;',
+	  '>': '&gt;',
+	  '"': '&quot;',
+	  '\'': '&#x27;',
+	  '`': '&#x60;'
+	};
+	
+	var badChars = /[&<>"'`]/g,
+	    possible = /[&<>"'`]/;
+	
+	function escapeChar(chr) {
+	  return escape[chr];
+	}
+	
+	function extend(obj /* , ...source */) {
+	  for (var i = 1; i < arguments.length; i++) {
+	    for (var key in arguments[i]) {
+	      if (Object.prototype.hasOwnProperty.call(arguments[i], key)) {
+	        obj[key] = arguments[i][key];
+	      }
+	    }
+	  }
+	
+	  return obj;
+	}
+	
+	var toString = Object.prototype.toString;
+	
+	exports.toString = toString;
+	// Sourced from lodash
+	// https://github.com/bestiejs/lodash/blob/master/LICENSE.txt
+	/*eslint-disable func-style, no-var */
+	var isFunction = function isFunction(value) {
+	  return typeof value === 'function';
+	};
+	// fallback for older versions of Chrome and Safari
+	/* istanbul ignore next */
+	if (isFunction(/x/)) {
+	  exports.isFunction = isFunction = function (value) {
+	    return typeof value === 'function' && toString.call(value) === '[object Function]';
+	  };
+	}
+	var isFunction;
+	exports.isFunction = isFunction;
+	/*eslint-enable func-style, no-var */
+	
+	/* istanbul ignore next */
+	var isArray = Array.isArray || function (value) {
+	  return value && typeof value === 'object' ? toString.call(value) === '[object Array]' : false;
+	};exports.isArray = isArray;
+	
+	function indexOf(array, value) {
+	  for (var i = 0, len = array.length; i < len; i++) {
+	    if (array[i] === value) {
+	      return i;
+	    }
+	  }
+	  return -1;
+	}
+	
+	function escapeExpression(string) {
+	  if (typeof string !== 'string') {
+	    // don't escape SafeStrings, since they're already safe
+	    if (string && string.toHTML) {
+	      return string.toHTML();
+	    } else if (string == null) {
+	      return '';
+	    } else if (!string) {
+	      return string + '';
+	    }
+	
+	    // Force a string conversion as this will be done by the append regardless and
+	    // the regex test will do this transparently behind the scenes, causing issues if
+	    // an object's to string has escaped characters in it.
+	    string = '' + string;
+	  }
+	
+	  if (!possible.test(string)) {
+	    return string;
+	  }
+	  return string.replace(badChars, escapeChar);
+	}
+	
+	function isEmpty(value) {
+	  if (!value && value !== 0) {
+	    return true;
+	  } else if (isArray(value) && value.length === 0) {
+	    return true;
+	  } else {
+	    return false;
+	  }
+	}
+	
+	function blockParams(params, ids) {
+	  params.path = ids;
+	  return params;
+	}
+	
+	function appendContextPath(contextPath, id) {
+	  return (contextPath ? contextPath + '.' : '') + id;
+	}
+
+/***/ },
 /* 37 */
 /***/ function(module, exports) {
 
@@ -4322,7 +4335,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.invokePartial = invokePartial;
 	exports.noop = noop;
 	
-	var _import = __webpack_require__(35);
+	var _import = __webpack_require__(36);
 	
 	var Utils = _interopRequireWildcard(_import);
 	
@@ -4330,7 +4343,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _Exception2 = _interopRequireWildcard(_Exception);
 	
-	var _COMPILER_REVISION$REVISION_CHANGES$createFrame = __webpack_require__(36);
+	var _COMPILER_REVISION$REVISION_CHANGES$createFrame = __webpack_require__(35);
 	
 	function checkRevision(compilerInfo) {
 	  var compilerRevision = compilerInfo && compilerInfo[0] || 1,

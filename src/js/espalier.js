@@ -3,7 +3,7 @@ import forms from "./espalier.forms";
 import waitScreen from "./espalier.waitscreen";
 import Table from "./espalier.table";
 import dialog from "./espalier.dialog";
-import popover from "./espalier.popover";
+import Popover from "./espalier.popover";
 import Graph from "./espalier.graph";
 import GraphNode from "./espalier.graph.node";
 import EspalierNode from "./espalier.domnode";
@@ -34,7 +34,7 @@ var espalier = {
         return dialog(args).show();
     },
     popover: function(args) {
-        return popover(args).show();  
+        return new Popover(args).show();  
     },
     Graph,
     GraphNode
