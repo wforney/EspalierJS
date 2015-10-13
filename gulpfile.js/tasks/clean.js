@@ -5,6 +5,7 @@ var config = require("../config");
 gulp.task("clean", function(callback) {
 	del([
 		config.output,
-		config.demoOutput
+		config.demoOutput,
+		config.tests + "/bin"
 	], callback);
 });

@@ -159,5 +159,4 @@ export default class Popover {
         }
         return this;
     }
-
 }

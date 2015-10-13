@@ -187,7 +187,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return (0, _espalierDialog2["default"])(args).show();
 	    },
 	    popover: function popover(args) {
-	        return (0, _espalierPopover2["default"])(args).show();
+	        return new _espalierPopover2["default"](args).show();
 	    },
 	    Graph: _espalierGraph2["default"],
 	    GraphNode: _espalierGraphNode2["default"]
@@ -1069,7 +1069,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	
 	exports['default'] = function (el, eventName, handler) {
-	    var handlerRef;
+	    var handlerRef = undefined;
+	
 	    if (el.addEventListener) {
 	        handlerRef = handler;
 	        el.addEventListener(eventName, handler);
@@ -1091,6 +1092,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	        handlerRef = el.attachEvent('on' + eventName, wrappedHandler);
 	    }
+	
 	    return handlerRef;
 	};
 	
@@ -1107,12 +1109,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	
 	exports["default"] = function (val) {
-	    if (val.nodeName) {
-	        return val;
-	    }
+	    if (val) {
+	        if (val.nodeName) {
+	            return val;
+	        }
 	
-	    if (val[0].nodeName) {
-	        return val[0];
+	        if (val[0].nodeName) {
+	            return val[0];
+	        }
 	    }
 	
 	    throw new Error("This was not a single node.");
@@ -2918,7 +2922,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	"use strict";
 	
 	Object.defineProperty(exports, "__esModule", {
-		value: true
+	    value: true
 	});
 	
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -2944,178 +2948,175 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _espalierDomnode2 = _interopRequireDefault(_espalierDomnode);
 	
 	var getPosition = function getPosition(element) {
-		var box = element.getBoundingClientRect();
+	    var box = element.getBoundingClientRect();
 	
-		var body = document.body;
-		var docEl = document.documentElement;
+	    var body = document.body;
+	    var docEl = document.documentElement;
 	
-		var scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
-		var scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
+	    var scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
+	    var scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
 	
-		var clientTop = docEl.clientTop || body.clientTop || 0;
-		var clientLeft = docEl.clientLeft || body.clientLeft || 0;
+	    var clientTop = docEl.clientTop || body.clientTop || 0;
+	    var clientLeft = docEl.clientLeft || body.clientLeft || 0;
 	
-		var top = box.top + scrollTop - clientTop;
-		var left = box.left + scrollLeft - clientLeft;
-		var height = element.offsetHeight;
-		var width = element.offsetWidth;
-		var right = box.left + width;
+	    var top = box.top + scrollTop - clientTop;
+	    var left = box.left + scrollLeft - clientLeft;
+	    var height = element.offsetHeight;
+	    var width = element.offsetWidth;
+	    var right = box.left + width;
 	
-		return {
-			top: Math.round(top),
-			left: Math.round(left),
-			right: Math.round(right),
-			bottom: Math.round(box.bottom),
-			height: Math.round(height),
-			width: Math.round(width),
-			relativeXMiddle: Math.round(width / 2),
-			relativeYMiddle: Math.round(height / 2)
-		};
+	    return {
+	        top: Math.round(top),
+	        left: Math.round(left),
+	        right: Math.round(right),
+	        bottom: Math.round(box.bottom),
+	        height: Math.round(height),
+	        width: Math.round(width),
+	        relativeXMiddle: Math.round(width / 2),
+	        relativeYMiddle: Math.round(height / 2)
+	    };
 	};
 	
 	var reposition = function reposition(obj) {
-		var parentNode = obj.settings.parent.getNode();
-		var elementNode = obj.settings.element.getNode();
+	    var parentNode = obj.settings.parent.getNode();
+	    var elementNode = obj.settings.element.getNode();
 	
-		var parentPos = getPosition(parentNode);
-		var elementPos = getPosition(elementNode);
-		var pos = obj.settings.position;
+	    var parentPos = getPosition(parentNode);
+	    var elementPos = getPosition(elementNode);
+	    var pos = obj.settings.position;
 	
-		var x = 0;
-		var y = 0;
-		switch (pos) {
-			case "top":
-				if (elementPos.width > parentPos.width) {
-					x = parentPos.left - (elementPos.relativeXMiddle - parentPos.relativeXMiddle);
-				} else {
-					x = parentPos.left + (parentPos.relativeXMiddle - elementPos.relativeXMiddle);
-				}
-				x = x < 0 ? 0 : x;
+	    var x = 0;
+	    var y = 0;
+	    switch (pos) {
+	        case "top":
+	            if (elementPos.width > parentPos.width) {
+	                x = parentPos.left - (elementPos.relativeXMiddle - parentPos.relativeXMiddle);
+	            } else {
+	                x = parentPos.left + (parentPos.relativeXMiddle - elementPos.relativeXMiddle);
+	            }
+	            x = x < 0 ? 0 : x;
 	
-				y = parentPos.top - elementPos.height;
-				y = y < 0 ? 0 : y;
+	            y = parentPos.top - elementPos.height;
+	            y = y < 0 ? 0 : y;
 	
-				break;
-			case "bottom":
-				if (elementPos.width > parentPos.width) {
-					x = parentPos.left - (elementPos.relativeXMiddle - parentPos.relativeXMiddle);
-				} else {
-					x = parentPos.left + (parentPos.relativeXMiddle - elementPos.relativeXMiddle);
-				}
-				x = x < 0 ? 0 : x;
+	            break;
+	        case "bottom":
+	            if (elementPos.width > parentPos.width) {
+	                x = parentPos.left - (elementPos.relativeXMiddle - parentPos.relativeXMiddle);
+	            } else {
+	                x = parentPos.left + (parentPos.relativeXMiddle - elementPos.relativeXMiddle);
+	            }
+	            x = x < 0 ? 0 : x;
 	
-				y = parentPos.top + parentPos.height;
-				y = y < 0 ? 0 : y;
+	            y = parentPos.top + parentPos.height;
+	            y = y < 0 ? 0 : y;
 	
-				break;
-			case "left":
-				x = parentPos.left - elementPos.width;
-				x = x < 0 ? parentPos.right : x;
+	            break;
+	        case "left":
+	            x = parentPos.left - elementPos.width;
+	            x = x < 0 ? parentPos.right : x;
 	
-				y = parentPos.top;
-				y = y < 0 ? 0 : y;
-				break;
-			case "right":
-				x = parentPos.right;
+	            y = parentPos.top;
+	            y = y < 0 ? 0 : y;
+	            break;
+	        case "right":
+	            x = parentPos.right;
 	
-				y = parentPos.top;
-				y = y < 0 ? 0 : y;
-				break;
-		}
+	            y = parentPos.top;
+	            y = y < 0 ? 0 : y;
+	            break;
+	    }
 	
-		elementNode.style.top = y + "px";
-		elementNode.style.left = x + "px";
+	    elementNode.style.top = y + "px";
+	    elementNode.style.left = x + "px";
 	};
 	
 	function isDescendant(parent, child) {
-		var node = child.parentNode;
-		while (node != null) {
-			if (node == parent) {
-				return true;
-			}
-			node = node.parentNode;
-		}
-		return false;
+	    var node = child.parentNode;
+	    while (node != null) {
+	        if (node == parent) {
+	            return true;
+	        }
+	        node = node.parentNode;
+	    }
+	    return false;
 	}
 	
 	var Popover = (function () {
-		function Popover(args) {
-			_classCallCheck(this, Popover);
+	    function Popover(args) {
+	        _classCallCheck(this, Popover);
 	
-			this.settings = {
-				element: undefined,
-				position: undefined,
-				parent: undefined
-			};
+	        this.settings = {
+	            element: undefined,
+	            position: undefined,
+	            parent: undefined
+	        };
 	
-			_espalierCommon2["default"].extend(this.settings, args);
-			this.hideEventHandler = undefined;
-			this.isPoppedUp = false;
+	        _espalierCommon2["default"].extend(this.settings, args);
+	        this.hideEventHandler = undefined;
+	        this.isPoppedUp = false;
 	
-			if (!this.settings.element) {
-				throw new Error("You must pass an element.");
-			}
+	        if (!this.settings.element) {
+	            throw new Error("You must pass an element.");
+	        }
 	
-			if (!this.settings.parent) {
-				throw new Error("You must pass a parent element.");
-			}
-			this.position = this.position === undefined ? "bottom" : this.position;
-			this.settings.element = new _espalierDomnode2["default"](this.settings.element);
-			this.settings.parent = new _espalierDomnode2["default"](this.settings.parent);
-		}
+	        if (!this.settings.parent) {
+	            throw new Error("You must pass a parent element.");
+	        }
+	        this.position = this.position === undefined ? "bottom" : this.position;
+	        this.settings.element = new _espalierDomnode2["default"](this.settings.element);
+	        this.settings.parent = new _espalierDomnode2["default"](this.settings.parent);
+	    }
 	
-		_createClass(Popover, [{
-			key: "show",
-			value: function show() {
-				var _this = this;
+	    _createClass(Popover, [{
+	        key: "show",
+	        value: function show() {
+	            var _this = this;
 	
-				var that = this;
-				if (that.settings.hideEventHandler === undefined) {
-					(function () {
-						_espalierCore2["default"].hideMainMessage();
-						var popoverNode = _this.settings.element.getNode();
+	            var that = this;
+	            if (that.settings.hideEventHandler === undefined) {
+	                (function () {
+	                    _espalierCore2["default"].hideMainMessage();
+	                    var popoverNode = _this.settings.element.getNode();
 	
-						_this.settings.element.addClass("popover");
-						popoverNode.style.position = "absolute";
-						_espalierCommon2["default"].body.append(popoverNode);
-						reposition(_this);
-						popoverNode.style.display = "none";
+	                    _this.settings.element.addClass("popover");
+	                    popoverNode.style.position = "absolute";
+	                    _espalierCommon2["default"].body.append(popoverNode);
+	                    reposition(_this);
+	                    popoverNode.style.display = "none";
 	
-						_configIndex2["default"].showPopoverAnimation(popoverNode);
-						that.hideEventHandler = _espalierCore2["default"].addEventListener(document, "click", function (event) {
-							var target = event.target;
-							var shouldKeep = isDescendant(target, popoverNode);
-							if (!shouldKeep && that.isPoppedUp && target !== popoverNode) {
-								_this.hide();
-							}
-							//this clicks through the first time, ignore that one. (race issue?)
-							that.isPoppedUp = true;
-						});
-					})();
-				}
+	                    _configIndex2["default"].showPopoverAnimation(popoverNode);
+	                    that.hideEventHandler = _espalierCore2["default"].addEventListener(document, "click", function (event) {
+	                        var target = event.target;
+	                        var shouldKeep = isDescendant(target, popoverNode);
+	                        if (!shouldKeep && that.isPoppedUp && target !== popoverNode) {
+	                            _this.hide();
+	                        }
+	                        //this clicks through the first time, ignore that one. (race issue?)
+	                        that.isPoppedUp = true;
+	                    });
+	                })();
+	            }
 	
-				return this;
-			}
-		}, {
-			key: "hide",
-			value: function hide() {
-				var that = this;
-				var popover = this.settings.element;
-				_configIndex2["default"].hidePopoverAnimation(popover);
-				if (that.hideEventHandler !== undefined) {
-					document.removeEventListener("click", that.settings.hideEventHandler, false);
-				}
-				return this;
-			}
-		}]);
+	            return this;
+	        }
+	    }, {
+	        key: "hide",
+	        value: function hide() {
+	            var that = this;
+	            var popover = this.settings.element;
+	            _configIndex2["default"].hidePopoverAnimation(popover);
+	            if (that.hideEventHandler !== undefined) {
+	                document.removeEventListener("click", that.settings.hideEventHandler, false);
+	            }
+	            return this;
+	        }
+	    }]);
 	
-		return Popover;
+	    return Popover;
 	})();
 	
-	exports["default"] = function (args) {
-		return new Popover(args);
-	};
-	
+	exports["default"] = Popover;
 	module.exports = exports["default"];
 
 /***/ },
@@ -3367,11 +3368,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        throw new TypeError("Abstract class GraphNode cannot be instantiated.");
 	    }
 	
-	    if (this.isValid === undefined) {
+	    if (typeof this.isValid !== "function") {
 	        throw new TypeError("GraphNode derivations must implment isValid()");
 	    }
 	
-	    if (this.renderIn == undefined) {
+	    if (typeof this.renderIn !== "function") {
 	        throw new TypeError("GraphNode derivations must implement renderIn(container, result, steps)");
 	    }
 	};
@@ -3466,11 +3467,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var stepContent = "<h3 id=\"" + stepId + "\">" + stepText + "</h3>";
 	
 	    if (hasBack) {
-	        stepContent += "<a data-graph-event='back' href='javascript: void(0);' class='btn btn-primary'>Back</a> ";
+	        stepContent += "<a data-graph-event='back' href='javascript: void(0);' class='button destroy'>Back</a> ";
 	    }
 	
 	    if (hasNext) {
-	        stepContent += "<a data-graph-event=\"next\" href=\"javascript: void(0);\" class=\"btn btn-primary\">Next</a>";
+	        stepContent += "<a data-graph-event=\"next\" href=\"javascript: void(0);\" class=\"button desired\">Next</a>";
 	    }
 	
 	    return stepContent;
@@ -3499,8 +3500,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: "renderIn",
 	        value: function renderIn(container, result, steps) {
-	            var progress = (0, _templatesGraphProgress2["default"])(steps);
-	            container.innerHTML = progress + getStepContent("step-1", this.getValue(), true, false);
+	            var _this = this;
+	
+	            return new Promise(function (resolve) {
+	                var progress = (0, _templatesGraphProgress2["default"])(steps);
+	                container.innerHTML = progress + getStepContent("step-1", _this.getValue(), true, false);
+	                resolve();
+	            });
 	        }
 	    }, {
 	        key: "next",
@@ -3551,8 +3557,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: "renderIn",
 	        value: function renderIn(container, result, steps) {
-	            var progress = (0, _templatesGraphProgress2["default"])(steps);
-	            container.innerHTML = progress + getStepContent("step-2dot1", this.getValue(), true, true);
+	            var _this2 = this;
+	
+	            return new Promise(function (resolve) {
+	                var progress = (0, _templatesGraphProgress2["default"])(steps);
+	                container.innerHTML = progress + getStepContent("step-2dot1", _this2.getValue(), true, true);
+	                resolve();
+	            });
 	        }
 	    }, {
 	        key: "next",
@@ -3601,8 +3612,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: "renderIn",
 	        value: function renderIn(container, result, steps) {
-	            var progress = (0, _templatesGraphProgress2["default"])(steps);
-	            container.innerHTML = progress + getStepContent("step-2dot2", this.getValue(), true, true);
+	            var _this3 = this;
+	
+	            return new Promise(function (resolve) {
+	                var progress = (0, _templatesGraphProgress2["default"])(steps);
+	                container.innerHTML = progress + getStepContent("step-2dot2", _this3.getValue(), true, true);
+	                resolve();
+	            });
 	        }
 	    }, {
 	        key: "next",
@@ -3651,8 +3667,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: "renderIn",
 	        value: function renderIn(container, result, steps) {
-	            var progress = (0, _templatesGraphProgress2["default"])(steps);
-	            container.innerHTML = progress + getStepContent("step-3", this.getValue(), true, true);
+	            var _this4 = this;
+	
+	            return new Promise(function (resolve) {
+	                var progress = (0, _templatesGraphProgress2["default"])(steps);
+	                container.innerHTML = progress + getStepContent("step-3", _this4.getValue(), true, true);
+	                resolve();
+	            });
 	        }
 	    }, {
 	        key: "next",
@@ -3700,8 +3721,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: "renderIn",
 	        value: function renderIn(container, result, steps) {
-	            var progress = (0, _templatesGraphProgress2["default"])(steps);
-	            container.innerHTML = progress + getStepContent("step-4", this.getValue(), false, true);
+	            var _this5 = this;
+	
+	            return new Promise(function (resolve) {
+	                var progress = (0, _templatesGraphProgress2["default"])(steps);
+	                container.innerHTML = progress + getStepContent("step-4", _this5.getValue(), false, true);
+	                resolve();
+	            });
 	        }
 	    }, {
 	        key: "next",
@@ -4719,7 +4745,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var Handlebars = __webpack_require__(33);
 	module.exports = (Handlebars["default"] || Handlebars).template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
-	    return "<form class=\"column one-third-tablet push-one-third-tablet\" style=\"background: white;padding: 1em;border-radius: .15em;box-shadow: 0 0 .5em #81e181;\">\r\n    <div class=\"form-group\">\r\n        <label for=\"exampleInputEmail1\">Email address</label>\r\n        <input required type=\"email\" class=\"form-control\" id=\"exampleInputEmail1\" placeholder=\"Enter email\">\r\n    </div>\r\n    <div class=\"form-group\">\r\n        <label for=\"exampleInputPassword1\">Password</label>\r\n        <input required type=\"password\" class=\"form-control\" id=\"exampleInputPassword1\" placeholder=\"Password\">\r\n    </div>\r\n    <a href=\"javascript: void(0);\" id=\"submit\" class=\"btn btn-default\">Submit</a>\r\n    <a href=\"javascript: void(0);\" id=\"cancel\" class=\"btn btn-danger\">Cancel</a>\r\n</form>";
+	    return "<form class=\"column one-third-tablet push-one-third-tablet\" style=\"background: white;padding: 1em;border-radius: .15em;box-shadow: 0 0 .5em #81e181;\">\r\n    <div class=\"form-group\">\r\n        <label for=\"exampleInputEmail1\">Email address</label>\r\n        <input required type=\"email\" class=\"form-control\" id=\"exampleInputEmail1\" placeholder=\"Enter email\">\r\n    </div>\r\n    <div class=\"form-group\">\r\n        <label for=\"exampleInputPassword1\">Password</label>\r\n        <input required type=\"password\" class=\"form-control\" id=\"exampleInputPassword1\" placeholder=\"Password\">\r\n    </div>\r\n    <a href=\"javascript: void(0);\" id=\"submit\" class=\"button desired\">Submit</a>\r\n    <a href=\"javascript: void(0);\" id=\"cancel\" class=\"button destroy\">Cancel</a>\r\n</form>";
 	},"useData":true});
 
 /***/ },

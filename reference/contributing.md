@@ -22,7 +22,7 @@ git push origin my-new-feature                                          # Push t
 
 ## Requirements for Submitting a Pull Request
 
-* Please submit pull requests via features branches.
+* Please submit pull requests via feature branches.
 * Every pull request should have a single associated work item, be it a feature request or a bug.
 * It is expected that unit tests will be written that cover new code and that all existing unit tests pass.
 * JavaScript should conform to [the Airbnb JavaScript Style Guid](https://github.com/airbnb/javascript).
@@ -36,17 +36,18 @@ git push origin my-new-feature                                          # Push t
 
 ## Install Dependencies and Build
 
-EspalierJS uses NPM to manage dependencies. If you do not already have Node.js installed, [install Node.js](https://nodejs.org/). Once you 
-have Node.js installed:
+EspalierJS uses NPM to manage dependencies and PhantomJS to run headless unit tests. If you do not already have Node.js installed and
+PhantomJS in your paths, [install Node.js](https://nodejs.org/) and [download PhantomJS](http://phantomjs.org/download.html). Once you 
+have Node.js installed and PhantomJS in your path environment variable:
 
 * Open the Node.js command prompt.
 * Navigate to the directory you cloned EspalierJS into.
-* Run the following npm commands to install dependencies, install gulp globally so you can build, and, finally, build EspalierJS:
+* Run the following npm commands to install dependencies, install gulp globally, and, finally, build EspalierJS:
   * npm install
   * npm install -g gulp
   * gulp
 
 ## Code Editor
 
-EspalierJS has been primarily developed using [Visual Studio Code](https://code.visualstudio.com/). It's free, works pretty well, and supports 
+EspalierJS has been primarily developed using [Visual Studio Code](https://code.visualstudio.com/). It's free, can be used everywhere, works well, and supports 
 ES6 JavaScript. That's just a suggestion; feel free to use whichever code editor you like.

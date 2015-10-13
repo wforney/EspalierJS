@@ -5,15 +5,15 @@ let nextKey = new Object();
 
 let getStepContent = (stepId, stepText, hasNext, hasBack) => {
     let stepContent = `<h3 id="${stepId}">${stepText}</h3>`;
-    
-    if(hasBack) {
-        stepContent += `<a data-graph-event='back' href='javascript: void(0);' class='btn btn-primary'>Back</a> `
+
+    if (hasBack) {
+        stepContent += `<a data-graph-event='back' href='javascript: void(0);' class='button destroy'>Back</a> `
     }
-    
-    if(hasNext) {
-        stepContent += `<a data-graph-event="next" href="javascript: void(0);" class="btn btn-primary">Next</a>`;
+
+    if (hasNext) {
+        stepContent += `<a data-graph-event="next" href="javascript: void(0);" class="button desired">Next</a>`;
     }
-    
+
     return stepContent;
 };
 
@@ -22,18 +22,21 @@ export default class Step1 extends espalier.GraphNode {
         super();
         this._internals = new WeakMap();
     }
-    
+
     isValid() {
         return true;
     }
-    
+
     getValue() {
         return "This is step 1";
     }
 
     renderIn(container, result, steps) {
-        let progress = graphProgress(steps);
-        container.innerHTML = progress + getStepContent("step-1", this.getValue(), true, false);
+        return new Promise(resolve => {
+            let progress = graphProgress(steps);
+            container.innerHTML = progress + getStepContent("step-1", this.getValue(), true, false);
+            resolve();
+        });
     }
 
     next() {
@@ -58,7 +61,7 @@ class Step2dot1 extends espalier.GraphNode {
         super();
         this._internals = new WeakMap();
     }
-    
+
     isValid() {
         return true;
     }
@@ -68,8 +71,11 @@ class Step2dot1 extends espalier.GraphNode {
     }
 
     renderIn(container, result, steps) {
-        let progress = graphProgress(steps);
-        container.innerHTML = progress + getStepContent("step-2dot1", this.getValue(), true, true);
+        return new Promise(resolve => {
+            let progress = graphProgress(steps);
+            container.innerHTML = progress + getStepContent("step-2dot1", this.getValue(), true, true);
+            resolve();
+        });
     }
 
     next() {
@@ -94,7 +100,7 @@ class Step2dot2 extends espalier.GraphNode {
         super();
         this._internals = new WeakMap();
     }
-    
+
     isValid() {
         return true;
     }
@@ -104,8 +110,11 @@ class Step2dot2 extends espalier.GraphNode {
     }
 
     renderIn(container, result, steps) {
-        let progress = graphProgress(steps);
-        container.innerHTML = progress + getStepContent("step-2dot2", this.getValue(), true, true);
+        return new Promise(resolve => {
+            let progress = graphProgress(steps);
+            container.innerHTML = progress + getStepContent("step-2dot2", this.getValue(), true, true);
+            resolve();
+        });
     }
 
     next() {
@@ -130,7 +139,7 @@ class Step3 extends espalier.GraphNode {
         super();
         this._internals = new WeakMap();
     }
-    
+
     isValid() {
         return true;
     }
@@ -140,8 +149,11 @@ class Step3 extends espalier.GraphNode {
     }
 
     renderIn(container, result, steps) {
-        let progress = graphProgress(steps);
-        container.innerHTML = progress + getStepContent("step-3", this.getValue(), true, true);
+        return new Promise(resolve => {
+            let progress = graphProgress(steps);
+            container.innerHTML = progress + getStepContent("step-3", this.getValue(), true, true);
+            resolve();
+        });
     }
 
     next() {
@@ -165,7 +177,7 @@ class Step4 extends espalier.GraphNode {
     constructor() {
         super();
     }
-    
+
     isValid() {
         return true;
     }
@@ -175,8 +187,11 @@ class Step4 extends espalier.GraphNode {
     }
 
     renderIn(container, result, steps) {
-        let progress = graphProgress(steps);
-        container.innerHTML = progress + getStepContent("step-4", this.getValue(), false, true);
+        return new Promise(resolve => {
+            let progress = graphProgress(steps);
+            container.innerHTML = progress + getStepContent("step-4", this.getValue(), false, true);
+            resolve();
+        });
     }
 
     next() {
