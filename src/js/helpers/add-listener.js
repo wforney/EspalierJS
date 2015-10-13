@@ -1,8 +1,10 @@
 export default function (el, eventName, handler) {
+    var handlerRef;
     if (el.addEventListener) {
-        el.addEventListener(eventName, handler);
+        handlerRef = handler;
+         el.addEventListener(eventName, handler);
     } else {
-        el.attachEvent('on' + eventName, function (args) {
+        var wrappedHandler = function (args) {
             //IE 8 Support ....
             args.target = args.srcElement;
 
@@ -15,6 +17,9 @@ export default function (el, eventName, handler) {
             }
 
             handler(args);
-        });
+        };
+        
+        handlerRef = el.attachEvent('on' + eventName, wrappedHandler);
     }
+    return handlerRef;
 }

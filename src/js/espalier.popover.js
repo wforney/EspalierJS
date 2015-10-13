@@ -98,17 +98,19 @@ function isDescendant(parent, child) {
          node = node.parentNode;
      }
      return false;
-}
+}	
 
 class Popover {
 	constructor(args){
 		this.settings = {
 			element: undefined,
 			position: undefined,
-			parent: undefined,
-			hideListener: undefined
+			parent: undefined
 		};
+		
 		common.extend(this.settings, args);
+		this.hideEventHandler = undefined;
+		this.isPoppedUp = false;
 		
 		if(!this.settings.element){
 			throw new Error("You must pass an element.");
@@ -123,39 +125,42 @@ class Popover {
 	}
 	
 	show() {
-		core.hideMainMessage();
-		let popoverNode = this.settings.element.getNode();
-		let parentNode = this.settings.parent.getNode();
+		var that = this;
+		if(that.settings.hideEventHandler === undefined){
+			core.hideMainMessage();
+			let popoverNode = this.settings.element.getNode();
 		
-		this.settings.element.addClass("popover");
-		popoverNode.style.position = "absolute";
-		common.body.append(popoverNode);
-		reposition(this);
-		popoverNode.style.display = "none";
+			this.settings.element.addClass("popover");
+			popoverNode.style.position = "absolute";
+			common.body.append(popoverNode);
+			reposition(this);
+			popoverNode.style.display = "none";
 
-		config.showPopoverAnimation(popoverNode);
-
-		//For IE compatibility - a reference to the listener needs to used at removal.
-		this.settings.hideListener = core.addEventListener(document, "click", (event) =>{
-			debugger;
-			let target = event.target;
-			let shouldKeep = isDescendant(target, popoverNode)
-			if(!shouldKeep && target !== parentNode && target !== popoverNode){
-				this.hide();
-			}
-		});
+			config.showPopoverAnimation(popoverNode);
+			that.hideEventHandler = core.addEventListener(document, "click", (event) =>{
+				let target = event.target;
+				let shouldKeep = isDescendant(target, popoverNode)
+				if(!shouldKeep && that.isPoppedUp && target !== popoverNode){
+					this.hide();
+				}
+				//this clicks through the first time, ignore that one. (race issue?)
+				that.isPoppedUp = true;
+			});
+			
+		}
 		
 		return this;	
 	}
 	
 	hide(){
+		var that = this;
 		var popover = this.settings.element;
 		config.hidePopoverAnimation(popover);
-		document.removeEventListener("click", this.settings.hideListener, false);
+		if(that.hideEventHandler !== undefined){
+			document.removeEventListener("click", that.settings.hideEventHandler , false);
+		}
 		return this;	
 	}
-	
-	
 	
 }
 

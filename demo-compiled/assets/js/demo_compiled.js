@@ -1069,10 +1069,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	
 	exports['default'] = function (el, eventName, handler) {
+	    var handlerRef;
 	    if (el.addEventListener) {
+	        handlerRef = handler;
 	        el.addEventListener(eventName, handler);
 	    } else {
-	        el.attachEvent('on' + eventName, function (args) {
+	        var wrappedHandler = function wrappedHandler(args) {
 	            //IE 8 Support ....
 	            args.target = args.srcElement;
 	
@@ -1085,8 +1087,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            };
 	
 	            handler(args);
-	        });
+	        };
+	
+	        handlerRef = el.attachEvent('on' + eventName, wrappedHandler);
 	    }
+	    return handlerRef;
 	};
 	
 	module.exports = exports['default'];
@@ -3040,10 +3045,12 @@ return /******/ (function(modules) { // webpackBootstrap
 			this.settings = {
 				element: undefined,
 				position: undefined,
-				parent: undefined,
-				hideListener: undefined
+				parent: undefined
 			};
+	
 			_espalierCommon2["default"].extend(this.settings, args);
+			this.hideEventHandler = undefined;
+			this.isPoppedUp = false;
 	
 			if (!this.settings.element) {
 				throw new Error("You must pass an element.");
@@ -3062,36 +3069,42 @@ return /******/ (function(modules) { // webpackBootstrap
 			value: function show() {
 				var _this = this;
 	
-				_espalierCore2["default"].hideMainMessage();
-				var popoverNode = this.settings.element.getNode();
-				var parentNode = this.settings.parent.getNode();
+				var that = this;
+				if (that.settings.hideEventHandler === undefined) {
+					(function () {
+						_espalierCore2["default"].hideMainMessage();
+						var popoverNode = _this.settings.element.getNode();
 	
-				this.settings.element.addClass("popover");
-				popoverNode.style.position = "absolute";
-				_espalierCommon2["default"].body.append(popoverNode);
-				reposition(this);
-				popoverNode.style.display = "none";
+						_this.settings.element.addClass("popover");
+						popoverNode.style.position = "absolute";
+						_espalierCommon2["default"].body.append(popoverNode);
+						reposition(_this);
+						popoverNode.style.display = "none";
 	
-				_configIndex2["default"].showPopoverAnimation(popoverNode);
-	
-				//For IE compatibility - a reference to the listener needs to used at removal.
-				this.settings.hideListener = _espalierCore2["default"].addEventListener(document, "click", function (event) {
-					debugger;
-					var target = event.target;
-					var shouldKeep = isDescendant(target, popoverNode);
-					if (!shouldKeep && target !== parentNode && target !== popoverNode) {
-						_this.hide();
-					}
-				});
+						_configIndex2["default"].showPopoverAnimation(popoverNode);
+						that.hideEventHandler = _espalierCore2["default"].addEventListener(document, "click", function (event) {
+							var target = event.target;
+							var shouldKeep = isDescendant(target, popoverNode);
+							if (!shouldKeep && that.isPoppedUp && target !== popoverNode) {
+								_this.hide();
+							}
+							//this clicks through the first time, ignore that one. (race issue?)
+							that.isPoppedUp = true;
+						});
+					})();
+				}
 	
 				return this;
 			}
 		}, {
 			key: "hide",
 			value: function hide() {
+				var that = this;
 				var popover = this.settings.element;
 				_configIndex2["default"].hidePopoverAnimation(popover);
-				document.removeEventListener("click", this.settings.hideListener, false);
+				if (that.hideEventHandler !== undefined) {
+					document.removeEventListener("click", that.settings.hideEventHandler, false);
+				}
 				return this;
 			}
 		}]);
