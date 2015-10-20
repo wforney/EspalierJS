@@ -477,11 +477,65 @@ div.vellum {
     color: #1e441e; }
 
 .popover {
-  z-index: 100001;
-  background: white;
+  position: absolute;
   padding: 1em;
   border-radius: .15em;
-  box-shadow: 0 0 0.5em #81e181; }
+  box-shadow: 0 0 0.5em #81e181;
+  transition-property: opacity, padding, visibility;
+  transition: 0.2s ease-out; }
+
+.popover-wrapper {
+  position: relative;
+  display: inline-block;
+  overflow: visible; }
+
+.popover-top-left {
+  z-index: 100001;
+  position: absolute;
+  bottom: 100%;
+  right: 100%; }
+
+.popover-bottom-left {
+  z-index: 100001;
+  position: absolute;
+  top: 100%;
+  right: 100%; }
+
+.popover-top-right {
+  z-index: 100001;
+  position: absolute;
+  bottom: 100%;
+  left: 100%; }
+
+.popover-bottom-right {
+  z-index: 100001;
+  position: absolute;
+  top: 100%;
+  left: 100%; }
+
+.popover-top-center {
+  z-index: 100001;
+  position: absolute;
+  bottom: 100%;
+  left: -66.7%; }
+
+.popover-bottom-center {
+  z-index: 100001;
+  position: absolute;
+  top: 100%;
+  left: -66.7%; }
+
+.popover-right-center {
+  z-index: 100001;
+  position: absolute;
+  top: -66.7%;
+  left: 100%; }
+
+.popover-left-center {
+  z-index: 100001;
+  position: absolute;
+  top: -66.7%;
+  right: 100%; }
 
 ul.pagination {
   margin: 0;
