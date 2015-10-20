@@ -3,92 +3,14 @@ import config from "./config/index";
 import common from "./espalier.common";
 import EspalierNode from "./espalier.domnode";
 
-let getPosition = function (element) {
-    let box = element.getBoundingClientRect();
-
-    let body = document.body;
-    let docEl = document.documentElement;
-
-    let scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
-    let scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
-
-    let clientTop = docEl.clientTop || body.clientTop || 0;
-    let clientLeft = docEl.clientLeft || body.clientLeft || 0;
-
-    let top = box.top + scrollTop - clientTop;
-    let left = box.left + scrollLeft - clientLeft;
-    let height = element.offsetHeight;
-    let width = element.offsetWidth;
-    let right = box.left + width;
-
-    return {
-        top: Math.round(top),
-        left: Math.round(left),
-        right: Math.round(right),
-        bottom: Math.round(box.bottom),
-        height: Math.round(height),
-        width: Math.round(width),
-        relativeXMiddle: Math.round(width / 2),
-        relativeYMiddle: Math.round(height / 2)
-    };
+function reposition(obj) {
+    let pos = obj.settings.position;
+    let popover = obj.settings.element;
+    popover.addClass("popover-" + pos);
 }
 
-let reposition = function (obj) {
-    let parentNode = obj.settings.parent.getNode();
-    let elementNode = obj.settings.element.getNode();
-
-    let parentPos = getPosition(parentNode);
-    let elementPos = getPosition(elementNode);
-    let pos = obj.settings.position;
-
-    let x = 0;
-    let y = 0;
-    switch (pos) {
-        case "top":
-            if (elementPos.width > parentPos.width) {
-                x = parentPos.left - (elementPos.relativeXMiddle - parentPos.relativeXMiddle);
-            } else {
-                x = parentPos.left + (parentPos.relativeXMiddle - elementPos.relativeXMiddle);
-            }
-            x = x < 0 ? 0 : x;
-
-            y = parentPos.top - elementPos.height;
-            y = y < 0 ? 0 : y;
-
-            break;
-        case "bottom":
-            if (elementPos.width > parentPos.width) {
-                x = parentPos.left - (elementPos.relativeXMiddle - parentPos.relativeXMiddle);
-            } else {
-                x = parentPos.left + (parentPos.relativeXMiddle - elementPos.relativeXMiddle);
-            }
-            x = x < 0 ? 0 : x;
-
-            y = parentPos.top + parentPos.height;
-            y = y < 0 ? 0 : y;
-
-            break;
-        case "left":
-            x = parentPos.left - elementPos.width;
-            x = x < 0 ? parentPos.right : x;
-
-            y = parentPos.top;
-            y = y < 0 ? 0 : y;
-            break;
-        case "right":
-            x = parentPos.right;
-
-            y = parentPos.top;
-            y = y < 0 ? 0 : y;
-            break;
-    }
-
-    elementNode.style.top = y + "px";
-    elementNode.style.left = x + "px";
-};
-
 function isDescendant(parent, child) {
-    var node = child.parentNode;
+    let node = child.parentNode;
     while (node != null) {
         if (node == parent) {
             return true;
@@ -96,6 +18,20 @@ function isDescendant(parent, child) {
         node = node.parentNode;
     }
     return false;
+}
+
+function copyPositionalData(fromNode, toNode){
+    let fromCss = fromNode.style.cssFloat;
+    let fromTop = fromNode.style.top;
+    let fromBottom = fromNode.style.bottom;
+    let fromLeft = fromNode.style.right;
+    let fromRight = fromNode.style.left;
+            
+    toNode.style.cssFloat = fromCss;
+    toNode.style.top = fromTop;
+    toNode.style.bottom = fromBottom;
+    toNode.style.left = fromLeft;
+    toNode.style.right = fromRight;
 }
 
 export default class Popover {
@@ -117,32 +53,39 @@ export default class Popover {
         if (!this.settings.parent) {
             throw new Error("You must pass a parent element.");
         }
-        this.position = this.position === undefined ? "bottom" : this.position;
+        this.position = this.position === undefined ? "bottom-right" : this.position;
         this.settings.element = new EspalierNode(this.settings.element);
         this.settings.parent = new EspalierNode(this.settings.parent);
     }
 
     show() {
-        var that = this;
-        if (that.settings.hideEventHandler === undefined) {
+        let popoverNode = this.settings.element;
+        let parentNode = this.settings.parent;
+
+        if (parentNode.getNode().parentNode.classList.contains('popover-wrapper')) {
+            return this;
+        }
+        let wrapperNode = parentNode.wrapIn("span");
+        copyPositionalData(parentNode.getNode(), wrapperNode.getNode());
+        
+        if (this.settings.hideEventHandler === undefined) {
             core.hideMainMessage();
-            let popoverNode = this.settings.element.getNode();
-
-            this.settings.element.addClass("popover");
-            popoverNode.style.position = "absolute";
-            common.body.append(popoverNode);
+            wrapperNode.append(popoverNode.getNode());
+            wrapperNode.addClass("popover-wrapper");
+            
             reposition(this);
-            popoverNode.style.display = "none";
 
-            config.showPopoverAnimation(popoverNode);
-            that.hideEventHandler = core.addEventListener(document, "click", (event) => {
+            popoverNode.getNode().style.visibility = "visible";
+            popoverNode.addClass("popover");
+
+            this.hideEventHandler = core.addEventListener(document, "click", (event) => {
                 let target = event.target;
-                let shouldKeep = isDescendant(target, popoverNode)
-                if (!shouldKeep && that.isPoppedUp && target !== popoverNode) {
+                let shouldKeep = isDescendant(wrapperNode.getNode(), target)
+                if (!shouldKeep && this.isPoppedUp && target !== wrapperNode.getNode()) {
                     this.hide();
                 }
                 //this clicks through the first time, ignore that one. (race issue?)
-                that.isPoppedUp = true;
+                this.isPoppedUp = true;
             });
 
         }
@@ -151,11 +94,14 @@ export default class Popover {
     }
 
     hide() {
-        var that = this;
         var popover = this.settings.element;
-        config.hidePopoverAnimation(popover);
-        if (that.hideEventHandler !== undefined) {
-            document.removeEventListener("click", that.settings.hideEventHandler, false);
+        var parent = this.settings.parent;
+        
+        popover.getNode().style.visibility = "none";
+        parent.unwrap();
+        
+        if (this.hideEventHandler !== undefined) {
+            document.removeEventListener("click", this.hideEventHandler, false);
         }
         return this;
     }

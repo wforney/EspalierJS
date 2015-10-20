@@ -42,6 +42,24 @@ export default class EspalierNode {
         node.appendChild(stuff);
     }
 
+    wrapIn(tag) {
+        let node = this.getNode();
+        let parent = node.parentNode;
+        let wrapper = document.createElement(tag);
+        parent.insertBefore(wrapper, node.nextSibling);
+        wrapper.appendChild(node);
+
+        return new EspalierNode(wrapper);
+    }
+
+    unwrap() {
+        let node = this.getNode();
+        let wrapper = node.parentNode;
+        wrapper.parentNode.insertBefore(node, wrapper);
+        wrapper.parentNode.removeChild(wrapper);
+        return new EspalierNode(node);
+    }
+
     closest(selector) {
         let node = this.getNode().parentNode;
 

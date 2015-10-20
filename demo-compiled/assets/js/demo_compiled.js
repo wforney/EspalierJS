@@ -92,17 +92,30 @@ return /******/ (function(modules) { // webpackBootstrap
 	    (0, _dialogDialogDemo2["default"])();
 	};
 	
-	_srcJsEspalier2["default"].el("#show-popover-top")[0].onclick = function () {
-	    (0, _popoverPopoverDemo2["default"])(_srcJsEspalier2["default"].el("#show-popover-top")[0]);
+	_srcJsEspalier2["default"].el("#show-popover-top-left")[0].onclick = function () {
+	    (0, _popoverPopoverDemo2["default"])(_srcJsEspalier2["default"].el("#show-popover-top-left")[0]);
 	};
-	_srcJsEspalier2["default"].el("#show-popover-bottom")[0].onclick = function () {
-	    (0, _popoverPopoverDemo2["default"])(_srcJsEspalier2["default"].el("#show-popover-bottom")[0]);
+	_srcJsEspalier2["default"].el("#show-popover-top-right")[0].onclick = function () {
+	    (0, _popoverPopoverDemo2["default"])(_srcJsEspalier2["default"].el("#show-popover-top-right")[0]);
 	};
-	_srcJsEspalier2["default"].el("#show-popover-left")[0].onclick = function () {
-	    (0, _popoverPopoverDemo2["default"])(_srcJsEspalier2["default"].el("#show-popover-left")[0]);
+	_srcJsEspalier2["default"].el("#show-popover-bottom-left")[0].onclick = function () {
+	    (0, _popoverPopoverDemo2["default"])(_srcJsEspalier2["default"].el("#show-popover-bottom-left")[0]);
 	};
-	_srcJsEspalier2["default"].el("#show-popover-right")[0].onclick = function () {
-	    (0, _popoverPopoverDemo2["default"])(_srcJsEspalier2["default"].el("#show-popover-right")[0]);
+	_srcJsEspalier2["default"].el("#show-popover-bottom-right")[0].onclick = function () {
+	    (0, _popoverPopoverDemo2["default"])(_srcJsEspalier2["default"].el("#show-popover-bottom-right")[0]);
+	};
+	
+	_srcJsEspalier2["default"].el("#show-popover-top-center")[0].onclick = function () {
+	    (0, _popoverPopoverDemo2["default"])(_srcJsEspalier2["default"].el("#show-popover-top-center")[0]);
+	};
+	_srcJsEspalier2["default"].el("#show-popover-bottom-center")[0].onclick = function () {
+	    (0, _popoverPopoverDemo2["default"])(_srcJsEspalier2["default"].el("#show-popover-bottom-center")[0]);
+	};
+	_srcJsEspalier2["default"].el("#show-popover-left-center")[0].onclick = function () {
+	    (0, _popoverPopoverDemo2["default"])(_srcJsEspalier2["default"].el("#show-popover-left-center")[0]);
+	};
+	_srcJsEspalier2["default"].el("#show-popover-right-center")[0].onclick = function () {
+	    (0, _popoverPopoverDemo2["default"])(_srcJsEspalier2["default"].el("#show-popover-right-center")[0]);
 	};
 	
 	var table = (0, _tableDemoTable2["default"])(_srcJsEspalier2["default"].el("#demo-table"));
@@ -966,6 +979,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	            }
 	
 	            node.appendChild(stuff);
+	        }
+	    }, {
+	        key: "wrapIn",
+	        value: function wrapIn(tag) {
+	            var node = this.getNode();
+	            var parent = node.parentNode;
+	            var wrapper = document.createElement(tag);
+	            parent.insertBefore(wrapper, node.nextSibling);
+	            wrapper.appendChild(node);
+	
+	            return new EspalierNode(wrapper);
+	        }
+	    }, {
+	        key: "unwrap",
+	        value: function unwrap() {
+	            var node = this.getNode();
+	            var wrapper = node.parentNode;
+	            wrapper.parentNode.insertBefore(node, wrapper);
+	            wrapper.parentNode.removeChild(wrapper);
+	            return new EspalierNode(node);
 	        }
 	    }, {
 	        key: "closest",
@@ -2947,89 +2980,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierDomnode2 = _interopRequireDefault(_espalierDomnode);
 	
-	var getPosition = function getPosition(element) {
-	    var box = element.getBoundingClientRect();
-	
-	    var body = document.body;
-	    var docEl = document.documentElement;
-	
-	    var scrollTop = window.pageYOffset || docEl.scrollTop || body.scrollTop;
-	    var scrollLeft = window.pageXOffset || docEl.scrollLeft || body.scrollLeft;
-	
-	    var clientTop = docEl.clientTop || body.clientTop || 0;
-	    var clientLeft = docEl.clientLeft || body.clientLeft || 0;
-	
-	    var top = box.top + scrollTop - clientTop;
-	    var left = box.left + scrollLeft - clientLeft;
-	    var height = element.offsetHeight;
-	    var width = element.offsetWidth;
-	    var right = box.left + width;
-	
-	    return {
-	        top: Math.round(top),
-	        left: Math.round(left),
-	        right: Math.round(right),
-	        bottom: Math.round(box.bottom),
-	        height: Math.round(height),
-	        width: Math.round(width),
-	        relativeXMiddle: Math.round(width / 2),
-	        relativeYMiddle: Math.round(height / 2)
-	    };
-	};
-	
-	var reposition = function reposition(obj) {
-	    var parentNode = obj.settings.parent.getNode();
-	    var elementNode = obj.settings.element.getNode();
-	
-	    var parentPos = getPosition(parentNode);
-	    var elementPos = getPosition(elementNode);
+	function reposition(obj) {
 	    var pos = obj.settings.position;
-	
-	    var x = 0;
-	    var y = 0;
-	    switch (pos) {
-	        case "top":
-	            if (elementPos.width > parentPos.width) {
-	                x = parentPos.left - (elementPos.relativeXMiddle - parentPos.relativeXMiddle);
-	            } else {
-	                x = parentPos.left + (parentPos.relativeXMiddle - elementPos.relativeXMiddle);
-	            }
-	            x = x < 0 ? 0 : x;
-	
-	            y = parentPos.top - elementPos.height;
-	            y = y < 0 ? 0 : y;
-	
-	            break;
-	        case "bottom":
-	            if (elementPos.width > parentPos.width) {
-	                x = parentPos.left - (elementPos.relativeXMiddle - parentPos.relativeXMiddle);
-	            } else {
-	                x = parentPos.left + (parentPos.relativeXMiddle - elementPos.relativeXMiddle);
-	            }
-	            x = x < 0 ? 0 : x;
-	
-	            y = parentPos.top + parentPos.height;
-	            y = y < 0 ? 0 : y;
-	
-	            break;
-	        case "left":
-	            x = parentPos.left - elementPos.width;
-	            x = x < 0 ? parentPos.right : x;
-	
-	            y = parentPos.top;
-	            y = y < 0 ? 0 : y;
-	            break;
-	        case "right":
-	            x = parentPos.right;
-	
-	            y = parentPos.top;
-	            y = y < 0 ? 0 : y;
-	            break;
-	    }
-	
-	    elementNode.style.top = y + "px";
-	    elementNode.style.left = x + "px";
-	};
+	    var popover = obj.settings.element;
+	    popover.addClass("popover-" + pos);
+	}
 	
 	function isDescendant(parent, child) {
 	    var node = child.parentNode;
@@ -3040,6 +2995,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	        node = node.parentNode;
 	    }
 	    return false;
+	}
+	
+	function copyPositionalData(fromNode, toNode) {
+	    var fromCss = fromNode.style.cssFloat;
+	    var fromTop = fromNode.style.top;
+	    var fromBottom = fromNode.style.bottom;
+	    var fromLeft = fromNode.style.right;
+	    var fromRight = fromNode.style.left;
+	
+	    toNode.style.cssFloat = fromCss;
+	    toNode.style.top = fromTop;
+	    toNode.style.bottom = fromBottom;
+	    toNode.style.left = fromLeft;
+	    toNode.style.right = fromRight;
 	}
 	
 	var Popover = (function () {
@@ -3063,7 +3032,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (!this.settings.parent) {
 	            throw new Error("You must pass a parent element.");
 	        }
-	        this.position = this.position === undefined ? "bottom" : this.position;
+	        this.position = this.position === undefined ? "bottom-right" : this.position;
 	        this.settings.element = new _espalierDomnode2["default"](this.settings.element);
 	        this.settings.parent = new _espalierDomnode2["default"](this.settings.parent);
 	    }
@@ -3073,29 +3042,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function show() {
 	            var _this = this;
 	
-	            var that = this;
-	            if (that.settings.hideEventHandler === undefined) {
-	                (function () {
-	                    _espalierCore2["default"].hideMainMessage();
-	                    var popoverNode = _this.settings.element.getNode();
+	            var popoverNode = this.settings.element;
+	            var parentNode = this.settings.parent;
 	
-	                    _this.settings.element.addClass("popover");
-	                    popoverNode.style.position = "absolute";
-	                    _espalierCommon2["default"].body.append(popoverNode);
-	                    reposition(_this);
-	                    popoverNode.style.display = "none";
+	            if (parentNode.getNode().parentNode.classList.contains('popover-wrapper')) {
+	                return this;
+	            }
+	            var wrapperNode = parentNode.wrapIn("span");
+	            copyPositionalData(parentNode.getNode(), wrapperNode.getNode());
 	
-	                    _configIndex2["default"].showPopoverAnimation(popoverNode);
-	                    that.hideEventHandler = _espalierCore2["default"].addEventListener(document, "click", function (event) {
-	                        var target = event.target;
-	                        var shouldKeep = isDescendant(target, popoverNode);
-	                        if (!shouldKeep && that.isPoppedUp && target !== popoverNode) {
-	                            _this.hide();
-	                        }
-	                        //this clicks through the first time, ignore that one. (race issue?)
-	                        that.isPoppedUp = true;
-	                    });
-	                })();
+	            if (this.settings.hideEventHandler === undefined) {
+	                _espalierCore2["default"].hideMainMessage();
+	                wrapperNode.append(popoverNode.getNode());
+	                wrapperNode.addClass("popover-wrapper");
+	
+	                reposition(this);
+	
+	                popoverNode.getNode().style.visibility = "visible";
+	                popoverNode.addClass("popover");
+	
+	                this.hideEventHandler = _espalierCore2["default"].addEventListener(document, "click", function (event) {
+	                    var target = event.target;
+	                    var shouldKeep = isDescendant(wrapperNode.getNode(), target);
+	                    if (!shouldKeep && _this.isPoppedUp && target !== wrapperNode.getNode()) {
+	                        _this.hide();
+	                    }
+	                    //this clicks through the first time, ignore that one. (race issue?)
+	                    _this.isPoppedUp = true;
+	                });
 	            }
 	
 	            return this;
@@ -3103,11 +3077,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }, {
 	        key: "hide",
 	        value: function hide() {
-	            var that = this;
 	            var popover = this.settings.element;
-	            _configIndex2["default"].hidePopoverAnimation(popover);
-	            if (that.hideEventHandler !== undefined) {
-	                document.removeEventListener("click", that.settings.hideEventHandler, false);
+	            var parent = this.settings.parent;
+	
+	            popover.getNode().style.visibility = "none";
+	            parent.unwrap();
+	
+	            if (this.hideEventHandler !== undefined) {
+	                document.removeEventListener("click", this.hideEventHandler, false);
 	            }
 	            return this;
 	        }
@@ -4788,7 +4765,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var Handlebars = __webpack_require__(33);
 	module.exports = (Handlebars["default"] || Handlebars).template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
-	    return "<div>\r\n    Popover\r\n</div>";
+	    return "<div style=\"background-color: white;\">\r\n    Popover\r\n</div>";
 	},"useData":true});
 
 /***/ }

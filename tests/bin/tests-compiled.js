@@ -1257,6 +1257,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	            node.appendChild(stuff);
 	        }
 	    }, {
+	        key: "wrapIn",
+	        value: function wrapIn(tag) {
+	            var node = this.getNode();
+	            var parent = node.parentNode;
+	            var wrapper = document.createElement(tag);
+	            parent.insertBefore(wrapper, node.nextSibling);
+	            wrapper.appendChild(node);
+	
+	            return new EspalierNode(wrapper);
+	        }
+	    }, {
+	        key: "unwrap",
+	        value: function unwrap() {
+	            var node = this.getNode();
+	            var wrapper = node.parentNode;
+	            wrapper.parentNode.insertBefore(node, wrapper);
+	            wrapper.parentNode.removeChild(wrapper);
+	            return new EspalierNode(node);
+	        }
+	    }, {
 	        key: "closest",
 	        value: function closest(selector) {
 	            var node = this.getNode().parentNode;
