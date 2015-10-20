@@ -83,6 +83,50 @@ class FormControl {
                 break;
             case "hidden":
                 return;
+            case "select-one":
+                group = core.closest(control, ".form-group");
+
+                let options = core.find("option", control);
+                let selectDependents = new Map();
+
+                for (let option of options) {
+                    let requiredDependentsSelector = option.getAttribute("data-require");
+
+                    if (!requiredDependentsSelector) {
+                        continue;
+                    }
+
+                    let requiredDependents = core.find(requiredDependentsSelector, this.form);
+                    let dependentControls = [];
+
+                    for (let requiredDependent of requiredDependents) {
+                        let dependentControl = factory(requiredDependent, form, { required: true });
+                        validations.push(new RequiredDependent(this, option.value, dependentControl));
+                        dependentControl.hide();
+                        dependentControls.push(dependentControl);
+                    }
+                    
+                    selectDependents.set(option.value, dependentControls);
+                }
+
+                if (selectDependents.size > 0) {
+                    core.addEventListener(control, "change", () => {
+                        for (let key of selectDependents.keys()) {
+                            for (let dependent of selectDependents.get(key)) {
+                                dependent.hide();
+                            }
+                        }
+
+                        if (!selectDependents.has(control.value)) {
+                            return;
+                        }
+
+                        for (let dependent of selectDependents.get(control.value)) {
+                            dependent.show();
+                        }
+                    });
+                }
+                break;
             default:
                 group = core.closest(control, ".form-group");
                 break;

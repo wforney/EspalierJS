@@ -80,11 +80,14 @@ class EspalierForm {
             }
 
             el.focus();
-            el.select();
+
+            if (el.select) {
+                el.select();
+            }
             break;
         }
     }
-    
+
     getControl(name) {
         let controls = this._internals.get(keys.controls);
         return controls.get(name);
@@ -138,7 +141,7 @@ class EspalierForm {
 
         return valid;
     }
-    
+
     toJSON() {
         //TODO: http://stackoverflow.com/questions/8330126/how-to-completely-convert-query-string-into-json-object
         throw new Error("This hasn't been implemented yet.");
