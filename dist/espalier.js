@@ -235,7 +235,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var core = {
 	    sendRequest: function sendRequest(req) {
-	        _espalierWaitscreen2["default"].show();
 	        var existingMessages = core.find("." + mainMessage.settings.messageContainerClass);
 	
 	        var _iteratorNormalCompletion = true;
@@ -265,10 +264,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	        var ajaxSettings = {
 	            type: "GET",
-	            withCredentials: true
+	            withCredentials: true,
+	            showWait: true
 	        };
 	
 	        core.extend(ajaxSettings, req);
+	
+	        if (ajaxSettings.showWait) {
+	            _espalierWaitscreen2["default"].show();
+	        }
 	
 	        var promise = new Promise(function (resolve, reject) {
 	            var request = new XMLHttpRequest();
@@ -284,7 +288,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    request.open(ajaxSettings.type, ajaxSettings.url);
 	                    request.onload = function () {
 	                        resolve(ajaxSuccess(this.responseText, req.event, req.onSuccess));
-	                        _espalierWaitscreen2["default"].hide();
+	
+	                        if (ajaxSettings.showWait) {
+	                            _espalierWaitscreen2["default"].hide();
+	                        }
 	                    };
 	                } else {
 	                    throw new Error("CORS not supported");
@@ -310,6 +317,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    } else {
 	                        var jsonResponse = JSON.parse(this.responseText);
 	                        var errors = [];
+	                        var specificErrors = new Map();
 	
 	                        var _iteratorNormalCompletion2 = true;
 	                        var _didIteratorError2 = false;
@@ -320,23 +328,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                var error = _step2.value;
 	
 	                                if (error.source && error.source.parameter) {
-	                                    var specificField = core.find("#" + error.source.parameter.toLowerCase())[0];
-	
-	                                    if (specificField) {
-	                                        var formControl = _espalierCommon2["default"].controls.get(specificField);
-	
-	                                        if (formControl) {
-	                                            var fieldMessage = formControl.message;
-	
-	                                            if (fieldMessage) {
-	                                                fieldMessage.show({
-	                                                    message: error.detail,
-	                                                    messageType: _espalierMessageFactory2["default"].messageType.Error
-	                                                });
-	                                            }
-	                                        } else {
-	                                            errors.push(error.detail);
+	                                    if (error.source.parameter) {
+	                                        if (!specificErrors.has(error.source.parameter)) {
+	                                            specificErrors.set(error.source.parameter, []);
 	                                        }
+	
+	                                        specificErrors.get(error.source.parameter).push(error.detail);
 	                                    } else {
 	                                        errors.push(error.detail);
 	                                    }
@@ -359,13 +356,55 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            }
 	                        }
 	
+	                        var _iteratorNormalCompletion3 = true;
+	                        var _didIteratorError3 = false;
+	                        var _iteratorError3 = undefined;
+	
+	                        try {
+	                            for (var _iterator3 = specificErrors.keys()[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	                                var fieldKey = _step3.value;
+	
+	                                var specificControl = core.find("#" + fieldKey.toLowerCase())[0];
+	                                var formControl = _espalierCommon2["default"].controls.get(specificControl);
+	
+	                                if (formControl) {
+	                                    var fieldMessage = formControl.message;
+	
+	                                    if (fieldMessage) {
+	                                        fieldMessage.show({
+	                                            message: specificErrors.get(fieldKey),
+	                                            messageType: _espalierMessageFactory2["default"].messageType.Error
+	                                        });
+	                                    }
+	                                } else {
+	                                    errors = errors.concat(specificErrors.get(fieldKey));
+	                                }
+	                            }
+	                        } catch (err) {
+	                            _didIteratorError3 = true;
+	                            _iteratorError3 = err;
+	                        } finally {
+	                            try {
+	                                if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
+	                                    _iterator3["return"]();
+	                                }
+	                            } finally {
+	                                if (_didIteratorError3) {
+	                                    throw _iteratorError3;
+	                                }
+	                            }
+	                        }
+	
 	                        if (errors.length > 0) {
 	                            core.showError(errors);
 	                        }
 	                    }
 	
 	                    reject(this.responseText);
-	                    _espalierWaitscreen2["default"].hide();
+	
+	                    if (ajaxSettings.showWait) {
+	                        _espalierWaitscreen2["default"].hide();
+	                    }
 	                }
 	            };
 	
@@ -388,19 +427,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	    showWarning: function showWarning(messages) {
 	        mainMessage.show({
 	            message: messages,
-	            messageType: _espalierMessageFactory2["default"].messageType.Warning
+	            messageType: _espalierMessageFactory2["default"].messageType.Warning,
+	            showButton: true
 	        });
 	    },
 	    showError: function showError(messages) {
 	        mainMessage.show({
 	            message: messages,
-	            messageType: _espalierMessageFactory2["default"].messageType.Error
+	            messageType: _espalierMessageFactory2["default"].messageType.Error,
+	            showButton: true
 	        });
 	    },
 	    showInfo: function showInfo(messages) {
 	        mainMessage.show({
 	            message: messages,
-	            messageType: _espalierMessageFactory2["default"].messageType.Info
+	            messageType: _espalierMessageFactory2["default"].messageType.Info,
+	            showButton: true
 	        });
 	    },
 	    hideMainMessage: function hideMainMessage() {
@@ -492,29 +534,29 @@ return /******/ (function(modules) { // webpackBootstrap
 	    matches: _helpersMatches2["default"],
 	    isString: _helpersIsString2["default"],
 	    first: function first(array, match) {
-	        var _iteratorNormalCompletion3 = true;
-	        var _didIteratorError3 = false;
-	        var _iteratorError3 = undefined;
+	        var _iteratorNormalCompletion4 = true;
+	        var _didIteratorError4 = false;
+	        var _iteratorError4 = undefined;
 	
 	        try {
-	            for (var _iterator3 = array[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-	                var arrayItem = _step3.value;
+	            for (var _iterator4 = array[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	                var arrayItem = _step4.value;
 	
 	                if (match(arrayItem)) {
 	                    return arrayItem;
 	                }
 	            }
 	        } catch (err) {
-	            _didIteratorError3 = true;
-	            _iteratorError3 = err;
+	            _didIteratorError4 = true;
+	            _iteratorError4 = err;
 	        } finally {
 	            try {
-	                if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
-	                    _iterator3["return"]();
+	                if (!_iteratorNormalCompletion4 && _iterator4["return"]) {
+	                    _iterator4["return"]();
 	                }
 	            } finally {
-	                if (_didIteratorError3) {
-	                    throw _iteratorError3;
+	                if (_didIteratorError4) {
+	                    throw _iteratorError4;
 	                }
 	            }
 	        }
@@ -675,7 +717,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                messageContainerClass: this.settings.messageContainerClass,
 	                closeMessageClass: this.settings.closeMessageClass,
 	                messageAttachmentClass: messageAttachmentClass,
-	                moreThanOne: !(0, _helpersIsString2["default"])(messageArgs.message) && messageArgs.message.length > 1
+	                moreThanOne: !(0, _helpersIsString2["default"])(messageArgs.message) && messageArgs.message.length > 1,
+	                showButton: messageArgs.showButton
 	            }));
 	
 	            this.settings.attachTo.append(this.message.getNode());
@@ -846,6 +889,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _helpersMatches2 = _interopRequireDefault(_helpersMatches);
 	
+	var _espalierCommon = __webpack_require__(4);
+	
+	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
+	
 	var keys = {
 	    node: new Object()
 	};
@@ -857,9 +904,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this._internals = new WeakMap();
 	
 	        if ((0, _helpersIsString2["default"])(node)) {
-	            var wrapper = document.createElement("div");
-	            wrapper.innerHTML = node;
-	            node = wrapper.firstChild;
+	            try {
+	                var found = _espalierCommon2["default"].find(node);
+	                node = found[0];
+	            } catch (error) {
+	                var wrapper = document.createElement("div");
+	                wrapper.innerHTML = node;
+	                node = wrapper.firstChild;
+	            }
 	        }
 	
 	        node = (0, _helpersSingleOrError2["default"])(node);
@@ -1041,7 +1093,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    } else {
 	        var wrappedHandler = function wrappedHandler(args) {
 	            //IE 8 Support ....
-	            args.target = args.srcElement;
+	            //args.target = args.srcElement;
 	
 	            args.preventDefault = function () {
 	                args.cancelBubble = true;
@@ -1125,10 +1177,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	var templates = {
 	    message: function message(data) {
-	        var message = "<div class=\"" + data.messageContainerClass + " " + data.messageTypeClass + " " + data.messageAttachmentClass + "\">" + ("<a href=\"javascript: void(0);\" class=\"" + data.closeMessageClass + "\"></a>");
+	        var errorDisplay = "<div class=\"" + data.messageContainerClass + " " + data.messageTypeClass + " " + data.messageAttachmentClass + "\">";
+	
+	        if (data.showButton) {
+	            errorDisplay += "<a href=\"javascript: void(0);\" class=\"" + data.closeMessageClass + "\"></a>";
+	        }
 	
 	        if (data.moreThanOne) {
-	            message += "<ul>";
+	            errorDisplay += "<ul>";
 	
 	            var _iteratorNormalCompletion = true;
 	            var _didIteratorError = false;
@@ -1136,9 +1192,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            try {
 	                for (var _iterator = data.messages[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                    var _message = _step.value;
+	                    var message = _step.value;
 	
-	                    _message += "<li>" + _message + "</li>";
+	                    errorDisplay += "<li>" + message + "</li>";
 	                }
 	            } catch (err) {
 	                _didIteratorError = true;
@@ -1155,13 +1211,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            }
 	
-	            message += "</ul>";
+	            errorDisplay += "</ul>";
 	        } else {
-	            message += "<p>" + data.messages + "</p>";
+	            errorDisplay += "<p>" + data.messages + "</p>";
 	        }
 	
-	        message += "</div>";
-	        return message;
+	        errorDisplay += "</div>";
+	        return errorDisplay;
 	    }
 	};
 	
@@ -1559,6 +1615,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this.form.setAttribute("novalidate", "");
 	
 	        var controls = new Map();
+	        this._internals.set(keys.controls, controls);
 	        var processedControls = new Set();
 	        var rawControls = _espalierCore2["default"].find("input, textarea, select", this.form);
 	
@@ -1581,7 +1638,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                processedControls.add(lowerCaseId);
 	
 	                if (lowerCaseId || (control.type ? control.type : control.getAttribute("type")) == "radio") {
-	                    var espControl = (0, _espalierFormsControl2["default"])(control);
+	                    var espControl = (0, _espalierFormsControl2["default"])(control, this);
 	                    controls.set(espControl.getName(), espControl);
 	                }
 	            }
@@ -1599,8 +1656,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            }
 	        }
-	
-	        this._internals.set(keys.controls, controls);
 	
 	        _espalierCore2["default"].addEventListener(this.form, "submit", function (event) {
 	            event.preventDefault();
@@ -1680,16 +1735,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return controls.get(name);
 	        }
 	    }, {
+	        key: "removeControl",
+	        value: function removeControl(name) {
+	            this._internals.get(keys.controls)["delete"](name);
+	        }
+	    }, {
+	        key: "addControl",
+	        value: function addControl(name, control) {
+	            this._internals.get(keys.controls).set(name, control);
+	        }
+	    }, {
 	        key: "submit",
 	        value: function submit() {
 	            var _this2 = this;
 	
-	            if (this.options.submit) {
-	                this.options.submit();
+	            if (this.options.submit && !this.options.submit()) {
 	                return;
 	            }
 	
-	            if (this.validate()) {
+	            if (this.options.submit || this.validate()) {
 	                var method = this.form.getAttribute("method");
 	
 	                _espalierCore2["default"].sendRequest({
@@ -1751,8 +1815,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    var control = _step5.value;
 	
 	                    if (!control.message) continue;
-	
-	                    control.message.remove();
 	
 	                    if (!control.validate()) {
 	                        valid = false;
@@ -1827,10 +1889,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierMessageFactory2 = _interopRequireDefault(_espalierMessageFactory);
 	
+	var key = new Object();
+	
 	var FormControl = (function () {
 	    function FormControl(control, form, validations, explicitValidations) {
-	        var _this = this;
-	
 	        _classCallCheck(this, FormControl);
 	
 	        var controlType = control.type ? control.type : control.getAttribute("type");
@@ -1840,161 +1902,80 @@ return /******/ (function(modules) { // webpackBootstrap
 	            throw new Error("Elements must have an Id to be properly wired to an Espalier form control.");
 	        }
 	
-	        this.control = control;
-	        this.form = form;
-	        var group;
+	        if (!form) {
+	            throw new Error("Controls must be associated with an Espalier Form.");
+	        }
+	
+	        this._internals = new WeakMap();
+	
+	        var internals = {
+	            control: control,
+	            form: form,
+	            group: undefined
+	        };
+	
+	        this._internals.set(key, internals);
+	
 	        var required = false;
+	        var dependents = new Map();
+	        var dependentListeners = undefined;
+	
 	        control.setAttribute(lowerCaseId, "");
 	
 	        switch (controlType) {
 	            case "radio":
-	                group = _espalierCore2["default"].closest(control, ".radio-group");
-	
-	                var radios = _espalierCore2["default"].find('input[type="radio"]', group);
-	                var dependents = new Map();
+	                internals.group = _espalierCore2["default"].closest(control, ".radio-group");
+	                dependentListeners = Array.from(_espalierCore2["default"].find('input[type="radio"]', internals.group));
 	
 	                var _iteratorNormalCompletion = true;
 	                var _didIteratorError = false;
 	                var _iteratorError = undefined;
 	
 	                try {
-	                    var _loop = function () {
+	                    for (var _iterator = dependentListeners[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 	                        var radio = _step.value;
 	
 	                        if (radio.required || radio.getAttribute("required")) {
 	                            required = true;
 	                        }
 	
-	                        _espalierCore2["default"].addEventListener(radio, "click", function () {
-	                            var _iteratorNormalCompletion2 = true;
-	                            var _didIteratorError2 = false;
-	                            var _iteratorError2 = undefined;
-	
-	                            try {
-	                                for (var _iterator2 = dependents.keys()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	                                    var key = _step2.value;
-	                                    var _iteratorNormalCompletion4 = true;
-	                                    var _didIteratorError4 = false;
-	                                    var _iteratorError4 = undefined;
-	
-	                                    try {
-	                                        for (var _iterator4 = dependents.get(key)[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-	                                            var dependent = _step4.value;
-	
-	                                            dependent.hide();
-	                                        }
-	                                    } catch (err) {
-	                                        _didIteratorError4 = true;
-	                                        _iteratorError4 = err;
-	                                    } finally {
-	                                        try {
-	                                            if (!_iteratorNormalCompletion4 && _iterator4["return"]) {
-	                                                _iterator4["return"]();
-	                                            }
-	                                        } finally {
-	                                            if (_didIteratorError4) {
-	                                                throw _iteratorError4;
-	                                            }
-	                                        }
-	                                    }
-	                                }
-	                            } catch (err) {
-	                                _didIteratorError2 = true;
-	                                _iteratorError2 = err;
-	                            } finally {
-	                                try {
-	                                    if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
-	                                        _iterator2["return"]();
-	                                    }
-	                                } finally {
-	                                    if (_didIteratorError2) {
-	                                        throw _iteratorError2;
-	                                    }
-	                                }
-	                            }
-	
-	                            if (!dependents.has(radio)) {
-	                                return;
-	                            }
-	
-	                            var _iteratorNormalCompletion3 = true;
-	                            var _didIteratorError3 = false;
-	                            var _iteratorError3 = undefined;
-	
-	                            try {
-	                                for (var _iterator3 = dependents.get(radio)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-	                                    var dependent = _step3.value;
-	
-	                                    dependent.show();
-	                                }
-	                            } catch (err) {
-	                                _didIteratorError3 = true;
-	                                _iteratorError3 = err;
-	                            } finally {
-	                                try {
-	                                    if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
-	                                        _iterator3["return"]();
-	                                    }
-	                                } finally {
-	                                    if (_didIteratorError3) {
-	                                        throw _iteratorError3;
-	                                    }
-	                                }
-	                            }
-	                        });
-	
 	                        var requiredDependentsSelector = radio.getAttribute("data-require");
 	
 	                        if (!requiredDependentsSelector) {
-	                            return "continue";
+	                            continue;
 	                        }
 	
-	                        var requiredDependents = _espalierCore2["default"].find(requiredDependentsSelector, _this.form);
+	                        var requiredDependents = _espalierCore2["default"].find(requiredDependentsSelector, internals.form.form);
 	                        var dependentControls = [];
 	
-	                        _iteratorNormalCompletion5 = true;
-	                        _didIteratorError5 = false;
-	                        _iteratorError5 = undefined;
+	                        var _iteratorNormalCompletion2 = true;
+	                        var _didIteratorError2 = false;
+	                        var _iteratorError2 = undefined;
 	
 	                        try {
-	                            for (_iterator5 = requiredDependents[Symbol.iterator](); !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-	                                var requiredDependent = _step5.value;
+	                            for (var _iterator2 = requiredDependents[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                                var requiredDependent = _step2.value;
 	
 	                                var dependentControl = factory(requiredDependent, form, { required: true });
-	                                validations.push(new _espalierValidation.RequiredDependent(_this, radio.value, dependentControl));
 	                                dependentControl.hide();
 	                                dependentControls.push(dependentControl);
 	                            }
 	                        } catch (err) {
-	                            _didIteratorError5 = true;
-	                            _iteratorError5 = err;
+	                            _didIteratorError2 = true;
+	                            _iteratorError2 = err;
 	                        } finally {
 	                            try {
-	                                if (!_iteratorNormalCompletion5 && _iterator5["return"]) {
-	                                    _iterator5["return"]();
+	                                if (!_iteratorNormalCompletion2 && _iterator2["return"]) {
+	                                    _iterator2["return"]();
 	                                }
 	                            } finally {
-	                                if (_didIteratorError5) {
-	                                    throw _iteratorError5;
+	                                if (_didIteratorError2) {
+	                                    throw _iteratorError2;
 	                                }
 	                            }
 	                        }
 	
-	                        dependents.set(radio, dependentControls);
-	                    };
-	
-	                    for (var _iterator = radios[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                        var _iteratorNormalCompletion5;
-	
-	                        var _didIteratorError5;
-	
-	                        var _iteratorError5;
-	
-	                        var _iterator5, _step5;
-	
-	                        var _ret = _loop();
-	
-	                        if (_ret === "continue") continue;
+	                        dependents.set(radio.value, dependentControls);
 	                    }
 	                } catch (err) {
 	                    _didIteratorError = true;
@@ -2013,15 +1994,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	                break;
 	            case "checkbox":
-	                group = _espalierCore2["default"].closest(control, ".checkbox");
+	                internals.group = _espalierCore2["default"].closest(control, ".checkbox");
 	                break;
 	            case "email":
 	                validations.push(new _espalierValidation.Email(this));
-	                group = _espalierCore2["default"].closest(control, ".form-group");
+	                internals.group = _espalierCore2["default"].closest(control, ".form-group");
 	                break;
 	            case "date":
 	                validations.push(new _espalierValidation.Date(this));
-	                group = _espalierCore2["default"].closest(control, ".form-group");
+	                internals.group = _espalierCore2["default"].closest(control, ".form-group");
 	
 	                if (control.datepicker) {
 	                    control.datepicker().attr("type", "text");
@@ -2030,18 +2011,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	            case "hidden":
 	                return;
 	            case "select-one":
-	                group = _espalierCore2["default"].closest(control, ".form-group");
+	                internals.group = _espalierCore2["default"].closest(control, ".form-group");
 	
 	                var options = _espalierCore2["default"].find("option", control);
-	                var selectDependents = new Map();
+	                dependentListeners = [control];
 	
-	                var _iteratorNormalCompletion6 = true;
-	                var _didIteratorError6 = false;
-	                var _iteratorError6 = undefined;
+	                var _iteratorNormalCompletion3 = true;
+	                var _didIteratorError3 = false;
+	                var _iteratorError3 = undefined;
 	
 	                try {
-	                    for (var _iterator6 = options[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-	                        var option = _step6.value;
+	                    for (var _iterator3 = options[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	                        var option = _step3.value;
 	
 	                        var requiredDependentsSelector = option.getAttribute("data-require");
 	
@@ -2052,215 +2033,259 @@ return /******/ (function(modules) { // webpackBootstrap
 	                        var requiredDependents = _espalierCore2["default"].find(requiredDependentsSelector, this.form);
 	                        var dependentControls = [];
 	
-	                        var _iteratorNormalCompletion10 = true;
-	                        var _didIteratorError10 = false;
-	                        var _iteratorError10 = undefined;
+	                        var _iteratorNormalCompletion4 = true;
+	                        var _didIteratorError4 = false;
+	                        var _iteratorError4 = undefined;
 	
 	                        try {
-	                            for (var _iterator10 = requiredDependents[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-	                                var requiredDependent = _step10.value;
+	                            for (var _iterator4 = requiredDependents[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	                                var requiredDependent = _step4.value;
 	
 	                                var dependentControl = factory(requiredDependent, form, { required: true });
-	                                validations.push(new _espalierValidation.RequiredDependent(this, option.value, dependentControl));
 	                                dependentControl.hide();
 	                                dependentControls.push(dependentControl);
 	                            }
 	                        } catch (err) {
-	                            _didIteratorError10 = true;
-	                            _iteratorError10 = err;
+	                            _didIteratorError4 = true;
+	                            _iteratorError4 = err;
 	                        } finally {
 	                            try {
-	                                if (!_iteratorNormalCompletion10 && _iterator10["return"]) {
-	                                    _iterator10["return"]();
+	                                if (!_iteratorNormalCompletion4 && _iterator4["return"]) {
+	                                    _iterator4["return"]();
 	                                }
 	                            } finally {
-	                                if (_didIteratorError10) {
-	                                    throw _iteratorError10;
+	                                if (_didIteratorError4) {
+	                                    throw _iteratorError4;
 	                                }
 	                            }
 	                        }
 	
-	                        selectDependents.set(option.value, dependentControls);
+	                        dependents.set(option.value, dependentControls);
 	                    }
 	                } catch (err) {
-	                    _didIteratorError6 = true;
-	                    _iteratorError6 = err;
+	                    _didIteratorError3 = true;
+	                    _iteratorError3 = err;
 	                } finally {
 	                    try {
-	                        if (!_iteratorNormalCompletion6 && _iterator6["return"]) {
-	                            _iterator6["return"]();
+	                        if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
+	                            _iterator3["return"]();
 	                        }
 	                    } finally {
-	                        if (_didIteratorError6) {
-	                            throw _iteratorError6;
+	                        if (_didIteratorError3) {
+	                            throw _iteratorError3;
 	                        }
 	                    }
 	                }
 	
-	                if (selectDependents.size > 0) {
-	                    _espalierCore2["default"].addEventListener(control, "change", function () {
-	                        var _iteratorNormalCompletion7 = true;
-	                        var _didIteratorError7 = false;
-	                        var _iteratorError7 = undefined;
-	
-	                        try {
-	                            for (var _iterator7 = selectDependents.keys()[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-	                                var key = _step7.value;
-	                                var _iteratorNormalCompletion9 = true;
-	                                var _didIteratorError9 = false;
-	                                var _iteratorError9 = undefined;
-	
-	                                try {
-	                                    for (var _iterator9 = selectDependents.get(key)[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-	                                        var dependent = _step9.value;
-	
-	                                        dependent.hide();
-	                                    }
-	                                } catch (err) {
-	                                    _didIteratorError9 = true;
-	                                    _iteratorError9 = err;
-	                                } finally {
-	                                    try {
-	                                        if (!_iteratorNormalCompletion9 && _iterator9["return"]) {
-	                                            _iterator9["return"]();
-	                                        }
-	                                    } finally {
-	                                        if (_didIteratorError9) {
-	                                            throw _iteratorError9;
-	                                        }
-	                                    }
-	                                }
-	                            }
-	                        } catch (err) {
-	                            _didIteratorError7 = true;
-	                            _iteratorError7 = err;
-	                        } finally {
-	                            try {
-	                                if (!_iteratorNormalCompletion7 && _iterator7["return"]) {
-	                                    _iterator7["return"]();
-	                                }
-	                            } finally {
-	                                if (_didIteratorError7) {
-	                                    throw _iteratorError7;
-	                                }
-	                            }
-	                        }
-	
-	                        if (!selectDependents.has(control.value)) {
-	                            return;
-	                        }
-	
-	                        var _iteratorNormalCompletion8 = true;
-	                        var _didIteratorError8 = false;
-	                        var _iteratorError8 = undefined;
-	
-	                        try {
-	                            for (var _iterator8 = selectDependents.get(control.value)[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-	                                var dependent = _step8.value;
-	
-	                                dependent.show();
-	                            }
-	                        } catch (err) {
-	                            _didIteratorError8 = true;
-	                            _iteratorError8 = err;
-	                        } finally {
-	                            try {
-	                                if (!_iteratorNormalCompletion8 && _iterator8["return"]) {
-	                                    _iterator8["return"]();
-	                                }
-	                            } finally {
-	                                if (_didIteratorError8) {
-	                                    throw _iteratorError8;
-	                                }
-	                            }
-	                        }
-	                    });
-	                }
 	                break;
 	            default:
-	                group = _espalierCore2["default"].closest(control, ".form-group");
+	                internals.group = _espalierCore2["default"].closest(control, ".form-group");
 	                break;
 	        }
 	
 	        this.message = _espalierMessageFactory2["default"].create({
-	            attachTo: group,
+	            attachTo: internals.group,
 	            messageAttachment: _espalierMessageFactory2["default"].messageAttachment.Flow,
 	            onRemoved: function onRemoved() {
-	                _espalierCore2["default"].removeClass(group, "has-error");
+	                _espalierCore2["default"].removeClass(internals.group, "has-error");
 	            },
 	            onAdded: function onAdded() {
-	                _espalierCore2["default"].addClass(group, "has-error");
-	                _configIndex2["default"].fieldMessageAnimation(group);
+	                _espalierCore2["default"].addClass(internals.group, "has-error");
+	                _configIndex2["default"].fieldMessageAnimation(internals.group);
 	            }
 	        });
 	
-	        this.group = group;
-	        this.originalDisplay = this.group.style.display;
+	        internals.originalDisplay = internals.group.style.display;
 	
 	        if (explicitValidations.required || required || control.required || control.getAttribute("required")) {
 	            validations.push(new _espalierValidation.Required(this));
-	            _espalierCore2["default"].addClass(group, "required");
+	            _espalierCore2["default"].addClass(internals.group, "required");
+	        }
+	
+	        var thisControl = this;
+	
+	        if (dependents.size > 0) {
+	            var processDependents = function processDependents() {
+	                var _iteratorNormalCompletion5 = true;
+	                var _didIteratorError5 = false;
+	                var _iteratorError5 = undefined;
+	
+	                try {
+	                    for (var _iterator5 = dependents.keys()[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	                        var dependentKey = _step5.value;
+	
+	                        if (!dependents.has(thisControl.val())) {
+	                            var _iteratorNormalCompletion6 = true;
+	                            var _didIteratorError6 = false;
+	                            var _iteratorError6 = undefined;
+	
+	                            try {
+	                                for (var _iterator6 = dependents.get(dependentKey)[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+	                                    var dependent = _step6.value;
+	
+	                                    dependent.hide();
+	                                    form.removeControl(dependent._internals.get(key).control.name);
+	                                }
+	                            } catch (err) {
+	                                _didIteratorError6 = true;
+	                                _iteratorError6 = err;
+	                            } finally {
+	                                try {
+	                                    if (!_iteratorNormalCompletion6 && _iterator6["return"]) {
+	                                        _iterator6["return"]();
+	                                    }
+	                                } finally {
+	                                    if (_didIteratorError6) {
+	                                        throw _iteratorError6;
+	                                    }
+	                                }
+	                            }
+	                        } else {
+	                            var _iteratorNormalCompletion7 = true;
+	                            var _didIteratorError7 = false;
+	                            var _iteratorError7 = undefined;
+	
+	                            try {
+	                                for (var _iterator7 = dependents.get(thisControl.val())[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+	                                    var dependent = _step7.value;
+	
+	                                    dependent.show();
+	                                    form.addControl(dependent._internals.get(key).control.name, dependent);
+	                                }
+	                            } catch (err) {
+	                                _didIteratorError7 = true;
+	                                _iteratorError7 = err;
+	                            } finally {
+	                                try {
+	                                    if (!_iteratorNormalCompletion7 && _iterator7["return"]) {
+	                                        _iterator7["return"]();
+	                                    }
+	                                } finally {
+	                                    if (_didIteratorError7) {
+	                                        throw _iteratorError7;
+	                                    }
+	                                }
+	                            }
+	                        }
+	                    }
+	                } catch (err) {
+	                    _didIteratorError5 = true;
+	                    _iteratorError5 = err;
+	                } finally {
+	                    try {
+	                        if (!_iteratorNormalCompletion5 && _iterator5["return"]) {
+	                            _iterator5["return"]();
+	                        }
+	                    } finally {
+	                        if (_didIteratorError5) {
+	                            throw _iteratorError5;
+	                        }
+	                    }
+	                }
+	            };
+	
+	            var _iteratorNormalCompletion8 = true;
+	            var _didIteratorError8 = false;
+	            var _iteratorError8 = undefined;
+	
+	            try {
+	                for (var _iterator8 = dependentListeners[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+	                    var listener = _step8.value;
+	
+	                    _espalierCore2["default"].addEventListener(listener, "change", processDependents.bind(this));
+	                }
+	            } catch (err) {
+	                _didIteratorError8 = true;
+	                _iteratorError8 = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion8 && _iterator8["return"]) {
+	                        _iterator8["return"]();
+	                    }
+	                } finally {
+	                    if (_didIteratorError8) {
+	                        throw _iteratorError8;
+	                    }
+	                }
+	            }
 	        }
 	    }
 	
 	    _createClass(FormControl, [{
 	        key: "getName",
 	        value: function getName() {
-	            return this.control.name;
+	            return this._internals.get(key).control.name;
 	        }
 	    }, {
 	        key: "val",
 	        value: function val() {
-	            var controlType = this.control.type ? this.control.type : this.control.getAttribute("type");
+	            var control = this._internals.get(key).control;
+	            var controlType = control.type ? control.type : control.getAttribute("type");
 	
 	            switch (controlType) {
 	                case "checkbox":
-	                    return _espalierCore2["default"].matches(this.control, ":checked") ? this.control.value : undefined;
+	                    return _espalierCore2["default"].matches(control, ":checked");
 	                case "radio":
-	                    var radios = _espalierCore2["default"].find("[name=\"" + this.control.name + "\"]");
+	                    var radios = _espalierCore2["default"].find("[name=\"" + control.name + "\"]");
 	
 	                    //Loop through these instead of using the :checked selector...
-	                    var _iteratorNormalCompletion11 = true;
-	                    var _didIteratorError11 = false;
-	                    var _iteratorError11 = undefined;
+	                    var _iteratorNormalCompletion9 = true;
+	                    var _didIteratorError9 = false;
+	                    var _iteratorError9 = undefined;
 	
 	                    try {
-	                        for (var _iterator11 = radios[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
-	                            var radio = _step11.value;
+	                        for (var _iterator9 = radios[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+	                            var radio = _step9.value;
 	
 	                            if (radio.checked) {
 	                                return radio.value;
 	                            }
 	                        }
 	                    } catch (err) {
-	                        _didIteratorError11 = true;
-	                        _iteratorError11 = err;
+	                        _didIteratorError9 = true;
+	                        _iteratorError9 = err;
 	                    } finally {
 	                        try {
-	                            if (!_iteratorNormalCompletion11 && _iterator11["return"]) {
-	                                _iterator11["return"]();
+	                            if (!_iteratorNormalCompletion9 && _iterator9["return"]) {
+	                                _iterator9["return"]();
 	                            }
 	                        } finally {
-	                            if (_didIteratorError11) {
-	                                throw _iteratorError11;
+	                            if (_didIteratorError9) {
+	                                throw _iteratorError9;
 	                            }
 	                        }
 	                    }
 	
 	                    return undefined;
 	                default:
-	                    return this.control.value;
+	                    return control.value;
 	            }
 	        }
 	    }, {
 	        key: "hide",
 	        value: function hide() {
-	            this.group.style.display = "none";
+	            this._internals.get(key).group.style.display = "none";
 	        }
 	    }, {
 	        key: "show",
 	        value: function show() {
-	            this.group.style.display = this.originalDisplay;
+	            var internals = this._internals.get(key);
+	            internals.group.style.display = internals.originalDisplay;
+	        }
+	    }, {
+	        key: "disable",
+	        value: function disable() {
+	            this._internals.get(key).control.setAttribute("disabled", true);
+	        }
+	    }, {
+	        key: "enable",
+	        value: function enable() {
+	            this._internals.get(key).control.removeAttribute("disabled");
+	        }
+	    }, {
+	        key: "clear",
+	        value: function clear() {
+	            this._internals.get(key).control.value = "";
 	        }
 	    }]);
 	
@@ -2277,13 +2302,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var hasErrors = false;
 	
 	        if (validations) {
-	            var _iteratorNormalCompletion12 = true;
-	            var _didIteratorError12 = false;
-	            var _iteratorError12 = undefined;
+	            var _iteratorNormalCompletion10 = true;
+	            var _didIteratorError10 = false;
+	            var _iteratorError10 = undefined;
 	
 	            try {
-	                for (var _iterator12 = validations[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
-	                    var validation = _step12.value;
+	                for (var _iterator10 = validations[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+	                    var validation = _step10.value;
 	
 	                    if (!validation.isValid()) {
 	                        hasErrors = true;
@@ -2295,16 +2320,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    }
 	                }
 	            } catch (err) {
-	                _didIteratorError12 = true;
-	                _iteratorError12 = err;
+	                _didIteratorError10 = true;
+	                _iteratorError10 = err;
 	            } finally {
 	                try {
-	                    if (!_iteratorNormalCompletion12 && _iterator12["return"]) {
-	                        _iterator12["return"]();
+	                    if (!_iteratorNormalCompletion10 && _iterator10["return"]) {
+	                        _iterator10["return"]();
 	                    }
 	                } finally {
-	                    if (_didIteratorError12) {
-	                        throw _iteratorError12;
+	                    if (_didIteratorError10) {
+	                        throw _iteratorError10;
 	                    }
 	                }
 	            }
@@ -2313,14 +2338,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	        if (errors.length > 0) {
 	            formControl.message.show({
 	                message: errors,
-	                messageType: _espalierMessageFactory2["default"].messageType.Error
+	                messageType: _espalierMessageFactory2["default"].messageType.Error,
+	                showButton: false
 	            });
+	        } else {
+	            formControl.message.remove();
 	        }
 	
 	        return !hasErrors;
 	    };
 	
-	    _espalierCommon2["default"].controls.set(formControl.control, formControl);
+	    _espalierCore2["default"].addEventListener(control, "blur", function () {
+	        formControl.validate();
+	    });
+	
+	    _espalierCommon2["default"].controls.set(formControl._internals.get(key).control, formControl);
 	    return formControl;
 	};
 	
@@ -2544,7 +2576,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 	
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
@@ -2646,36 +2678,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return Date;
 	})(Validation);
 	
-	var RequiredDependent = (function (_Validation4) {
-	    _inherits(RequiredDependent, _Validation4);
-	
-	    function RequiredDependent(control, whenVal, dependent) {
-	        _classCallCheck(this, RequiredDependent);
-	
-	        _get(Object.getPrototypeOf(RequiredDependent.prototype), "constructor", this).call(this, control);
-	        this.whenVal = whenVal;
-	        this.dependent = dependent;
-	    }
-	
-	    _createClass(RequiredDependent, [{
-	        key: "isValid",
-	        value: function isValid() {
-	            return this.control.val() !== this.whenVal || this.control.val() === this.whenVal && this.dependent.validate();
-	        }
-	    }, {
-	        key: "getMessage",
-	        value: function getMessage() {
-	            return false;
-	        }
-	    }]);
-	
-	    return RequiredDependent;
-	})(Validation);
-	
 	exports.Required = Required;
 	exports.Email = Email;
 	exports.Date = Date;
-	exports.RequiredDependent = RequiredDependent;
 
 /***/ },
 /* 24 */
@@ -3202,16 +3207,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _helpersSingleOrError2 = _interopRequireDefault(_helpersSingleOrError);
 	
-	var keys = {
-	    container: new Object(),
-	    result: new Object(),
-	    currentStep: new Object(),
-	    steps: new Object(),
-	    transversed: new Object(),
-	    indexHeadNodes: new Object(),
-	    valueChanged: new Object(),
-	    nodeSubsciption: new Object()
-	};
+	var internals = new WeakMap();
 	
 	var handleNavigation = function handleNavigation(graph, graphEvent, index) {
 	    switch (graphEvent) {
@@ -3227,54 +3223,66 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	};
 	
-	var setStepStates = function setStepStates(graph) {
-	    var headNodes = graph._internals.get(keys.indexHeadNodes);
-	    var node = graph._internals.get(keys.currentStep);
-	    var currentIndex = node.getStepIndex();
-	    var steps = graph._internals.get(keys.steps);
+	var render = function render(graph) {
+	    var graphInternals = internals.get(graph);
 	
-	    for (var i = 0; i < steps.length; i++) {
-	        steps[i].disabled = false;
+	    if (graphInternals.node.getTitle) {
+	        var _iteratorNormalCompletion = true;
+	        var _didIteratorError = false;
+	        var _iteratorError = undefined;
 	
-	        if (i < currentIndex) {
-	            steps[i].cssClass = "graph-step-completed";
-	            steps[i].status = "Completed";
-	            continue;
+	        try {
+	            for (var _iterator = graphInternals.steps[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                var step = _step.value;
+	
+	                step.cssClass = "graph-step-completed";
+	                step.status = "Completed";
+	            }
+	        } catch (err) {
+	            _didIteratorError = true;
+	            _iteratorError = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                    _iterator["return"]();
+	                }
+	            } finally {
+	                if (_didIteratorError) {
+	                    throw _iteratorError;
+	                }
+	            }
 	        }
 	
-	        if (i === currentIndex) {
-	            steps[i].cssClass = "graph-step-in-progress";
-	            steps[i].status = "In progress";
-	            continue;
-	        }
+	        var titleInfo = graphInternals.node.getTitle();
 	
-	        if (i > currentIndex) {
-	            steps[i].cssClass = "graph-step-not-started";
-	            steps[i].disabled = true;
-	            steps[i].status = "Not started";
-	            headNodes.set(i, false);
+	        if (titleInfo) {
+	            graphInternals.steps.push({
+	                cssClass: "graph-step-in-progress",
+	                status: "In progress",
+	                title: titleInfo.title,
+	                key: titleInfo.key,
+	                node: graphInternals.node
+	            });
+	
+	            graphInternals.knownTitleKeys.add(titleInfo.key);
 	        }
 	    }
 	
-	    if (!headNodes.get(currentIndex)) {
-	        headNodes.set(currentIndex, node);
-	    }
-	
-	    var currentEvent = graph._internals.get(keys.nodeSubsciption);
+	    var currentEvent = graphInternals.nodeSubsciption;
 	
 	    if (currentEvent) {
 	        _espalierCore2["default"].unsubscribe(currentEvent);
 	    }
 	
-	    graph._internals.set(keys.nodeSubsciption, _espalierCore2["default"].subscribe(node, function (graphEvent) {
+	    graphInternals.nodeSubsciption = _espalierCore2["default"].subscribe(graphInternals.node, function (graphEvent) {
 	        handleNavigation(graph, graphEvent, -1);
-	    }));
+	    });
 	
-	    node.renderIn(graph._internals.get(keys.container), graph._internals.get(keys.result), steps).then(function () {
-	        var valueChanged = graph._internals.get(keys.valueChanged);
+	    graphInternals.node.renderIn(graphInternals.container, graphInternals.result, graphInternals.steps).then(function () {
+	        var valueChanged = graphInternals.onValueChanged;
 	
 	        if (valueChanged) {
-	            valueChanged(graph._internals.get(keys.result));
+	            valueChanged(graphInternals.result);
 	        }
 	    });
 	};
@@ -3285,32 +3293,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	        _classCallCheck(this, Graph);
 	
-	        this._internals = new WeakMap();
-	        args.container = (0, _helpersSingleOrError2["default"])(args.container);
-	        var headNodes = new Map();
+	        var graphInternals = {
+	            node: args.head,
+	            container: (0, _helpersSingleOrError2["default"])(args.container),
+	            transversed: [],
+	            knownTitleKeys: new Set(),
+	            result: _espalierCore2["default"].extend(args["default"], {}),
+	            onValueChanged: args.valueChanged,
+	            steps: []
+	        };
 	
-	        this._internals.set(keys.container, args.container);
-	        this._internals.set(keys.result, _espalierCore2["default"].extend(args["default"], {}));
-	        this._internals.set(keys.currentStep, args.head);
-	        this._internals.set(keys.steps, args.steps);
-	        this._internals.set(keys.valueChanged, args.valueChanged);
-	        this._internals.set(keys.transversed, []);
-	        this._internals.set(keys.indexHeadNodes, headNodes);
+	        internals.set(this, graphInternals);
+	        render(this);
 	
-	        for (var i = 0; i < args.steps.length; i++) {
-	            args.steps[i].index = i;
-	            headNodes.set(i, false);
-	        }
-	
-	        headNodes.set(0, args.head);
-	        this.goto(0);
-	
-	        _espalierCore2["default"].addEventListener(this._internals.get(keys.container), "click", function (e) {
+	        _espalierCore2["default"].addEventListener(graphInternals.container, "click", function (e) {
 	            var target = e.target;
 	
 	            while (target && target != args.container) {
 	                var _event = target.getAttribute("data-graph-event");
-	                handleNavigation(_this, _event, Number(target.getAttribute("data-graph-index")));
+	                handleNavigation(_this, _event, target.getAttribute("data-title-key"));
 	                target = target.parentNode;
 	            }
 	        });
@@ -3318,38 +3319,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    _createClass(Graph, [{
 	        key: "goto",
-	        value: function goto(index) {
-	            var currentNode = this._internals.get(keys.currentStep);
+	        value: function goto(key) {
+	            var graphInternals = internals.get(this);
 	
-	            if (index > currentNode.getStepIndex()) {
-	                throw new Error("You can only goto an index less than or equal to the current node's index.");
+	            if (!graphInternals.knownTitleKeys.has(key)) {
+	                throw new Error("Unknown title key.");
 	            }
 	
-	            var headNodes = this._internals.get(keys.indexHeadNodes);
-	            var nodeToGoTo = headNodes.get(index);
+	            while (!graphInternals.node.getTitle || !graphInternals.node.getTitle() || graphInternals.node.getTitle().key !== key) {
+	                if (graphInternals.node.getTitle) {
+	                    var titleInfo = graphInternals.node.getTitle();
 	
-	            if (nodeToGoTo !== currentNode) {
-	                var transversed = this._internals.get(keys.transversed);
-	                var result = this._internals.get(keys.result);
-	
-	                if (transversed.length > 0) {
-	                    var poppedNode = undefined;
-	
-	                    do {
-	                        poppedNode = transversed.pop();
-	                        delete result[poppedNode.getPropertyName()];
-	                    } while (poppedNode !== nodeToGoTo);
+	                    if (titleInfo) {
+	                        graphInternals.steps.pop();
+	                        graphInternals.knownTitleKeys["delete"](titleInfo.key);
+	                    }
 	                }
 	
-	                this._internals.set(keys.currentStep, nodeToGoTo);
+	                graphInternals.node = graphInternals.transversed.pop();
 	            }
 	
-	            setStepStates(this);
+	            graphInternals.steps.pop();
+	            render(this);
 	        }
 	    }, {
 	        key: "next",
 	        value: function next() {
-	            var step = this._internals.get(keys.currentStep);
+	            var graphInternals = internals.get(this);
+	            var step = graphInternals.node;
 	
 	            if (!step.isValid()) {
 	                return;
@@ -3357,44 +3354,62 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            var nextStep = step.next();
 	
-	            if (step.getStepIndex() > nextStep.getStepIndex()) {
-	                throw new Error("Invalid step index. It must be equal to or greater than the last step's index.");
+	            if (nextStep.getTitle && graphInternals.knownTitleKeys.has(nextStep.getTitle().key)) {
+	                throw new Error("A node with that title key has already been seen.");
 	            }
 	
-	            var transversed = this._internals.get(keys.transversed);
-	            transversed.push(step);
+	            graphInternals.transversed.push(step);
 	
 	            if (step.getPropertyName) {
 	                var value = step.getValue();
-	                _espalierCore2["default"].setProperty(this._internals.get(keys.result), step.getPropertyName(), value);
+	                _espalierCore2["default"].setProperty(graphInternals.result, step.getPropertyName(), value);
 	            }
 	
-	            this._internals.set(keys.currentStep, nextStep);
-	            setStepStates(this);
+	            graphInternals.node = nextStep;
+	            render(this);
 	        }
 	    }, {
 	        key: "previous",
 	        value: function previous() {
-	            var currentNode = this._internals.get(keys.currentStep);
+	            var graphInternals = internals.get(this);
 	
-	            if (currentNode.back) {
-	                currentNode.back();
+	            if (graphInternals.node.back) {
+	                graphInternals.node.back();
 	            }
 	
-	            var transversed = this._internals.get(keys.transversed);
-	            var lastNode = transversed.pop();
+	            if (graphInternals.node.getTitle) {
+	                var title = graphInternals.node.getTitle();
 	
-	            if (lastNode.getPropertyName) {
-	                delete this._internals.get(keys.result)[lastNode.getPropertyName()];
+	                if (title) {
+	                    graphInternals.steps.pop();
+	                    graphInternals.knownTitleKeys["delete"](title.key);
+	                }
 	            }
 	
-	            this._internals.set(keys.currentStep, lastNode);
-	            setStepStates(this);
+	            graphInternals.node = graphInternals.transversed.pop();
+	
+	            if (graphInternals.node.getTitle) {
+	                var title = graphInternals.node.getTitle();
+	
+	                if (title) {
+	                    graphInternals.steps.pop();
+	                }
+	            } else {
+	                var stepTitle = graphInternals.steps[graphInternals.steps.length - 1];
+	                stepTitle.cssClass = "graph-step-in-progress";
+	                stepTitle.status = "In progress";
+	            }
+	
+	            if (graphInternals.node.getPropertyName) {
+	                delete graphInternals.result[graphInternals.node.getPropertyName()];
+	            }
+	
+	            render(this);
 	        }
 	    }, {
 	        key: "destroy",
 	        value: function destroy() {
-	            var currentEvent = this._internals.get(keys.nodeSubsciption);
+	            var currentEvent = internals.get(this).nodeSubsciption;
 	
 	            if (currentEvent) {
 	                _espalierCore2["default"].unsubscribe(currentEvent);

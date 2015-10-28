@@ -1,16 +1,7 @@
 import core from "./espalier.core";
 import singleOrError from "./helpers/single-or-error";
 
-let keys = {
-    container: new Object(),
-    result: new Object(),
-    currentStep: new Object(),
-    steps: new Object(),
-    transversed: new Object(),
-    indexHeadNodes: new Object(),
-    valueChanged: new Object(),
-    nodeSubsciption: new Object()
-}
+let internals = new WeakMap();
 
 let handleNavigation = function (graph, graphEvent, index) {
     switch (graphEvent) {
@@ -26,123 +17,103 @@ let handleNavigation = function (graph, graphEvent, index) {
     }
 };
 
-let setStepStates = (graph) => {
-    let headNodes = graph._internals.get(keys.indexHeadNodes);
-    let node = graph._internals.get(keys.currentStep);
-    let currentIndex = node.getStepIndex();
-    let steps = graph._internals.get(keys.steps);
+let render = (graph) => {
+    let graphInternals = internals.get(graph);
 
-    for (let i = 0; i < steps.length; i++) {
-        steps[i].disabled = false;
-
-        if (i < currentIndex) {
-            steps[i].cssClass = "graph-step-completed";
-            steps[i].status = "Completed";
-            continue;
+    if (graphInternals.node.getTitle) {
+        for (let step of graphInternals.steps) {
+            step.cssClass = "graph-step-completed";
+            step.status = "Completed";
         }
 
-        if (i === currentIndex) {
-            steps[i].cssClass = "graph-step-in-progress";
-            steps[i].status = "In progress";
-            continue;
-        }
+        let titleInfo = graphInternals.node.getTitle();
 
-        if (i > currentIndex) {
-            steps[i].cssClass = "graph-step-not-started";
-            steps[i].disabled = true;
-            steps[i].status = "Not started";
-            headNodes.set(i, false);
+        if (titleInfo) {
+            graphInternals.steps.push({
+                cssClass: "graph-step-in-progress",
+                status: "In progress",
+                title: titleInfo.title,
+                key: titleInfo.key,
+                node: graphInternals.node
+            });
+
+            graphInternals.knownTitleKeys.add(titleInfo.key);
         }
     }
 
-    if (!headNodes.get(currentIndex)) {
-        headNodes.set(currentIndex, node);
-    }
-
-    let currentEvent = graph._internals.get(keys.nodeSubsciption);
+    let currentEvent = graphInternals.nodeSubsciption;
 
     if (currentEvent) {
         core.unsubscribe(currentEvent);
     }
 
-    graph._internals.set(keys.nodeSubsciption, core.subscribe(node, (graphEvent) => {
+    graphInternals.nodeSubsciption = core.subscribe(graphInternals.node, (graphEvent) => {
         handleNavigation(graph, graphEvent, -1);
-    }));
+    });
 
-    node.renderIn(graph._internals.get(keys.container), graph._internals.get(keys.result), steps)
+    graphInternals.node.renderIn(graphInternals.container, graphInternals.result, graphInternals.steps)
         .then(() => {
-            let valueChanged = graph._internals.get(keys.valueChanged);
+            let valueChanged = graphInternals.onValueChanged;
 
             if (valueChanged) {
-                valueChanged(graph._internals.get(keys.result));
+                valueChanged(graphInternals.result);
             }
         });
 }
 
 export default class Graph {
     constructor(args) {
-        this._internals = new WeakMap();
-        args.container = singleOrError(args.container);
-        let headNodes = new Map();
+        let graphInternals = {
+            node: args.head,
+            container: singleOrError(args.container),
+            transversed: [],
+            knownTitleKeys: new Set(),
+            result: core.extend(args.default, {}),
+            onValueChanged: args.valueChanged,
+            steps: []
+        };
 
-        this._internals.set(keys.container, args.container);
-        this._internals.set(keys.result, core.extend(args.default, {}));
-        this._internals.set(keys.currentStep, args.head);
-        this._internals.set(keys.steps, args.steps);
-        this._internals.set(keys.valueChanged, args.valueChanged);
-        this._internals.set(keys.transversed, []);
-        this._internals.set(keys.indexHeadNodes, headNodes);
+        internals.set(this, graphInternals);
+        render(this);
 
-        for (let i = 0; i < args.steps.length; i++) {
-            args.steps[i].index = i;
-            headNodes.set(i, false);
-        }
-
-        headNodes.set(0, args.head);
-        this.goto(0);
-
-        core.addEventListener(this._internals.get(keys.container), "click", (e) => {
+        core.addEventListener(graphInternals.container, "click", (e) => {
             let target = e.target;
 
             while (target && target != args.container) {
                 let event = target.getAttribute("data-graph-event");
-                handleNavigation(this, event, Number(target.getAttribute("data-graph-index")));
+                handleNavigation(this, event, target.getAttribute("data-title-key"));
                 target = target.parentNode;
             }
-        })
+        });
     }
 
-    goto(index) {
-        let currentNode = this._internals.get(keys.currentStep);
+    goto(key) {
+        let graphInternals = internals.get(this);
 
-        if (index > currentNode.getStepIndex()) {
-            throw new Error("You can only goto an index less than or equal to the current node's index.");
+        if (!graphInternals.knownTitleKeys.has(key)) {
+            throw new Error("Unknown title key.");
         }
 
-        let headNodes = this._internals.get(keys.indexHeadNodes);
-        let nodeToGoTo = headNodes.get(index);
+        while (!graphInternals.node.getTitle || !graphInternals.node.getTitle() || graphInternals.node.getTitle().key !== key) {
+            if (graphInternals.node.getTitle) {
+                let titleInfo = graphInternals.node.getTitle();
 
-        if (nodeToGoTo !== currentNode) {
-            let transversed = this._internals.get(keys.transversed);
-            let result = this._internals.get(keys.result);
-
-            if (transversed.length > 0) {
-                let poppedNode;
-
-                do {
-                    poppedNode = transversed.pop();
-                    delete result[poppedNode.getPropertyName()];
-                } while (poppedNode !== nodeToGoTo);
+                if (titleInfo) {
+                    graphInternals.steps.pop();
+                    graphInternals.knownTitleKeys.delete(titleInfo.key);
+                }
             }
 
-            this._internals.set(keys.currentStep, nodeToGoTo);
+            graphInternals.node = graphInternals.transversed.pop();
         }
 
-        setStepStates(this);
+        graphInternals.steps.pop();
+        render(this);
     }
 
     next() {
-        let step = this._internals.get(keys.currentStep);
+        let graphInternals = internals.get(this);
+        let step = graphInternals.node;
 
         if (!step.isValid()) {
             return;
@@ -150,42 +121,60 @@ export default class Graph {
 
         let nextStep = step.next();
 
-        if (step.getStepIndex() > nextStep.getStepIndex()) {
-            throw new Error("Invalid step index. It must be equal to or greater than the last step's index.")
+        if (nextStep.getTitle && graphInternals.knownTitleKeys.has(nextStep.getTitle().key)) {
+            throw new Error("A node with that title key has already been seen.");
         }
 
-        let transversed = this._internals.get(keys.transversed);
-        transversed.push(step);
+        graphInternals.transversed.push(step);
 
         if (step.getPropertyName) {
             let value = step.getValue();
-            core.setProperty(this._internals.get(keys.result), step.getPropertyName(), value);
+            core.setProperty(graphInternals.result, step.getPropertyName(), value);
         }
 
-        this._internals.set(keys.currentStep, nextStep);
-        setStepStates(this);
+        graphInternals.node = nextStep;
+        render(this);
     }
 
     previous() {
-        let currentNode = this._internals.get(keys.currentStep);
+        let graphInternals = internals.get(this);
 
-        if (currentNode.back) {
-            currentNode.back();
+        if (graphInternals.node.back) {
+            graphInternals.node.back();
         }
 
-        let transversed = this._internals.get(keys.transversed);
-        let lastNode = transversed.pop();
+        if (graphInternals.node.getTitle) {
+            let title = graphInternals.node.getTitle();
 
-        if (lastNode.getPropertyName) {
-            delete this._internals.get(keys.result)[lastNode.getPropertyName()];
+            if (title) {
+                graphInternals.steps.pop();
+                graphInternals.knownTitleKeys.delete(title.key);
+            }
         }
 
-        this._internals.set(keys.currentStep, lastNode);
-        setStepStates(this);
+        graphInternals.node = graphInternals.transversed.pop();
+
+        if (graphInternals.node.getTitle) {
+            let title = graphInternals.node.getTitle();
+
+            if (title) {
+                graphInternals.steps.pop();
+            }
+        } else {
+            let stepTitle = graphInternals.steps[graphInternals.steps.length - 1];
+            stepTitle.cssClass = "graph-step-in-progress";
+            stepTitle.status = "In progress";
+        }
+
+        if (graphInternals.node.getPropertyName) {
+            delete graphInternals.result[graphInternals.node.getPropertyName()];
+        }
+
+        render(this);
     }
 
     destroy() {
-        let currentEvent = this._internals.get(keys.nodeSubsciption);
+        let currentEvent = internals.get(this).nodeSubsciption;
 
         if (currentEvent) {
             core.unsubscribe(currentEvent);

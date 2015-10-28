@@ -5,9 +5,9 @@ export default function (el, eventName, handler) {
         handlerRef = handler;
         el.addEventListener(eventName, handler);
     } else {
-        let wrappedHandler = function (args) {
+        let wrappedHandler = (args) => {
             //IE 8 Support ....
-            args.target = args.srcElement;
+            //args.target = args.srcElement;
 
             args.preventDefault = function () {
                 args.cancelBubble = true;

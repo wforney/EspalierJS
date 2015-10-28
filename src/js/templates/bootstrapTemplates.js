@@ -1,22 +1,25 @@
 let templates = {
     message: function (data) {
-        let message = `<div class="${data.messageContainerClass} ${data.messageTypeClass} ${data.messageAttachmentClass}">` +
-            `<a href="javascript: void(0);" class="${data.closeMessageClass}"></a>`;
+        let errorDisplay = `<div class="${data.messageContainerClass} ${data.messageTypeClass} ${data.messageAttachmentClass}">`;
 
-        if (data.moreThanOne) {
-            message += "<ul>";
-
-            for (let message of data.messages) {
-                message += `<li>${message}</li>`;
-            }
-
-            message += "</ul>";
-        } else {
-            message += `<p>${data.messages}</p>`;
+        if (data.showButton) {
+            errorDisplay += `<a href="javascript: void(0);" class="${data.closeMessageClass}"></a>`;
         }
 
-        message += "</div>";
-        return message;
+        if (data.moreThanOne) {
+            errorDisplay += "<ul>";
+
+            for (let message of data.messages) {
+                errorDisplay += `<li>${message}</li>`;
+            }
+
+            errorDisplay += "</ul>";
+        } else {
+            errorDisplay += `<p>${data.messages}</p>`;
+        }
+
+        errorDisplay += "</div>";
+        return errorDisplay;
     }
 }
 

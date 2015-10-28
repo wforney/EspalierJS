@@ -2,6 +2,7 @@ import isString from "./helpers/is-string";
 import addListener from "./helpers/add-listener";
 import singleOrError from "./helpers/single-or-error";
 import matches from "./helpers/matches";
+import common from "./espalier.common";
 
 let keys = {
     node: new Object()
@@ -12,9 +13,14 @@ export default class EspalierNode {
         this._internals = new WeakMap();
 
         if (isString(node)) {
-            let wrapper = document.createElement("div");
-            wrapper.innerHTML = node;
-            node = wrapper.firstChild;
+            try {
+                let found = common.find(node);
+                node = found[0];
+            } catch (error) {
+                let wrapper = document.createElement("div");
+                wrapper.innerHTML = node;
+                node = wrapper.firstChild;
+            }
         }
 
         node = singleOrError(node);

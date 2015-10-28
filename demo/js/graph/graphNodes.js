@@ -51,8 +51,11 @@ export default class Step1 extends espalier.GraphNode {
         return "StepOne";
     }
 
-    getStepIndex() {
-        return 0;
+    getTitle() {
+        return {
+            title: "Step 1",
+            key: "1"
+        };
     }
 }
 
@@ -90,8 +93,11 @@ class Step2dot1 extends espalier.GraphNode {
         return "StepTwoDotOne";
     }
 
-    getStepIndex() {
-        return 1;
+    getTitle() {
+        return {
+            title: "Step 2",
+            key: "2"
+        };
     }
 }
 
@@ -127,10 +133,6 @@ class Step2dot2 extends espalier.GraphNode {
 
     getPropertyName() {
         return "StepTwoDotTwo";
-    }
-
-    getStepIndex() {
-        return 1;
     }
 }
 
@@ -168,8 +170,11 @@ class Step3 extends espalier.GraphNode {
         return "StepThree";
     }
 
-    getStepIndex() {
-        return 2;
+    getTitle() {
+        return {
+            title: "Step 3",
+            key: "3"
+        };
     }
 }
 
@@ -202,7 +207,7 @@ class Step4 extends espalier.GraphNode {
         return "StepThree";
     }
 
-    getStepIndex() {
-        return 3;
+    getTitle() {
+        return false;
     }
 }

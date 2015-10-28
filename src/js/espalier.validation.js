@@ -57,20 +57,4 @@ class Date extends Validation {
     }
 }
 
-class RequiredDependent extends Validation {
-    constructor(control, whenVal, dependent) {
-        super(control);
-        this.whenVal = whenVal;
-        this.dependent = dependent;
-    }
-
-    isValid() {
-        return this.control.val() !== this.whenVal || this.control.val() === this.whenVal && this.dependent.validate();
-    }
-
-    getMessage() {
-        return false;
-    }
-}
-
-export { Required, Email, Date, RequiredDependent };
+export { Required, Email, Date };

@@ -7,17 +7,6 @@ export default class DemoGraph extends espalier.Graph {
             container,
             default: {},
             head: new Step1(),
-            steps: [
-                {
-                    title: "Step 1"
-                },
-                {
-                    title: "Step 2"
-                },
-                {
-                    title: "Step 3"
-                }
-            ],
             valueChanged
         });
     }

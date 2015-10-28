@@ -98,7 +98,8 @@ class MessageDisplayer {
             messageContainerClass: this.settings.messageContainerClass,
             closeMessageClass: this.settings.closeMessageClass,
             messageAttachmentClass: messageAttachmentClass,
-            moreThanOne: (!isString(messageArgs.message) && messageArgs.message.length > 1)
+            moreThanOne: (!isString(messageArgs.message) && messageArgs.message.length > 1),
+            showButton: messageArgs.showButton
         }));
 
         this.settings.attachTo.append(this.message.getNode());

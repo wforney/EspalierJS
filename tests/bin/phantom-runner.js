@@ -142,7 +142,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 	
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
@@ -329,16 +329,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _helpersSingleOrError2 = _interopRequireDefault(_helpersSingleOrError);
 	
-	var keys = {
-	    container: new Object(),
-	    result: new Object(),
-	    currentStep: new Object(),
-	    steps: new Object(),
-	    transversed: new Object(),
-	    indexHeadNodes: new Object(),
-	    valueChanged: new Object(),
-	    nodeSubsciption: new Object()
-	};
+	var internals = new WeakMap();
 	
 	var handleNavigation = function handleNavigation(graph, graphEvent, index) {
 	    switch (graphEvent) {
@@ -354,54 +345,66 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	};
 	
-	var setStepStates = function setStepStates(graph) {
-	    var headNodes = graph._internals.get(keys.indexHeadNodes);
-	    var node = graph._internals.get(keys.currentStep);
-	    var currentIndex = node.getStepIndex();
-	    var steps = graph._internals.get(keys.steps);
+	var render = function render(graph) {
+	    var graphInternals = internals.get(graph);
 	
-	    for (var i = 0; i < steps.length; i++) {
-	        steps[i].disabled = false;
+	    if (graphInternals.node.getTitle) {
+	        var _iteratorNormalCompletion = true;
+	        var _didIteratorError = false;
+	        var _iteratorError = undefined;
 	
-	        if (i < currentIndex) {
-	            steps[i].cssClass = "graph-step-completed";
-	            steps[i].status = "Completed";
-	            continue;
+	        try {
+	            for (var _iterator = graphInternals.steps[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                var step = _step.value;
+	
+	                step.cssClass = "graph-step-completed";
+	                step.status = "Completed";
+	            }
+	        } catch (err) {
+	            _didIteratorError = true;
+	            _iteratorError = err;
+	        } finally {
+	            try {
+	                if (!_iteratorNormalCompletion && _iterator["return"]) {
+	                    _iterator["return"]();
+	                }
+	            } finally {
+	                if (_didIteratorError) {
+	                    throw _iteratorError;
+	                }
+	            }
 	        }
 	
-	        if (i === currentIndex) {
-	            steps[i].cssClass = "graph-step-in-progress";
-	            steps[i].status = "In progress";
-	            continue;
-	        }
+	        var titleInfo = graphInternals.node.getTitle();
 	
-	        if (i > currentIndex) {
-	            steps[i].cssClass = "graph-step-not-started";
-	            steps[i].disabled = true;
-	            steps[i].status = "Not started";
-	            headNodes.set(i, false);
+	        if (titleInfo) {
+	            graphInternals.steps.push({
+	                cssClass: "graph-step-in-progress",
+	                status: "In progress",
+	                title: titleInfo.title,
+	                key: titleInfo.key,
+	                node: graphInternals.node
+	            });
+	
+	            graphInternals.knownTitleKeys.add(titleInfo.key);
 	        }
 	    }
 	
-	    if (!headNodes.get(currentIndex)) {
-	        headNodes.set(currentIndex, node);
-	    }
-	
-	    var currentEvent = graph._internals.get(keys.nodeSubsciption);
+	    var currentEvent = graphInternals.nodeSubsciption;
 	
 	    if (currentEvent) {
 	        _espalierCore2["default"].unsubscribe(currentEvent);
 	    }
 	
-	    graph._internals.set(keys.nodeSubsciption, _espalierCore2["default"].subscribe(node, function (graphEvent) {
+	    graphInternals.nodeSubsciption = _espalierCore2["default"].subscribe(graphInternals.node, function (graphEvent) {
 	        handleNavigation(graph, graphEvent, -1);
-	    }));
+	    });
 	
-	    node.renderIn(graph._internals.get(keys.container), graph._internals.get(keys.result), steps).then(function () {
-	        var valueChanged = graph._internals.get(keys.valueChanged);
+	    graphInternals.node.renderIn(graphInternals.container, graphInternals.result, graphInternals.steps).then(function () {
+	        var valueChanged = graphInternals.onValueChanged;
 	
 	        if (valueChanged) {
-	            valueChanged(graph._internals.get(keys.result));
+	            valueChanged(graphInternals.result);
 	        }
 	    });
 	};
@@ -412,32 +415,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	        _classCallCheck(this, Graph);
 	
-	        this._internals = new WeakMap();
-	        args.container = (0, _helpersSingleOrError2["default"])(args.container);
-	        var headNodes = new Map();
+	        var graphInternals = {
+	            node: args.head,
+	            container: (0, _helpersSingleOrError2["default"])(args.container),
+	            transversed: [],
+	            knownTitleKeys: new Set(),
+	            result: _espalierCore2["default"].extend(args["default"], {}),
+	            onValueChanged: args.valueChanged,
+	            steps: []
+	        };
 	
-	        this._internals.set(keys.container, args.container);
-	        this._internals.set(keys.result, _espalierCore2["default"].extend(args["default"], {}));
-	        this._internals.set(keys.currentStep, args.head);
-	        this._internals.set(keys.steps, args.steps);
-	        this._internals.set(keys.valueChanged, args.valueChanged);
-	        this._internals.set(keys.transversed, []);
-	        this._internals.set(keys.indexHeadNodes, headNodes);
+	        internals.set(this, graphInternals);
+	        render(this);
 	
-	        for (var i = 0; i < args.steps.length; i++) {
-	            args.steps[i].index = i;
-	            headNodes.set(i, false);
-	        }
-	
-	        headNodes.set(0, args.head);
-	        this.goto(0);
-	
-	        _espalierCore2["default"].addEventListener(this._internals.get(keys.container), "click", function (e) {
+	        _espalierCore2["default"].addEventListener(graphInternals.container, "click", function (e) {
 	            var target = e.target;
 	
 	            while (target && target != args.container) {
 	                var _event = target.getAttribute("data-graph-event");
-	                handleNavigation(_this, _event, Number(target.getAttribute("data-graph-index")));
+	                handleNavigation(_this, _event, target.getAttribute("data-title-key"));
 	                target = target.parentNode;
 	            }
 	        });
@@ -445,38 +441,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    _createClass(Graph, [{
 	        key: "goto",
-	        value: function goto(index) {
-	            var currentNode = this._internals.get(keys.currentStep);
+	        value: function goto(key) {
+	            var graphInternals = internals.get(this);
 	
-	            if (index > currentNode.getStepIndex()) {
-	                throw new Error("You can only goto an index less than or equal to the current node's index.");
+	            if (!graphInternals.knownTitleKeys.has(key)) {
+	                throw new Error("Unknown title key.");
 	            }
 	
-	            var headNodes = this._internals.get(keys.indexHeadNodes);
-	            var nodeToGoTo = headNodes.get(index);
+	            while (!graphInternals.node.getTitle || !graphInternals.node.getTitle() || graphInternals.node.getTitle().key !== key) {
+	                if (graphInternals.node.getTitle) {
+	                    var titleInfo = graphInternals.node.getTitle();
 	
-	            if (nodeToGoTo !== currentNode) {
-	                var transversed = this._internals.get(keys.transversed);
-	                var result = this._internals.get(keys.result);
-	
-	                if (transversed.length > 0) {
-	                    var poppedNode = undefined;
-	
-	                    do {
-	                        poppedNode = transversed.pop();
-	                        delete result[poppedNode.getPropertyName()];
-	                    } while (poppedNode !== nodeToGoTo);
+	                    if (titleInfo) {
+	                        graphInternals.steps.pop();
+	                        graphInternals.knownTitleKeys["delete"](titleInfo.key);
+	                    }
 	                }
 	
-	                this._internals.set(keys.currentStep, nodeToGoTo);
+	                graphInternals.node = graphInternals.transversed.pop();
 	            }
 	
-	            setStepStates(this);
+	            graphInternals.steps.pop();
+	            render(this);
 	        }
 	    }, {
 	        key: "next",
 	        value: function next() {
-	            var step = this._internals.get(keys.currentStep);
+	            var graphInternals = internals.get(this);
+	            var step = graphInternals.node;
 	
 	            if (!step.isValid()) {
 	                return;
@@ -484,44 +476,62 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            var nextStep = step.next();
 	
-	            if (step.getStepIndex() > nextStep.getStepIndex()) {
-	                throw new Error("Invalid step index. It must be equal to or greater than the last step's index.");
+	            if (nextStep.getTitle && graphInternals.knownTitleKeys.has(nextStep.getTitle().key)) {
+	                throw new Error("A node with that title key has already been seen.");
 	            }
 	
-	            var transversed = this._internals.get(keys.transversed);
-	            transversed.push(step);
+	            graphInternals.transversed.push(step);
 	
 	            if (step.getPropertyName) {
 	                var value = step.getValue();
-	                _espalierCore2["default"].setProperty(this._internals.get(keys.result), step.getPropertyName(), value);
+	                _espalierCore2["default"].setProperty(graphInternals.result, step.getPropertyName(), value);
 	            }
 	
-	            this._internals.set(keys.currentStep, nextStep);
-	            setStepStates(this);
+	            graphInternals.node = nextStep;
+	            render(this);
 	        }
 	    }, {
 	        key: "previous",
 	        value: function previous() {
-	            var currentNode = this._internals.get(keys.currentStep);
+	            var graphInternals = internals.get(this);
 	
-	            if (currentNode.back) {
-	                currentNode.back();
+	            if (graphInternals.node.back) {
+	                graphInternals.node.back();
 	            }
 	
-	            var transversed = this._internals.get(keys.transversed);
-	            var lastNode = transversed.pop();
+	            if (graphInternals.node.getTitle) {
+	                var title = graphInternals.node.getTitle();
 	
-	            if (lastNode.getPropertyName) {
-	                delete this._internals.get(keys.result)[lastNode.getPropertyName()];
+	                if (title) {
+	                    graphInternals.steps.pop();
+	                    graphInternals.knownTitleKeys["delete"](title.key);
+	                }
 	            }
 	
-	            this._internals.set(keys.currentStep, lastNode);
-	            setStepStates(this);
+	            graphInternals.node = graphInternals.transversed.pop();
+	
+	            if (graphInternals.node.getTitle) {
+	                var title = graphInternals.node.getTitle();
+	
+	                if (title) {
+	                    graphInternals.steps.pop();
+	                }
+	            } else {
+	                var stepTitle = graphInternals.steps[graphInternals.steps.length - 1];
+	                stepTitle.cssClass = "graph-step-in-progress";
+	                stepTitle.status = "In progress";
+	            }
+	
+	            if (graphInternals.node.getPropertyName) {
+	                delete graphInternals.result[graphInternals.node.getPropertyName()];
+	            }
+	
+	            render(this);
 	        }
 	    }, {
 	        key: "destroy",
 	        value: function destroy() {
-	            var currentEvent = this._internals.get(keys.nodeSubsciption);
+	            var currentEvent = internals.get(this).nodeSubsciption;
 	
 	            if (currentEvent) {
 	                _espalierCore2["default"].unsubscribe(currentEvent);
@@ -630,7 +640,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var core = {
 	    sendRequest: function sendRequest(req) {
-	        _espalierWaitscreen2["default"].show();
 	        var existingMessages = core.find("." + mainMessage.settings.messageContainerClass);
 	
 	        var _iteratorNormalCompletion = true;
@@ -660,10 +669,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	        var ajaxSettings = {
 	            type: "GET",
-	            withCredentials: true
+	            withCredentials: true,
+	            showWait: true
 	        };
 	
 	        core.extend(ajaxSettings, req);
+	
+	        if (ajaxSettings.showWait) {
+	            _espalierWaitscreen2["default"].show();
+	        }
 	
 	        var promise = new Promise(function (resolve, reject) {
 	            var request = new XMLHttpRequest();
@@ -679,7 +693,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    request.open(ajaxSettings.type, ajaxSettings.url);
 	                    request.onload = function () {
 	                        resolve(ajaxSuccess(this.responseText, req.event, req.onSuccess));
-	                        _espalierWaitscreen2["default"].hide();
+	
+	                        if (ajaxSettings.showWait) {
+	                            _espalierWaitscreen2["default"].hide();
+	                        }
 	                    };
 	                } else {
 	                    throw new Error("CORS not supported");
@@ -705,6 +722,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    } else {
 	                        var jsonResponse = JSON.parse(this.responseText);
 	                        var errors = [];
+	                        var specificErrors = new Map();
 	
 	                        var _iteratorNormalCompletion2 = true;
 	                        var _didIteratorError2 = false;
@@ -715,23 +733,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	                                var error = _step2.value;
 	
 	                                if (error.source && error.source.parameter) {
-	                                    var specificField = core.find("#" + error.source.parameter.toLowerCase())[0];
-	
-	                                    if (specificField) {
-	                                        var formControl = _espalierCommon2["default"].controls.get(specificField);
-	
-	                                        if (formControl) {
-	                                            var fieldMessage = formControl.message;
-	
-	                                            if (fieldMessage) {
-	                                                fieldMessage.show({
-	                                                    message: error.detail,
-	                                                    messageType: _espalierMessageFactory2["default"].messageType.Error
-	                                                });
-	                                            }
-	                                        } else {
-	                                            errors.push(error.detail);
+	                                    if (error.source.parameter) {
+	                                        if (!specificErrors.has(error.source.parameter)) {
+	                                            specificErrors.set(error.source.parameter, []);
 	                                        }
+	
+	                                        specificErrors.get(error.source.parameter).push(error.detail);
 	                                    } else {
 	                                        errors.push(error.detail);
 	                                    }
@@ -754,13 +761,55 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            }
 	                        }
 	
+	                        var _iteratorNormalCompletion3 = true;
+	                        var _didIteratorError3 = false;
+	                        var _iteratorError3 = undefined;
+	
+	                        try {
+	                            for (var _iterator3 = specificErrors.keys()[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	                                var fieldKey = _step3.value;
+	
+	                                var specificControl = core.find("#" + fieldKey.toLowerCase())[0];
+	                                var formControl = _espalierCommon2["default"].controls.get(specificControl);
+	
+	                                if (formControl) {
+	                                    var fieldMessage = formControl.message;
+	
+	                                    if (fieldMessage) {
+	                                        fieldMessage.show({
+	                                            message: specificErrors.get(fieldKey),
+	                                            messageType: _espalierMessageFactory2["default"].messageType.Error
+	                                        });
+	                                    }
+	                                } else {
+	                                    errors = errors.concat(specificErrors.get(fieldKey));
+	                                }
+	                            }
+	                        } catch (err) {
+	                            _didIteratorError3 = true;
+	                            _iteratorError3 = err;
+	                        } finally {
+	                            try {
+	                                if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
+	                                    _iterator3["return"]();
+	                                }
+	                            } finally {
+	                                if (_didIteratorError3) {
+	                                    throw _iteratorError3;
+	                                }
+	                            }
+	                        }
+	
 	                        if (errors.length > 0) {
 	                            core.showError(errors);
 	                        }
 	                    }
 	
 	                    reject(this.responseText);
-	                    _espalierWaitscreen2["default"].hide();
+	
+	                    if (ajaxSettings.showWait) {
+	                        _espalierWaitscreen2["default"].hide();
+	                    }
 	                }
 	            };
 	
@@ -783,19 +832,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	    showWarning: function showWarning(messages) {
 	        mainMessage.show({
 	            message: messages,
-	            messageType: _espalierMessageFactory2["default"].messageType.Warning
+	            messageType: _espalierMessageFactory2["default"].messageType.Warning,
+	            showButton: true
 	        });
 	    },
 	    showError: function showError(messages) {
 	        mainMessage.show({
 	            message: messages,
-	            messageType: _espalierMessageFactory2["default"].messageType.Error
+	            messageType: _espalierMessageFactory2["default"].messageType.Error,
+	            showButton: true
 	        });
 	    },
 	    showInfo: function showInfo(messages) {
 	        mainMessage.show({
 	            message: messages,
-	            messageType: _espalierMessageFactory2["default"].messageType.Info
+	            messageType: _espalierMessageFactory2["default"].messageType.Info,
+	            showButton: true
 	        });
 	    },
 	    hideMainMessage: function hideMainMessage() {
@@ -887,29 +939,29 @@ return /******/ (function(modules) { // webpackBootstrap
 	    matches: _helpersMatches2["default"],
 	    isString: _helpersIsString2["default"],
 	    first: function first(array, match) {
-	        var _iteratorNormalCompletion3 = true;
-	        var _didIteratorError3 = false;
-	        var _iteratorError3 = undefined;
+	        var _iteratorNormalCompletion4 = true;
+	        var _didIteratorError4 = false;
+	        var _iteratorError4 = undefined;
 	
 	        try {
-	            for (var _iterator3 = array[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-	                var arrayItem = _step3.value;
+	            for (var _iterator4 = array[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	                var arrayItem = _step4.value;
 	
 	                if (match(arrayItem)) {
 	                    return arrayItem;
 	                }
 	            }
 	        } catch (err) {
-	            _didIteratorError3 = true;
-	            _iteratorError3 = err;
+	            _didIteratorError4 = true;
+	            _iteratorError4 = err;
 	        } finally {
 	            try {
-	                if (!_iteratorNormalCompletion3 && _iterator3["return"]) {
-	                    _iterator3["return"]();
+	                if (!_iteratorNormalCompletion4 && _iterator4["return"]) {
+	                    _iterator4["return"]();
 	                }
 	            } finally {
-	                if (_didIteratorError3) {
-	                    throw _iteratorError3;
+	                if (_didIteratorError4) {
+	                    throw _iteratorError4;
 	                }
 	            }
 	        }
@@ -1070,7 +1122,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	                messageContainerClass: this.settings.messageContainerClass,
 	                closeMessageClass: this.settings.closeMessageClass,
 	                messageAttachmentClass: messageAttachmentClass,
-	                moreThanOne: !(0, _helpersIsString2["default"])(messageArgs.message) && messageArgs.message.length > 1
+	                moreThanOne: !(0, _helpersIsString2["default"])(messageArgs.message) && messageArgs.message.length > 1,
+	                showButton: messageArgs.showButton
 	            }));
 	
 	            this.settings.attachTo.append(this.message.getNode());
@@ -1241,6 +1294,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _helpersMatches2 = _interopRequireDefault(_helpersMatches);
 	
+	var _espalierCommon = __webpack_require__(7);
+	
+	var _espalierCommon2 = _interopRequireDefault(_espalierCommon);
+	
 	var keys = {
 	    node: new Object()
 	};
@@ -1252,9 +1309,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	        this._internals = new WeakMap();
 	
 	        if ((0, _helpersIsString2["default"])(node)) {
-	            var wrapper = document.createElement("div");
-	            wrapper.innerHTML = node;
-	            node = wrapper.firstChild;
+	            try {
+	                var found = _espalierCommon2["default"].find(node);
+	                node = found[0];
+	            } catch (error) {
+	                var wrapper = document.createElement("div");
+	                wrapper.innerHTML = node;
+	                node = wrapper.firstChild;
+	            }
 	        }
 	
 	        node = (0, _helpersSingleOrError2["default"])(node);
@@ -1436,7 +1498,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    } else {
 	        var wrappedHandler = function wrappedHandler(args) {
 	            //IE 8 Support ....
-	            args.target = args.srcElement;
+	            //args.target = args.srcElement;
 	
 	            args.preventDefault = function () {
 	                args.cancelBubble = true;
@@ -1520,10 +1582,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	var templates = {
 	    message: function message(data) {
-	        var message = "<div class=\"" + data.messageContainerClass + " " + data.messageTypeClass + " " + data.messageAttachmentClass + "\">" + ("<a href=\"javascript: void(0);\" class=\"" + data.closeMessageClass + "\"></a>");
+	        var errorDisplay = "<div class=\"" + data.messageContainerClass + " " + data.messageTypeClass + " " + data.messageAttachmentClass + "\">";
+	
+	        if (data.showButton) {
+	            errorDisplay += "<a href=\"javascript: void(0);\" class=\"" + data.closeMessageClass + "\"></a>";
+	        }
 	
 	        if (data.moreThanOne) {
-	            message += "<ul>";
+	            errorDisplay += "<ul>";
 	
 	            var _iteratorNormalCompletion = true;
 	            var _didIteratorError = false;
@@ -1531,9 +1597,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            try {
 	                for (var _iterator = data.messages[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                    var _message = _step.value;
+	                    var message = _step.value;
 	
-	                    _message += "<li>" + _message + "</li>";
+	                    errorDisplay += "<li>" + message + "</li>";
 	                }
 	            } catch (err) {
 	                _didIteratorError = true;
@@ -1550,13 +1616,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	            }
 	
-	            message += "</ul>";
+	            errorDisplay += "</ul>";
 	        } else {
-	            message += "<p>" + data.messages + "</p>";
+	            errorDisplay += "<p>" + data.messages + "</p>";
 	        }
 	
-	        message += "</div>";
-	        return message;
+	        errorDisplay += "</div>";
+	        return errorDisplay;
 	    }
 	};
 	

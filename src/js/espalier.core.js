@@ -61,7 +61,6 @@ let ajaxSuccess = function (responseText, event, onSuccess) {
 
 let core = {
     sendRequest: function (req) {
-        waitscreen.show();
         let existingMessages = core.find("." + mainMessage.settings.messageContainerClass);
 
         for (let message of existingMessages) {
@@ -70,10 +69,15 @@ let core = {
 
         let ajaxSettings = {
             type: "GET",
-            withCredentials: true
+            withCredentials: true,
+            showWait: true
         };
 
         core.extend(ajaxSettings, req);
+        
+        if(ajaxSettings.showWait) {
+            waitscreen.show();
+        }
 
         let promise = new Promise((resolve, reject) => {
             let request = new XMLHttpRequest();
@@ -89,7 +93,10 @@ let core = {
                     request.open(ajaxSettings.type, ajaxSettings.url);
                     request.onload = function () {
                         resolve(ajaxSuccess(this.responseText, req.event, req.onSuccess));
-                        waitscreen.hide();
+                        
+                        if(ajaxSettings.showWait) {
+                            waitscreen.hide();
+                        }
                     }
                 } else {
                     throw new Error("CORS not supported");
@@ -115,31 +122,39 @@ let core = {
                     } else {
                         let jsonResponse = JSON.parse(this.responseText);
                         let errors = [];
+                        let specificErrors = new Map();
 
                         for (let error of jsonResponse.errors) {
                             if (error.source && error.source.parameter) {
-                                var specificField = core.find("#" + error.source.parameter.toLowerCase())[0];
-
-                                if (specificField) {
-                                    let formControl = common.controls.get(specificField);
-
-                                    if (formControl) {
-                                        var fieldMessage = formControl.message;
-
-                                        if (fieldMessage) {
-                                            fieldMessage.show({
-                                                message: error.detail,
-                                                messageType: messageFactory.messageType.Error
-                                            });
-                                        }
-                                    } else {
-                                        errors.push(error.detail);
+                                if (error.source.parameter) {
+                                    if (!specificErrors.has(error.source.parameter)) {
+                                        specificErrors.set(error.source.parameter, []);
                                     }
+
+                                    specificErrors.get(error.source.parameter).push(error.detail);
                                 } else {
                                     errors.push(error.detail);
                                 }
                             } else {
                                 errors.push(error.detail);
+                            }
+                        }
+
+                        for (let fieldKey of specificErrors.keys()) {
+                            var specificControl = core.find("#" + fieldKey.toLowerCase())[0];
+                            let formControl = common.controls.get(specificControl);
+
+                            if (formControl) {
+                                var fieldMessage = formControl.message;
+
+                                if (fieldMessage) {
+                                    fieldMessage.show({
+                                        message: specificErrors.get(fieldKey),
+                                        messageType: messageFactory.messageType.Error
+                                    });
+                                }
+                            } else {
+                                errors = errors.concat(specificErrors.get(fieldKey));
                             }
                         }
 
@@ -149,7 +164,10 @@ let core = {
                     }
 
                     reject(this.responseText);
-                    waitscreen.hide();
+                    
+                    if(ajaxSettings.showWait) {
+                        waitscreen.hide();
+                    }
                 }
             };
 
@@ -172,19 +190,22 @@ let core = {
     showWarning: function (messages) {
         mainMessage.show({
             message: messages,
-            messageType: messageFactory.messageType.Warning
+            messageType: messageFactory.messageType.Warning,
+            showButton: true
         });
     },
     showError: function (messages) {
         mainMessage.show({
             message: messages,
-            messageType: messageFactory.messageType.Error
+            messageType: messageFactory.messageType.Error,
+            showButton: true
         });
     },
     showInfo: function (messages) {
         mainMessage.show({
             message: messages,
-            messageType: messageFactory.messageType.Info
+            messageType: messageFactory.messageType.Info,
+            showButton: true
         });
     },
     hideMainMessage: function () {
