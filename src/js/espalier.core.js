@@ -1,21 +1,19 @@
 import messageFactory from "./espalier.messageFactory";
 import waitscreen from "./espalier.waitscreen";
 import common from "./espalier.common";
-import pubsub from "pubsub-js";
 import isString from "./helpers/is-string";
 import addListener from "./helpers/add-listener";
 import matches from "./helpers/matches";
+import AjaxRequest from "./ajaxRequest";
+import mainMessage from "./helpers/main-message";
+import pubsub from "pubsub-js";
 
-var mainMessage = messageFactory.create({
-    attachTo: common.body.getNode()
-});
-
-var parseDate;
-var testDate = new Date('2011-06-02T09:34:29+02:00');
+let parseDate;
+let testDate = new Date('2011-06-02T09:34:29+02:00');
 
 if (!testDate || +testDate !== 1307000069000) {
     parseDate = function (s) {
-        var day, tz,
+        let day, tz,
             rx = /^(\d{4}\-\d\d\-\d\d([tT ][\d:\.]*)?)([zZ]|([+\-])(\d\d):(\d\d))?$/,
             p = rx.exec(s) || [];
         if (p[1]) {
@@ -45,23 +43,26 @@ else {
 
 testDate = null;
 
-let ajaxSuccess = function (responseText, event, onSuccess) {
-    let jsonResponse = JSON.parse(responseText);
+let waitingOn = new Set();
 
-    if (event) {
-        pubsub.publish(event, JSON.parse(jsonResponse));
+let waitOn = function (toWaitOn) {
+    waitingOn.add(toWaitOn);
+    waitscreen.show();
+}
+
+let clearWait = function (toWaitOn) {
+    if (waitingOn.has(toWaitOn)) {
+        waitingOn.delete(toWaitOn);
     }
 
-    if (onSuccess) {
-        onSuccess(jsonResponse);
+    if (waitingOn.size === 0) {
+        waitscreen.hide();
     }
-
-    return jsonResponse;
-};
+}
 
 let core = {
     sendRequest: function (req) {
-        let existingMessages = core.find("." + mainMessage.settings.messageContainerClass);
+        let existingMessages = core.find(".message-container");
 
         for (let message of existingMessages) {
             message.parentNode.removeChild(message);
@@ -74,156 +75,49 @@ let core = {
         };
 
         core.extend(ajaxSettings, req);
-        
-        if(ajaxSettings.showWait) {
-            waitscreen.show();
+
+        let request = new AjaxRequest(ajaxSettings);
+
+        if (ajaxSettings.showWait) {
+            waitOn(request);
         }
 
-        let promise = new Promise((resolve, reject) => {
-            let request = new XMLHttpRequest();
-            let origin = `${window.location.protocol}//${window.location.host}`.toLowerCase();
-            let isCors = (ajaxSettings.url.slice(0, 7).toLowerCase() === "http://" || ajaxSettings.url.slice(0, 8).toLowerCase() === "https://") && ajaxSettings.url.slice(0, origin.length).toLowerCase() !== origin;
+        return new Promise((resolve, reject) => {
+            request.send().then(success => {
+                clearWait(request);
+                resolve(success);
+            }, fail => {
+                clearWait(request);
 
-            if (isCors && ajaxSettings.withCredentials) {
-                if ("withCredentials" in request) {
-                    request.open(ajaxSettings.type, ajaxSettings.url, true);
-                    request.withCredentials = true;
-                } else if (typeof XDomainRequest != "undefined") {
-                    request = new XDomainRequest();
-                    request.open(ajaxSettings.type, ajaxSettings.url);
-                    request.onload = function () {
-                        resolve(ajaxSuccess(this.responseText, req.event, req.onSuccess));
-                        
-                        if(ajaxSettings.showWait) {
-                            waitscreen.hide();
-                        }
-                    }
-                } else {
-                    throw new Error("CORS not supported");
+                if (window.console && window.console.log) {
+                    window.console.log(fail);
                 }
-            } else {
-                request.open(ajaxSettings.type, ajaxSettings.url, true);
-            }
 
-            request.onreadystatechange = function () {
-                if (this.readyState === 4) {
-                    if (this.status < 200) {
-                        return;
-                    }
-
-                    if (this.status >= 200 && this.status < 400) {
-                        resolve(ajaxSuccess(this.responseText, req.event, req.onSuccess));
-                    } else if (this.status == 500) {
-                        let jsonResponse = JSON.parse(this.responseText);
-                        core.showError({
-                            message: jsonResponse.Message,
-                            cssClass: "error"
-                        });
-                    } else {
-                        let jsonResponse = JSON.parse(this.responseText);
-                        let errors = [];
-                        let specificErrors = new Map();
-
-                        for (let error of jsonResponse.errors) {
-                            if (error.source && error.source.parameter) {
-                                if (error.source.parameter) {
-                                    if (!specificErrors.has(error.source.parameter)) {
-                                        specificErrors.set(error.source.parameter, []);
-                                    }
-
-                                    specificErrors.get(error.source.parameter).push(error.detail);
-                                } else {
-                                    errors.push(error.detail);
-                                }
-                            } else {
-                                errors.push(error.detail);
-                            }
-                        }
-
-                        for (let fieldKey of specificErrors.keys()) {
-                            var specificControl = core.find("#" + fieldKey.toLowerCase())[0];
-                            let formControl = common.controls.get(specificControl);
-
-                            if (formControl) {
-                                var fieldMessage = formControl.message;
-
-                                if (fieldMessage) {
-                                    fieldMessage.show({
-                                        message: specificErrors.get(fieldKey),
-                                        messageType: messageFactory.messageType.Error
-                                    });
-                                }
-                            } else {
-                                errors = errors.concat(specificErrors.get(fieldKey));
-                            }
-                        }
-
-                        if (errors.length > 0) {
-                            core.showError(errors);
-                        }
-                    }
-
-                    reject(this.responseText);
-                    
-                    if(ajaxSettings.showWait) {
-                        waitscreen.hide();
-                    }
-                }
-            };
-
-            switch (ajaxSettings.type) {
-                case "GET":
-                    request.send();
-                    return;
-                case "POST":
-                case "PUT":
-                    request.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
-                    request.send(JSON.stringify(ajaxSettings.data));
-                    return;
-            }
-
-            request = null;
-        });
-
-        return promise;
-    },
-    showWarning: function (messages) {
-        mainMessage.show({
-            message: messages,
-            messageType: messageFactory.messageType.Warning,
-            showButton: true
+                reject(fail);
+            })
         });
     },
-    showError: function (messages) {
-        mainMessage.show({
-            message: messages,
-            messageType: messageFactory.messageType.Error,
-            showButton: true
-        });
-    },
-    showInfo: function (messages) {
-        mainMessage.show({
-            message: messages,
-            messageType: messageFactory.messageType.Info,
-            showButton: true
-        });
-    },
-    hideMainMessage: function () {
-        mainMessage.remove();
-    },
+    showWarning: mainMessage.showWarning,
+    showError: mainMessage.showError,
+    showInfo: mainMessage.showInfo,
+    hideMainMessage: mainMessage.hideMainMessage,
     isEmptyOrSpaces: function (str) {
         return str === undefined || str === null || str.match(/^\s*$/) !== null;
     },
     isEmail: function (str) {
-        var emailRegex = /^(([\w-]+\.)+[\w-]+|([a-zA-Z]{1}|[\w-]{2,}))@((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|([a-zA-Z]+[\w-]+\.)+[a-zA-Z]{2,4})$/;
+        let emailRegex = /^(([\w-]+\.)+[\w-]+|([a-zA-Z]{1}|[\w-]{2,}))@((([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])\.([0-1]?[0-9]{1,2}|25[0-5]|2[0-4][0-9])){1}|([a-zA-Z]+[\w-]+\.)+[a-zA-Z]{2,4})$/;
         return core.isEmptyOrSpaces(str) || str.match(emailRegex);
     },
+    isPhone: function (str) {
+        let phoneRegex = /^1?[-\. ]?(\(\d{3}\)?[-\. ]?|\d{3}?[-\. ]?)?\d{3}?[-\. ]?\d{4}$/;
+        return core.isEmptyOrSpaces(str) || str.match(phoneRegex);
+    },
     isDate: function (str) {
-        var d = new Date(str);
+        let d = new Date(str);
         return core.isEmptyOrSpaces(str) || (d != "Invalid Date" && !isNaN(d));
     },
     numberWithCommas: function numberWithCommas(x) {
-        var parts = x.toString().split(".");
+        let parts = x.toString().split(".");
         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         return parts.join(".");
     },
@@ -287,6 +181,9 @@ let core = {
         } else {
             el.className += ' ' + className;
         }
+    },
+    isFunction: function (toTest) {
+        return !!(toTest && toTest.constructor && toTest.call && toTest.apply);
     },
     removeClass: function (el, className) {
         if (el.classList) {

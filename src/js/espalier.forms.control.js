@@ -1,13 +1,16 @@
 import core from "./espalier.core";
 import common from "./espalier.common";
 import config from "./config/index";
-import { Required, Email, Date } from "./espalier.validation";
+import { Required, Email, Phone, Date } from "./espalier.validation";
 import messageFactory from "./espalier.messageFactory";
+import DomNode from "./espalier.domnode";
 
-const key = new Object();
+let internals = new WeakMap();
 
-class FormControl {
+class FormControl extends DomNode {
     constructor(control, form, validations, explicitValidations) {
+        super(control, form);
+
         let controlType = control.type ? control.type : control.getAttribute("type");
         let lowerCaseId = controlType == "radio" ? control.name.toLowerCase() : control.id.toLowerCase();
 
@@ -19,15 +22,13 @@ class FormControl {
             throw new Error("Controls must be associated with an Espalier Form.")
         }
 
-        this._internals = new WeakMap();
-
-        const internals = {
+        const settings = {
             control,
             form,
             group: undefined
         };
 
-        this._internals.set(key, internals);
+        internals.set(this, settings);
 
         let required = false;
         let dependents = new Map();
@@ -37,8 +38,8 @@ class FormControl {
 
         switch (controlType) {
             case "radio":
-                internals.group = core.closest(control, ".radio-group");
-                dependentListeners = Array.from(core.find('input[type="radio"]', internals.group));
+                settings.group = core.closest(control, ".radio-group");
+                dependentListeners = Array.from(core.find('input[type="radio"]', settings.group));
 
                 for (let radio of dependentListeners) {
                     if (radio.required || radio.getAttribute("required")) {
@@ -51,28 +52,39 @@ class FormControl {
                         continue;
                     }
 
-                    let requiredDependents = core.find(requiredDependentsSelector, internals.form.form);
+                    let requiredDependents = core.find(requiredDependentsSelector, settings.form.form);
                     let dependentControls = [];
+                    let addedNames = new Set();
 
                     for (let requiredDependent of requiredDependents) {
+                        if (addedNames.has(requiredDependent.name)) continue;
                         let dependentControl = factory(requiredDependent, form, { required: true });
                         dependentControl.hide();
                         dependentControls.push(dependentControl);
+                        addedNames.add(requiredDependent.name);
                     }
 
                     dependents.set(radio.value, dependentControls);
                 }
                 break;
             case "checkbox":
-                internals.group = core.closest(control, ".checkbox");
+                //TODO: Make checkboxes work better.
+                //      See if there are other checkboxes with the same name.
+                //      Should support syntax:
+                // form.getControl("checkbox-name").val(); 
+                settings.group = core.closest(control, ".checkbox");
                 break;
             case "email":
                 validations.push(new Email(this));
-                internals.group = core.closest(control, ".form-group");
+                settings.group = core.closest(control, ".form-group");
+                break;
+            case "tel":
+                validations.push(new Phone(this));
+                settings.group = core.closest(control, ".form-group");
                 break;
             case "date":
                 validations.push(new Date(this));
-                internals.group = core.closest(control, ".form-group");
+                settings.group = core.closest(control, ".form-group");
 
                 if (control.datepicker) {
                     control.datepicker().attr("type", "text");
@@ -81,10 +93,10 @@ class FormControl {
             case "hidden":
                 return;
             case "select-one":
-                internals.group = core.closest(control, ".form-group");
+                settings.group = core.closest(control, ".form-group");
 
                 let options = core.find("option", control);
-                dependentListeners = [ control ];
+                dependentListeners = [control];
 
                 for (let option of options) {
                     let requiredDependentsSelector = option.getAttribute("data-require");
@@ -106,43 +118,43 @@ class FormControl {
                 }
                 break;
             default:
-                internals.group = core.closest(control, ".form-group");
+                settings.group = core.closest(control, ".form-group");
                 break;
         }
 
         this.message = messageFactory.create({
-            attachTo: internals.group,
+            attachTo: settings.group,
             messageAttachment: messageFactory.messageAttachment.Flow,
             onRemoved: function () {
-                core.removeClass(internals.group, "has-error");
+                core.removeClass(settings.group, "has-error");
             },
             onAdded: function () {
-                core.addClass(internals.group, "has-error");
-                config.fieldMessageAnimation(internals.group);
+                core.addClass(settings.group, "has-error");
+                config.fieldMessageAnimation(settings.group);
             }
         });
 
-        internals.originalDisplay = internals.group.style.display;
+        settings.originalDisplay = settings.group.style.display;
 
         if (explicitValidations.required || required || control.required || control.getAttribute("required")) {
             validations.push(new Required(this));
-            core.addClass(internals.group, "required");
+            core.addClass(settings.group, "required");
         }
 
         let thisControl = this;
 
         if (dependents.size > 0) {
             let processDependents = () => {
-                for (let dependentKey of dependents.keys()) {
-                    if (!dependents.has(thisControl.val())) {
-                        for (let dependent of dependents.get(dependentKey)) {
-                            dependent.hide();
-                            form.removeControl(dependent._internals.get(key).control.name);
-                        }
-                    } else {
+                for (let key of dependents.keys()) {
+                    if (key == thisControl.val()) {
                         for (let dependent of dependents.get(thisControl.val())) {
                             dependent.show();
-                            form.addControl(dependent._internals.get(key).control.name, dependent);
+                            form.addControl(dependent.getNode().name, dependent);
+                        }
+                    } else {
+                        for (let dependent of dependents.get(key)) {
+                            dependent.hide();
+                            form.removeControl(dependent.getNode().name);
                         }
                     }
                 }
@@ -151,15 +163,18 @@ class FormControl {
             for (let listener of dependentListeners) {
                 core.addEventListener(listener, "change", processDependents.bind(this));
             }
+
+            processDependents();
         }
     }
 
     getName() {
-        return this._internals.get(key).control.name;
+        return internals.get(this).control.name;
     }
 
     val() {
-        let control = this._internals.get(key).control;
+        //TODO: Allow people to set the value.
+        let control = internals.get(this).control;
         let controlType = control.type ? control.type : control.getAttribute("type");
 
         switch (controlType) {
@@ -182,24 +197,24 @@ class FormControl {
     }
 
     hide() {
-        this._internals.get(key).group.style.display = "none";
+        internals.get(this).group.style.display = "none";
     }
 
     show() {
-        let internals = this._internals.get(key);
-        internals.group.style.display = internals.originalDisplay;
+        let myInternals = internals.get(this);
+        myInternals.group.style.display = myInternals.originalDisplay;
     }
-    
+
     disable() {
-        this._internals.get(key).control.setAttribute("disabled", true);
+        internals.get(this).control.setAttribute("disabled", true);
     }
-    
+
     enable() {
-        this._internals.get(key).control.removeAttribute("disabled");
+        internals.get(this).control.removeAttribute("disabled");
     }
-    
+
     clear() {
-        this._internals.get(key).control.value = "";
+        internals.get(this).control.value = "";
     }
 }
 
@@ -239,10 +254,10 @@ let factory = function (control, form, explicitValidations) {
     };
 
     core.addEventListener(control, "blur", () => {
-        formControl.validate();
+        setTimeout(() => { formControl.validate(); }, 150);
     });
 
-    common.controls.set(formControl._internals.get(key).control, formControl);
+    common.controls.set(formControl.getNode(), formControl);
     return formControl;
 };
 

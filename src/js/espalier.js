@@ -7,6 +7,9 @@ import Popover from "./espalier.popover";
 import Graph from "./espalier.graph";
 import GraphNode from "./espalier.graph.node";
 import EspalierNode from "./espalier.domnode";
+import RepeaterSource from "./Repeater/RepeaterSource";
+import StaticSource from "./Repeater/StaticSource";
+import AJAXSource from "./Repeater/AJAXSource";
 
 var espalier = {
     isEmptyOrSpaces: core.isEmptyOrSpaces,
@@ -21,8 +24,8 @@ var espalier = {
     shortDate: core.shortDate,
     shortTime: core.shortTime,
     el: core.find,
-    node: (selector) => {
-        return new EspalierNode(selector)
+    node: (selector, root) => {
+        return new EspalierNode(selector, root)
     },
     extend: core.extend,
     numberWithCommas: core.numberWithCommas,
@@ -37,7 +40,12 @@ var espalier = {
         return new Popover(args).show();  
     },
     Graph,
-    GraphNode
+    GraphNode,
+    repeater: {
+        RepeaterSource,
+        StaticSource,
+        AJAXSource
+    }
 };
 
 export default espalier;

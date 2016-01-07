@@ -24,8 +24,6 @@ espalier.el("#show-popover-bottom-right")[0].onclick = function () {
     popoverDemo(espalier.el("#show-popover-bottom-right")[0]);
 };
 
-
-
 espalier.el("#show-popover-top-center")[0].onclick = function () {
     popoverDemo(espalier.el("#show-popover-top-center")[0]);
 };
@@ -39,7 +37,7 @@ espalier.el("#show-popover-right-center")[0].onclick = function () {
     popoverDemo(espalier.el("#show-popover-right-center")[0]);
 };
 
-let table = demoTable(espalier.el("#demo-table"));
+let table = demoTable(espalier.node("#demo-table"));
 
 let graph = new DemoGraph(espalier.el("#wizard-container"), (graphValue) => {
     espalier.el("#graph-value").innerHtml = JSON.stringify(graphValue, null, 2);

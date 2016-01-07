@@ -3,49 +3,93 @@ import addListener from "./helpers/add-listener";
 import singleOrError from "./helpers/single-or-error";
 import matches from "./helpers/matches";
 import common from "./espalier.common";
+import Repeater from "./Repeater";
 
-let keys = {
-    node: new Object()
-};
+let internals = new WeakMap();
+
+//NOTE: http://krasimirtsonev.com/blog/article/Revealing-the-magic-how-to-properly-convert-HTML-string-to-a-DOM-element
+let str2DOMElement = function (html) {
+    let wrapMap = {
+        option: [1, "<select multiple='multiple'>", "</select>"],
+        legend: [1, "<fieldset>", "</fieldset>"],
+        area: [1, "<map>", "</map>"],
+        param: [1, "<object>", "</object>"],
+        thead: [1, "<table>", "</table>"],
+        tr: [2, "<table><tbody>", "</tbody></table>"],
+        col: [2, "<table><tbody></tbody><colgroup>", "</colgroup></table>"],
+        td: [3, "<table><tbody><tr>", "</tr></tbody></table>"],
+        body: [0, "", ""],
+        _default: [1, "<div>", "</div>"]
+    };
+
+    html = html.trim();
+    wrapMap.optgroup = wrapMap.option;
+    wrapMap.tbody = wrapMap.tfoot = wrapMap.colgroup = wrapMap.caption = wrapMap.thead;
+    wrapMap.th = wrapMap.td;
+    let match = /<\s*\w.*?>/g.exec(html);
+    let parsedElements = document.createElement("div");
+
+    if (match != null) {
+        var tag = match[0].replace(/</g, '').replace(/>/g, '').split(' ')[0];
+        if (tag.toLowerCase() === 'body') {
+            var body = document.createElement("body");
+            // keeping the attributes
+            parsedElements.innerHTML = html.replace(/<body/g, '<div').replace(/<\/body>/g, '</div>');
+            var attrs = parsedElements.firstChild.attributes;
+            body.innerHTML = html;
+            for (var i = 0; i < attrs.length; i++) {
+                body.setAttribute(attrs[i].name, attrs[i].value);
+            }
+            return body;
+        } else {
+            var map = wrapMap[tag] || wrapMap._default;
+            html = map[1] + html + map[2];
+            parsedElements.innerHTML = html;
+            // Descend through wrappers to the right content
+            var j = map[0] + 1;
+            while (j--) {
+                parsedElements = parsedElements.lastChild;
+            }
+        }
+    } else {
+        parsedElements.innerHTML = html;
+        parsedElements = parsedElements.lastChild;
+    }
+    return parsedElements;
+}
 
 export default class EspalierNode {
-    constructor(node) {
-        this._internals = new WeakMap();
-
+    constructor(node, root) {
         if (isString(node)) {
             try {
-                let found = common.find(node);
+                let found = common.find(node, root);
                 node = found[0];
             } catch (error) {
-                let wrapper = document.createElement("div");
-                wrapper.innerHTML = node;
-                node = wrapper.firstChild;
+                node = str2DOMElement(node);
             }
         }
 
         node = singleOrError(node);
-
-        this._internals.set(keys.node, node);
+        internals.set(this, { node, originalDisplay: node.style.display });
     }
 
     getNode() {
-        return this._internals.get(keys.node);
+        return internals.get(this).node;
     }
 
     append(stuff) {
         let node = this.getNode();
 
         if (isString(stuff)) {
-            let wrapper = document.createElement("div");
-            wrapper.innerHTML = stuff;
-
-            for (let child of wrapper.childNodes) {
-                node.appendChild(child);
-            }
+            node.appendChild(str2DOMElement(stuff));
             return;
         }
 
         node.appendChild(stuff);
+    }
+
+    clear() {
+        this.getNode().innerHTML = "";
     }
 
     wrapIn(tag) {
@@ -125,5 +169,19 @@ export default class EspalierNode {
         } else {
             node.className = node.className.replace(new RegExp("(^|\\b)" + className.split(" ").join("|") + "(\\b|$)", "gi"), " ");
         }
+    }
+
+    repeater(args) {
+        args.container = this;
+        return new Repeater(args);
+    }
+
+    hide() {
+        internals.get(this).node.style.display = "none";
+    }
+
+    show() {
+        let settings = internals.get(this);
+        settings.node.style.display = settings.originalDisplay;
     }
 }

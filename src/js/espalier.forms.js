@@ -91,11 +91,11 @@ class EspalierForm {
         let controls = this._internals.get(keys.controls);
         return controls.get(name);
     }
-    
+
     removeControl(name) {
         this._internals.get(keys.controls).delete(name);
     }
-    
+
     addControl(name, control) {
         this._internals.get(keys.controls).set(name, control);
     }
@@ -117,6 +117,10 @@ class EspalierForm {
 
                 if (onSuccess) {
                     core.publish(onSuccess, data);
+                }
+            }).catch(error => {
+                if (this.options.onError) {
+                    this.options.onError(error);
                 }
             });
         }

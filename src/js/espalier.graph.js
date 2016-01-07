@@ -79,7 +79,7 @@ export default class Graph {
         core.addEventListener(graphInternals.container, "click", (e) => {
             let target = e.target;
 
-            while (target && target != args.container) {
+            while (target && target != graphInternals.container) {
                 let event = target.getAttribute("data-graph-event");
                 handleNavigation(this, event, target.getAttribute("data-title-key"));
                 target = target.parentNode;
@@ -104,10 +104,19 @@ export default class Graph {
                 }
             }
 
+            if (graphInternals.node.getPropertyName) {
+                delete graphInternals.result[graphInternals.node.getPropertyName()];
+            }
+
             graphInternals.node = graphInternals.transversed.pop();
         }
 
         graphInternals.steps.pop();
+
+        if (graphInternals.node.getPropertyName) {
+            delete graphInternals.result[graphInternals.node.getPropertyName()];
+        }
+
         render(this);
     }
 

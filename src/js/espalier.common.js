@@ -1,7 +1,7 @@
 import EspalierNode from "./espalier.domnode";
 
 let find = function (selector, root) {
-    root = root ? root : document;
+    root = root ? root.querySelectorAll ? root : root.getNode() : document;
     return Array.from(root.querySelectorAll(selector));
 };
 

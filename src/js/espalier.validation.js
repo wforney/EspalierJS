@@ -3,11 +3,11 @@ import formControl from "./espalier.forms.control";
 
 class Validation {
     constructor(control) {
-        if (this.isValid === undefined) {
+        if (!core.isFunction(this.isValid)) {
             throw new TypeError("Must have an isValid method.");
         }
 
-        if (this.getMessage === undefined) {
+        if (!core.isFunction(this.getMessage)) {
             throw new TypeError("Must add a message prior to calling super.");
         }
 
@@ -43,6 +43,20 @@ class Email extends Validation {
     }
 }
 
+class Phone extends Validation {
+    constructor(control) {
+        super(control);
+    }
+
+    isValid() {
+        return core.isPhone(this.control.val());
+    }
+
+    getMessage() {
+        return "Invalid phone number.";
+    }
+}
+
 class Date extends Validation {
     constructor(control) {
         super(control);
@@ -57,4 +71,4 @@ class Date extends Validation {
     }
 }
 
-export { Required, Email, Date };
+export { Required, Email, Phone, Date };

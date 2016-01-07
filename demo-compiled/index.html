@@ -35,6 +35,10 @@
                             <input required type="email" data-focus="true" id="example-email" name="exampleEmail" placeholder="Enter email">
                         </div>
                         <div class="form-group">
+                            <label for="example-tel">Email address</label>
+                            <input required type="tel" id="example-tel" name="exampleTel" placeholder="Enter telephone">
+                        </div>
+                        <div class="form-group">
                             <label for="example-password">Password</label>
                             <input required type="password" id="example-password" name="examplePassword" placeholder="Password">
                         </div>
@@ -57,7 +61,8 @@
                             </div>
                             <div class="radio">
                                 <label>
-                                    <input type="radio" name="fruit" value="2">Orange</label>
+                                    <input type="radio" data-require="[name=dep-radio]" name="fruit" value="2">Orange (required radios)
+                                </label>
                             </div>
                             <div class="radio">
                                 <label>
@@ -65,14 +70,33 @@
                             </div>
                             <div class="radio">
                                 <label>
-                                    <input type="radio" data-require="#fruit-name" name="fruit" value="4">Other</label>
+                                    <input type="radio" data-require="#fruit-name" name="fruit" value="4">Other (required text)
+                                </label>
                             </div>
                             <div class="form-group form-group-lg">
                                 <label for="fruit-name">Fruit</label>
                                 <input type="text" id="fruit-name" name="fruitName" class="form-control">
                             </div>
                         </div>
-                        <!--<button type="submit" class="btn btn-default">Submit</button>-->
+
+                        <div class="radio-group">
+                            <header>
+                                <h3>Dependent radios</h3>
+                            </header>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" required name="dep-radio" value="1">Mandarin</label>
+                            </div>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="dep-radio" value="2">Blood orange</label>
+                            </div>
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" name="dep-radio" value="3">Satsuma</label>
+                            </div>
+                        </div>
+                        <button class="btn btn-default">Validate Form</button>
                     </form>
                     <div>
                         <h2>Sometimes you might want to show a dialog...</h2>
@@ -100,7 +124,20 @@
                     </div>
                     <div>
                         <h2>Tables have Pages</h2>
-                        <div id="demo-table"></div>
+                        <table id="demo-table" class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th repeater-action="sort" data-sort-on="col1">
+                                        Col1
+                                    </th>
+                                    <th repeater-action="sort" data-sort-on="col2">
+                                        Col2
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody repeater-context="items"></tbody>
+                            <tfoot></tfoot>
+                        </table>
                     </div>
                 </div>
             </div>
