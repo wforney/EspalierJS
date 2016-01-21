@@ -4,7 +4,6 @@ import demoTable from "./table/demoTable";
 import dialogDemo from "./dialog/dialog-demo";
 import popoverDemo from "./popover/popover-demo";
 
-espalier.showInfo("It seems the libraries have loaded!");
 espalier.wire("#standard-form");
 
 espalier.el("#show-dialog")[0].onclick = function () {

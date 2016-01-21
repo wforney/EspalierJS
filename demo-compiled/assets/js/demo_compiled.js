@@ -85,7 +85,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _popoverPopoverDemo2 = _interopRequireDefault(_popoverPopoverDemo);
 	
-	_srcJsEspalier2["default"].showInfo("It seems the libraries have loaded!");
 	_srcJsEspalier2["default"].wire("#standard-form");
 	
 	_srcJsEspalier2["default"].el("#show-dialog")[0].onclick = function () {
