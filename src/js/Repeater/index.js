@@ -183,7 +183,7 @@ export default class Repeater {
                             page: navigation.page,
                             pages: settings.src.pages(navigation.pageSize),
                             pageSize: navigation.pageSize
-                        });
+                        }, navigation.filter);
                     }
 
                     if (stateField) {

@@ -42,7 +42,9 @@ class EspalierForm {
         let rawControls = core.find("input, textarea, select", this.form);
 
         for (let control of rawControls) {
-            core.addEventListener(control, "keypress", onEnter);
+            if (!control.getAttribute("data-no-submit")) {
+                core.addEventListener(control, "keypress", onEnter);
+            }
             var controlType = control.type ? control.type : control.getAttribute("type");
             var lowerCaseId = controlType == "radio" ? control.name.toLowerCase() : control.id.toLowerCase();
 
