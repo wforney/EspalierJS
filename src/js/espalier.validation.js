@@ -21,7 +21,14 @@ class Required extends Validation {
     }
 
     isValid() {
-        return !core.isEmptyOrSpaces(this.control.val());
+        switch (this.control.getNode().type) {
+            case "checkbox":
+                return this.control.val();
+                break;
+            default:
+                return !core.isEmptyOrSpaces(this.control.val());
+                break;
+        }
     }
 
     getMessage() {

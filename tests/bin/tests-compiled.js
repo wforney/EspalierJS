@@ -1210,6 +1210,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	            node.appendChild(stuff);
 	        }
 	    }, {
+	        key: "prepend",
+	        value: function prepend(stuff) {
+	            var node = this.getNode();
+	
+	            if ((0, _helpersIsString2["default"])(stuff)) {
+	                node.insertBefore(str2DOMElement(stuff), node.firstChild);
+	                return;
+	            }
+	
+	            node.insertBefore(stuff, node.firstChild);
+	        }
+	    }, {
 	        key: "clear",
 	        value: function clear() {
 	            this.getNode().innerHTML = "";
@@ -1631,6 +1643,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return updatePromise;
 	        }
 	    }, {
+	        key: "count",
+	        value: function count() {
+	            return internals.get(this).get(keys.settings).src.count();
+	        }
+	    }, {
 	        key: "render",
 	        value: function render() {
 	            var settings = internals.get(this).get(keys.settings);
@@ -1693,7 +1710,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            page: navigation.page,
 	                            pages: settings.src.pages(navigation.pageSize),
 	                            pageSize: navigation.pageSize
-	                        });
+	                        }, navigation.filter);
 	                    }
 	
 	                    if (stateField) {

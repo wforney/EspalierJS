@@ -55,4 +55,8 @@ export default class AJAXSource extends RepeaterSource {
         let settings = internals.get(this);
         return Math.ceil(settings.count / pageSize);
     }
+
+    count() {
+        return internals.get(this).count;
+    }
 }

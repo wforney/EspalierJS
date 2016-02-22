@@ -1,22 +1,27 @@
 import core from "./espalier.core";
 import common from "./espalier.common";
 import FormControl from "./espalier.forms.control";
+import DomNode from "./espalier.domnode";
 
 let keys = {
     controls: new Object()
 };
 
-class EspalierForm {
-    constructor(formToWire, args) {
-        this._internals = new WeakMap();
+let getForm = (formToWire, espForm) => {
+    if (core.isString(formToWire)) {
+        return core.find(formToWire)[0];
+    } else if (common.isElement(formToWire)) {
+        return formToWire;
+    } else {
+        return formToWire[0];
+    }
+}
 
-        if (core.isString(formToWire)) {
-            this.form = core.find(formToWire)[0];
-        } else if (common.isElement(formToWire)) {
-            this.form = formToWire;
-        } else {
-            this.form = formToWire[0];
-        }
+class EspalierForm extends DomNode {
+    constructor(formToWire, args) {
+        super(getForm(formToWire));
+        this._internals = new WeakMap();
+        this.form = this.getNode();
 
         let options = {
             submit: false

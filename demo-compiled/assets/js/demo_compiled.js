@@ -931,6 +931,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	            node.appendChild(stuff);
 	        }
 	    }, {
+	        key: "prepend",
+	        value: function prepend(stuff) {
+	            var node = this.getNode();
+	
+	            if ((0, _helpersIsString2["default"])(stuff)) {
+	                node.insertBefore(str2DOMElement(stuff), node.firstChild);
+	                return;
+	            }
+	
+	            node.insertBefore(stuff, node.firstChild);
+	        }
+	    }, {
 	        key: "clear",
 	        value: function clear() {
 	            this.getNode().innerHTML = "";
@@ -1352,6 +1364,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	            return updatePromise;
 	        }
 	    }, {
+	        key: "count",
+	        value: function count() {
+	            return internals.get(this).get(keys.settings).src.count();
+	        }
+	    }, {
 	        key: "render",
 	        value: function render() {
 	            var settings = internals.get(this).get(keys.settings);
@@ -1414,7 +1431,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                            page: navigation.page,
 	                            pages: settings.src.pages(navigation.pageSize),
 	                            pageSize: navigation.pageSize
-	                        });
+	                        }, navigation.filter);
 	                    }
 	
 	                    if (stateField) {
@@ -2090,9 +2107,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 	
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
 	var _espalierCore = __webpack_require__(3);
 	
@@ -2106,25 +2127,35 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _espalierFormsControl2 = _interopRequireDefault(_espalierFormsControl);
 	
+	var _espalierDomnode = __webpack_require__(6);
+	
+	var _espalierDomnode2 = _interopRequireDefault(_espalierDomnode);
+	
 	var keys = {
 	    controls: new Object()
 	};
 	
-	var EspalierForm = (function () {
+	var getForm = function getForm(formToWire, espForm) {
+	    if (_espalierCore2["default"].isString(formToWire)) {
+	        return _espalierCore2["default"].find(formToWire)[0];
+	    } else if (_espalierCommon2["default"].isElement(formToWire)) {
+	        return formToWire;
+	    } else {
+	        return formToWire[0];
+	    }
+	};
+	
+	var EspalierForm = (function (_DomNode) {
+	    _inherits(EspalierForm, _DomNode);
+	
 	    function EspalierForm(formToWire, args) {
 	        var _this = this;
 	
 	        _classCallCheck(this, EspalierForm);
 	
+	        _get(Object.getPrototypeOf(EspalierForm.prototype), "constructor", this).call(this, getForm(formToWire));
 	        this._internals = new WeakMap();
-	
-	        if (_espalierCore2["default"].isString(formToWire)) {
-	            this.form = _espalierCore2["default"].find(formToWire)[0];
-	        } else if (_espalierCommon2["default"].isElement(formToWire)) {
-	            this.form = formToWire;
-	        } else {
-	            this.form = formToWire[0];
-	        }
+	        this.form = this.getNode();
 	
 	        var options = {
 	            submit: false
@@ -2157,7 +2188,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	            for (var _iterator = rawControls[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 	                var control = _step.value;
 	
-	                _espalierCore2["default"].addEventListener(control, "keypress", onEnter);
+	                if (!control.getAttribute("data-no-submit")) {
+	                    _espalierCore2["default"].addEventListener(control, "keypress", onEnter);
+	                }
 	                var controlType = control.type ? control.type : control.getAttribute("type");
 	                var lowerCaseId = controlType == "radio" ? control.name.toLowerCase() : control.id.toLowerCase();
 	
@@ -2380,7 +2413,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }]);
 	
 	    return EspalierForm;
-	})();
+	})(_espalierDomnode2["default"]);
 	
 	exports["default"] = function (formToWire, args) {
 	    return new EspalierForm(formToWire, args);
@@ -2906,11 +2939,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	        return !hasErrors;
 	    };
 	
-	    _espalierCore2["default"].addEventListener(control, "blur", function () {
-	        setTimeout(function () {
-	            formControl.validate();
-	        }, 150);
-	    });
+	    if (formControl.getNode().type == "radio") {
+	        form.on("change", "[name=" + formControl.getName() + "]", function () {
+	            setTimeout(function () {
+	                formControl.validate();
+	            }, 150);
+	        });
+	    } else {
+	        _espalierCore2["default"].addEventListener(control, "blur", function () {
+	            setTimeout(function () {
+	                formControl.validate();
+	            }, 150);
+	        });
+	    }
 	
 	    _espalierCommon2["default"].controls.set(formControl.getNode(), formControl);
 	    return formControl;
@@ -3178,7 +3219,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	    _createClass(Required, [{
 	        key: "isValid",
 	        value: function isValid() {
-	            return !_espalierCore2["default"].isEmptyOrSpaces(this.control.val());
+	            switch (this.control.getNode().type) {
+	                case "checkbox":
+	                    return this.control.val();
+	                    break;
+	                default:
+	                    return !_espalierCore2["default"].isEmptyOrSpaces(this.control.val());
+	                    break;
+	            }
 	        }
 	    }, {
 	        key: "getMessage",
@@ -4080,6 +4128,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (!_espalierCore2["default"].isFunction(this.pages)) {
 	        throw new TypeError("PagedSource derivations must implement load(args)");
 	    }
+	
+	    if (!_espalierCore2["default"].isFunction(this.count)) {
+	        throw new TypeError("PagedSource derivations must implement count()");
+	    }
 	};
 	
 	exports["default"] = PagedSource;
@@ -4108,6 +4160,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	var _RepeaterSource2 = __webpack_require__(33);
 	
 	var _RepeaterSource3 = _interopRequireDefault(_RepeaterSource2);
+	
+	var _espalierCore = __webpack_require__(3);
+	
+	var _espalierCore2 = _interopRequireDefault(_espalierCore);
 	
 	var internals = new WeakMap();
 	
@@ -4228,7 +4284,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	var StaticSource = (function (_RepeaterSource) {
 	    _inherits(StaticSource, _RepeaterSource);
 	
-	    function StaticSource(data) {
+	    function StaticSource(data, filterCallback) {
 	        _classCallCheck(this, StaticSource);
 	
 	        _get(Object.getPrototypeOf(StaticSource.prototype), "constructor", this).call(this);
@@ -4240,7 +4296,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        internals.set(this, {
 	            data: data,
 	            lastSort: "",
-	            lastOrder: ""
+	            lastOrder: "",
+	            filterCallback: filterCallback,
+	            appliedFilter: undefined
 	        });
 	    }
 	
@@ -4251,7 +4309,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	            var loadPromise = new Promise(function (resolve) {
 	                var settings = internals.get(_this);
-	                var data = settings.data;
 	                var lastSort = settings.lastSort;
 	                var lastOrder = settings.lastOrder;
 	
@@ -4261,7 +4318,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	                }
 	
 	                if (sortOn != lastSort || sortOrder != lastOrder) {
-	                    data = data.sort(function (a, b) {
+	                    settings.data = settings.data.sort(function (a, b) {
 	                        switch (sortOrder) {
 	                            case "asc":
 	                                return ascending(a, b, sortOn);
@@ -4276,15 +4333,21 @@ return /******/ (function(modules) { // webpackBootstrap
 	                    settings.lastOrder = sortOrder;
 	                }
 	
-	                if (filter) {
-	                    //TODO: Implement filters.......... this may need a custom function.
-	                }
-	
 	                page = page && page > 0 ? page - 1 : 0;
 	                pageSize = pageSize && pageSize > 0 ? pageSize : 0;
 	                var start = pageSize > 0 ? page * pageSize : 0;
-	                var finish = start + (pageSize > 0 ? pageSize : data.length);
-	                resolve(data.slice(start, finish));
+	
+	                if (filter) {
+	                    settings.appliedFilter = filter;
+	                    settings.filterCallback(filter, settings.data).then(function (filtered) {
+	                        settings.data = filtered;
+	                        var finish = start + (pageSize > 0 ? pageSize : settings.data.length);
+	                        resolve(settings.data.slice(start, finish));
+	                    });
+	                } else {
+	                    var finish = start + (pageSize > 0 ? pageSize : settings.data.length);
+	                    resolve(settings.data.slice(start, finish));
+	                }
 	            });
 	
 	            return loadPromise;
@@ -4294,6 +4357,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function pages(pageSize) {
 	            var count = Math.ceil(internals.get(this).data.length / pageSize);
 	            return count;
+	        }
+	    }, {
+	        key: "count",
+	        value: function count() {
+	            return internals.get(this).data.length;
 	        }
 	    }]);
 	
@@ -4394,6 +4462,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	        value: function pages(pageSize) {
 	            var settings = internals.get(this);
 	            return Math.ceil(settings.count / pageSize);
+	        }
+	    }, {
+	        key: "count",
+	        value: function count() {
+	            return internals.get(this).count;
 	        }
 	    }]);
 	

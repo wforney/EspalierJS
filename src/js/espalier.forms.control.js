@@ -253,9 +253,15 @@ let factory = function (control, form, explicitValidations) {
         return !hasErrors;
     };
 
-    core.addEventListener(control, "blur", () => {
-        setTimeout(() => { formControl.validate(); }, 150);
-    });
+    if (formControl.getNode().type == "radio") {
+        form.on("change", `[name=${formControl.getName() }]`, () => {
+            setTimeout(() => { formControl.validate(); }, 150);
+        });
+    } else {
+        core.addEventListener(control, "blur", () => {
+            setTimeout(() => { formControl.validate(); }, 150);
+        });
+    }
 
     common.controls.set(formControl.getNode(), formControl);
     return formControl;

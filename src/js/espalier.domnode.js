@@ -87,6 +87,17 @@ export default class EspalierNode {
 
         node.appendChild(stuff);
     }
+    
+    prepend(stuff) {
+        let node = this.getNode();
+
+        if (isString(stuff)) {
+            node.insertBefore(str2DOMElement(stuff), node.firstChild);
+            return;
+        }
+
+        node.insertBefore(stuff, node.firstChild);
+    }
 
     clear() {
         this.getNode().innerHTML = "";

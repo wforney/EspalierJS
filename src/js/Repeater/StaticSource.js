@@ -1,8 +1,9 @@
-import RepeaterSource from "./RepeaterSource"
+import RepeaterSource from "./RepeaterSource";
+import core from "../espalier.core";
 
 const internals = new WeakMap();
 
-let ascending = function (a, b, fieldName, defaultValue) {
+let ascending = function(a, b, fieldName, defaultValue) {
     let parts = fieldName.split(".");
     defaultValue = defaultValue ? defaultValue : "";
 
@@ -38,7 +39,7 @@ let ascending = function (a, b, fieldName, defaultValue) {
     return 0;
 }
 
-let descending = function (a, b, fieldName, defaultValue) {
+let descending = function(a, b, fieldName, defaultValue) {
     let parts = fieldName.split(".");
     defaultValue = defaultValue ? defaultValue : "";
 
@@ -75,7 +76,7 @@ let descending = function (a, b, fieldName, defaultValue) {
 }
 
 export default class StaticSource extends RepeaterSource {
-    constructor(data) {
+    constructor(data, filterCallback) {
         super();
 
         for (var i = 0; i < data.length; i++) {
@@ -85,14 +86,15 @@ export default class StaticSource extends RepeaterSource {
         internals.set(this, {
             data,
             lastSort: "",
-            lastOrder: ""
+            lastOrder: "",
+            filterCallback,
+            appliedFilter: undefined
         });
     }
 
     load(page, pageSize, filter, sortOn, sortOrder) {
         let loadPromise = new Promise(resolve => {
             let settings = internals.get(this);
-            let data = settings.data;
             let lastSort = settings.lastSort;
             let lastOrder = settings.lastOrder;
 
@@ -102,7 +104,7 @@ export default class StaticSource extends RepeaterSource {
             }
 
             if (sortOn != lastSort || sortOrder != lastOrder) {
-                data = data.sort((a, b) => {
+                settings.data = settings.data.sort((a, b) => {
                     switch (sortOrder) {
                         case "asc":
                             return ascending(a, b, sortOn);
@@ -117,15 +119,22 @@ export default class StaticSource extends RepeaterSource {
                 settings.lastOrder = sortOrder;
             }
 
-            if (filter) {
-                //TODO: Implement filters.......... this may need a custom function.
-            }
-
             page = page && page > 0 ? page - 1 : 0;
             pageSize = pageSize && pageSize > 0 ? pageSize : 0;
             let start = pageSize > 0 ? page * pageSize : 0;
-            let finish = start + (pageSize > 0 ? pageSize : data.length);
-            resolve(data.slice(start, finish));
+
+            if (filter) {
+                settings.appliedFilter = filter;
+                settings.filterCallback(filter, settings.data)
+                    .then(filtered => {
+                        settings.data = filtered;
+                        let finish = start + (pageSize > 0 ? pageSize : settings.data.length);
+                        resolve(settings.data.slice(start, finish));
+                    });
+            } else {
+                let finish = start + (pageSize > 0 ? pageSize : settings.data.length);
+                resolve(settings.data.slice(start, finish));
+            }
         });
 
         return loadPromise;
@@ -134,5 +143,9 @@ export default class StaticSource extends RepeaterSource {
     pages(pageSize) {
         let count = Math.ceil(internals.get(this).data.length / pageSize);
         return count;
+    }
+
+    count() {
+        return internals.get(this).data.length;
     }
 }

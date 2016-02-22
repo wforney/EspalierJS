@@ -141,6 +141,10 @@ export default class Repeater {
 
         return updatePromise;
     }
+    
+    count() {
+        return internals.get(this).get(keys.settings).src.count();
+    }
 
     render() {
         let settings = internals.get(this).get(keys.settings);

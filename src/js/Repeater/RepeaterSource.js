@@ -13,5 +13,9 @@ export default class PagedSource {
         if (!core.isFunction(this.pages)) {
             throw new TypeError("PagedSource derivations must implement load(args)")
         }
+
+        if (!core.isFunction(this.count)) {
+            throw new TypeError("PagedSource derivations must implement count()")
+        }
     }
 }
