@@ -1,0 +1,23 @@
+{
+  "extends": [
+    "tslint:recommended"
+  ],
+  "rules": {
+    "eofline": false,
+    "align": false,
+    "ordered-imports": false,
+    "trailing-comma": false,
+    "object-literal-sort-keys": false,
+    "no-string-literal": false,
+    "no-namespace": false,
+    "no-angle-bracket-type-assertion": false,
+    "array-type": false,
+    "no-trailing-whitespace": false,
+    "whitespace": false,
+    "max-line-length": false,
+    "radix": false,
+    "space-before-function-paren": false,
+    "no-bitwise": false,
+    "object-literal-shorthand": false
+  }
+}

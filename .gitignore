@@ -1,7 +1,10 @@
-# Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
-.grunt
-# Dependency directory
-# https://docs.npmjs.com/misc/faq#should-i-check-my-node-modules-folder-into-git
 node_modules
+jspm_packages
 bower_components
-.sass-cache
+.idea
+.DS_STORE
+*.swp
+npm-debug.log*
+.test
+dist/doc-temp
+dist/test

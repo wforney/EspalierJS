@@ -1,0 +1,69 @@
+<template>
+  <require from="./espalier.css"></require>
+  <div ref="tableContainer" class="espalier-table">
+    <table class="table table-striped">
+      <thead ref="tableHeader">
+        <tr>
+          <th repeat.for="column of settings.columns" class="${getSortPropertyName(column) ? 'sortable' : ''} ${column.sortOrder == 1 ? 'sort-asc' : ''} ${column.sortOrder == 2 ? 'sort-desc' : ''}"
+            click.delegate="sortBy(column)" colspan="${(!settings.filter && $index == (settings.columns.length - 1)) ? 2 : 1}">
+            <div>
+              <span innerhtml.bind="(column.title ? column.title : column.propertyName)" data-toggle="tooltip" data-placement="top" title="${(column.longTitle ? column.longTitle : column.title ? column.title : column.propertyName)}"></span>
+            </div>
+          </th>
+          <th if.bind="settings.filter && !filterShowing" class="filter-button">
+            <a click.delegate="openFilter()" href="javascript: void(0)">
+                <i></i>
+            </a>
+          </th>
+          <th if.bind="settings.filter && filterShowing" class="close-filter-button">
+            <a click.delegate="cancelFilter()" href="javascript: void(0)">
+                <i></i>
+            </a>
+          </th>
+        </tr>
+      </thead>
+      <tbody ref="tableBody">
+        <tr if.bind="loading">
+          <td colspan="${settings.columns.length+1}">
+            Loading...
+          </td>
+        </tr>
+        <tr if.bind="!loading" repeat.for="record of records">
+          <td colspan="${(!hasButtons && $index == (settings.columns.length - 1)) ? 2 : 1}" repeat.for="column of settings.columns & oneTime">
+            <span class="copytarget" id="row${$parent.$index}col${$index}" if.bind="column.type !== 5 && !column.onClick" innerhtml.bind="record[column.propertyName]"></span>
+            <span class="copytarget" id="row${$parent.$index}col${$index}" if.bind="column.type === 5" innerhtml.bind="record[column.propertyName] | dateFormat"></span>
+            <a class="icon copyicon" data-clipboard-target="#row${$parent.$index}col${$index}" data-toggle="tooltip" data-placement="left"
+              href="javascript: void(0);" if.bind="column.supportsCopy && (!column.onClick || (!!record[column.propertyName] && record[column.propertyName].trim() !== '' && !record[column.propertyName].startsWith('http')))"
+              title="Copy to clipboard"><i class="glyphicon glyphicon-scissors"></i></a>
+            <a click.delegate="column.onClick(record)" if.bind="column.onClick && !!record[column.propertyName]" href="javascript: void(0);"
+              innerhtml.bind="record[column.propertyName]"></a>
+          </td>
+          <td if.bind="hasButtons" class="buttons-cell">
+            <!-- TODO: If there is more than one button, show a drop down button and expand with the available options. -->
+            <button repeat.for="button of getButtons(record)" class="${button.buttonClass}" title="${button.title}" click.delegate="buttonClicked(button, record)">
+                <i class="${button.iconClass}"></i>
+            </button>
+          </td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td class="espalier-nav" if.bind="pages.length > 1" colspan="${settings.columns.length + 1}">
+            <nav>
+              <ul class="pagination">
+                <li repeat.for="page of pages" class="page-item ${page.disabled ? 'disabled' : ''} ${page.active ? 'active' : ''}">
+                  <a class="page-link" click.delegate="goto(page.page)" href="javascript: void(0);">
+                        <span aria-hidden="true" innerhtml.bind="page.text"></span>
+                    </a>
+                </li>
+              </ul>
+            </nav>
+            <div class="text-right">
+              Showing ${recordsFrom} - ${recordsTo} of ${recordCount} records
+            </div>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</template>

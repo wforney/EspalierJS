@@ -1,0 +1,98 @@
+div.espalier-table {
+    font-size: .8em;
+    position: relative;
+}
+
+.espalier-filter {
+  position: absolute;
+  right: 0;
+  background: white;
+  border-radius: .15em;
+  border-top-right-radius: 0;
+  padding: 0 0 1em;
+  border: 1px solid #ccc;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.15), 0 1px 1px rgba(0,0,0,.075);
+  z-index: 999;
+}
+
+td.buttons-cell, th.buttons-cell {
+    text-align: right;
+}
+
+td.buttons-cell button, th.buttons-cell button {
+    display: inline;
+    margin: 0 9px 0 0;
+}
+
+td.links-cell p {
+    margin: 0;
+    padding: 0;
+}
+
+tbody > tr:hover {
+    background: lightgoldenrodyellow !important;
+}
+
+th.sortable {
+    cursor: pointer;
+    position: relative;
+}
+
+th.sortable > div {
+  position: relative;
+}
+
+th.sortable > div > span {
+  padding-right: .5em;
+}
+
+th.sortable > div > span::after {
+  content: '';
+  display: block;
+  position: absolute;
+  right: 0px;
+  top: 0;
+  width: 1.35em;
+  height: 1.35em;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+thead th.filter-button a i::after, thead th.close-filter-button a i::after {
+  content: '';
+  display: block;
+  width: 1.35em;
+  height: 1.35em;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+thead th.filter-button, thead th.close-filter-button {
+  width: 1em;
+}
+
+thead th.filter-button a, thead th.close-filter-button a {
+  cursor: pointer;
+  display: block;
+  width: 1.35em;
+  height: 1.35em;
+}
+
+th.sortable.sort-asc, th.sortable.sort-desc {
+    background: #cbcbcb;
+}
+
+td.espalier-nav {
+  padding-left: 0px;
+}
+
+td.espalier-nav nav {
+  float: left;
+  margin: 0 1em 0 0;
+}
+
+td.espalier-nav div.text-right {
+  line-height: 2.75em;
+}
