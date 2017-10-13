@@ -1,21 +1,33 @@
 <template>
   <require from="./espalier.css"></require>
+  <require from="./tippy.css"></require>
   <div ref="tableContainer" class="espalier-table">
     <table class="table table-striped">
       <thead ref="tableHeader">
+        <tr if.bind="friendlyFilterDescription">
+          <th colspan="${settings.columns.length}">
+            <section class="friendly-filter-description">${friendlyFilterDescription}</section>
+          </th>
+          <th class="close-filter-button" title="Clear filter">
+            <a click.delegate="clearFilter()" href="javascript: void(0)">
+                <i></i>
+            </a>
+          </th>
+        </tr>
         <tr>
-          <th repeat.for="column of settings.columns" class="${getSortPropertyName(column) ? 'sortable' : ''} ${column.sortOrder == 1 ? 'sort-asc' : ''} ${column.sortOrder == 2 ? 'sort-desc' : ''}"
+          <th repeat.for="column of settings.columns" title="${(column.longTitle ? column.longTitle : column.title ? column.title : column.propertyName)}"
+            class="${getSortPropertyName(column) ? 'sortable' : ''} ${column.sortOrder == 1 ? 'sort-asc' : ''} ${column.sortOrder == 2 ? 'sort-desc' : ''}"
             click.delegate="sortBy(column)" colspan="${(!settings.filter && $index == (settings.columns.length - 1)) ? 2 : 1}">
             <div>
-              <span innerhtml.bind="(column.title ? column.title : column.propertyName)" data-toggle="tooltip" data-placement="top" title="${(column.longTitle ? column.longTitle : column.title ? column.title : column.propertyName)}"></span>
+              <span innerhtml.bind="(column.title ? column.title : column.propertyName)"></span>
             </div>
           </th>
-          <th if.bind="settings.filter && !filterShowing" class="filter-button">
+          <th if.bind="settings.filter && !filterShowing" class="filter-button" title="Open filter">
             <a click.delegate="openFilter()" href="javascript: void(0)">
                 <i></i>
             </a>
           </th>
-          <th if.bind="settings.filter && filterShowing" class="close-filter-button">
+          <th if.bind="settings.filter && filterShowing" class="close-filter-button" title="Close filter">
             <a click.delegate="cancelFilter()" href="javascript: void(0)">
                 <i></i>
             </a>
@@ -30,11 +42,8 @@
         </tr>
         <tr if.bind="!loading" repeat.for="record of records">
           <td colspan="${(!hasButtons && $index == (settings.columns.length - 1)) ? 2 : 1}" repeat.for="column of settings.columns & oneTime">
-            <span class="copytarget" id="row${$parent.$index}col${$index}" if.bind="column.type !== 5 && !column.onClick" innerhtml.bind="record[column.propertyName]"></span>
-            <span class="copytarget" id="row${$parent.$index}col${$index}" if.bind="column.type === 5" innerhtml.bind="record[column.propertyName] | dateFormat"></span>
-            <a class="icon copyicon" data-clipboard-target="#row${$parent.$index}col${$index}" data-toggle="tooltip" data-placement="left"
-              href="javascript: void(0);" if.bind="column.supportsCopy && (!column.onClick || (!!record[column.propertyName] && record[column.propertyName].trim() !== '' && !record[column.propertyName].startsWith('http')))"
-              title="Copy to clipboard"><i class="glyphicon glyphicon-scissors"></i></a>
+            <span id="row${$parent.$index}col${$index}" if.bind="column.type !== 3 && !column.onClick" innerhtml.bind="record[column.propertyName]"></span>
+            <span id="row${$parent.$index}col${$index}" if.bind="column.type === 3" innerhtml.bind="record[column.propertyName] | dateFormat"></span>
             <a click.delegate="column.onClick(record)" if.bind="column.onClick && !!record[column.propertyName]" href="javascript: void(0);"
               innerhtml.bind="record[column.propertyName]"></a>
           </td>

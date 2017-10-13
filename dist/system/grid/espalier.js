@@ -1,4 +1,4 @@
-System.register(["tippy.js", "aurelia-framework", "./page-info", "./enums", "./helpers"], function (exports_1, context_1) {
+System.register(["./espalier-config", "tippy.js", "aurelia-framework", "aurelia-dependency-injection", "aurelia-fetch-client", "./page-info", "./enums", "./helpers"], function (exports_1, context_1) {
     "use strict";
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -7,14 +7,23 @@ System.register(["tippy.js", "aurelia-framework", "./page-info", "./enums", "./h
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
     var __moduleName = context_1 && context_1.id;
-    var tippy, aurelia_framework_1, page_info_1, enums_1, helpers_1, buttonStyleElementName, EspalierCustomElement;
+    var espalier_config_1, tippy, aurelia_framework_1, aurelia_dependency_injection_1, aurelia_fetch_client_1, page_info_1, enums_1, helpers_1, buttonStyleElementName, EspalierCustomElement;
     return {
         setters: [
+            function (espalier_config_1_1) {
+                espalier_config_1 = espalier_config_1_1;
+            },
             function (tippy_1) {
                 tippy = tippy_1;
             },
             function (aurelia_framework_1_1) {
                 aurelia_framework_1 = aurelia_framework_1_1;
+            },
+            function (aurelia_dependency_injection_1_1) {
+                aurelia_dependency_injection_1 = aurelia_dependency_injection_1_1;
+            },
+            function (aurelia_fetch_client_1_1) {
+                aurelia_fetch_client_1 = aurelia_fetch_client_1_1;
             },
             function (page_info_1_1) {
                 page_info_1 = page_info_1_1;
@@ -32,40 +41,79 @@ System.register(["tippy.js", "aurelia-framework", "./page-info", "./enums", "./h
         execute: function () {
             buttonStyleElementName = "espalier-button-styles";
             EspalierCustomElement = /** @class */ (function () {
+                /**
+                 * Create a new instance of Espalier.
+                 * @param http The Aurelia Fetch Client HttpClient to use.
+                 * @param taskQueue The Aurelia TaskQueue.
+                 * @param config Global configuration for Espalier.
+                 */
                 function EspalierCustomElement(http, taskQueue, config) {
                     this.http = http;
                     this.taskQueue = taskQueue;
                     this.config = config;
-                    this.loading = true;
+                    /**
+                     * The current page the grid is on.
+                     */
                     this.page = 1;
+                    /**
+                     * The color to use for the sort and filter icons.
+                     */
+                    this.buttonColor = "rgb(100,100,100)";
+                    this.loading = true;
                     this.pages = [];
                     this.filterShowing = false;
-                    this.buttonColor = "rgb(100,100,100)";
                 }
-                EspalierCustomElement.prototype.goto = function (pageNumber) {
-                    this.loading = true;
-                    this.page = pageNumber;
-                    this.fetch();
-                };
+                /**
+                 * The Aurelia attached lifecycle event.
+                 */
                 EspalierCustomElement.prototype.attached = function () {
                     if (!document.querySelectorAll("#" + buttonStyleElementName).length) {
                         this.addButtonStyles();
                     }
                 };
-                EspalierCustomElement.prototype.applyFilter = function (filter) {
-                    this.loading = true;
+                /**
+                 * Fetches records that match the filter, goes to the first page, and loads the first page into the grid.
+                 * @param filter A build-out query string to be appenended to any sorting and paging query parameters.
+                 */
+                EspalierCustomElement.prototype.applyFilter = function (filter, friendlyDescription) {
                     this.filter = filter;
+                    this.friendlyFilterDescription = friendlyDescription;
                     this.page = 1;
                     return this.fetch();
                 };
+                /**
+                 * Reset the filter back to the default specified for this Espalier
+                 * instance.
+                 */
+                EspalierCustomElement.prototype.clearFilter = function () {
+                    if (!this.settings.filter) {
+                        this.filter = this.defaultFilter;
+                        return this.fetch();
+                    }
+                    return this.settings.filter.reset();
+                };
+                /**
+                 * Fetch the current page and load it into the grid.
+                 */
                 EspalierCustomElement.prototype.reload = function () {
-                    this.loading = true;
                     return this.fetch();
                 };
+                /**
+                 * Fetches records on the given page number and loads them into the grid.
+                 * @param pageNumber The page number to fetch.
+                 */
+                EspalierCustomElement.prototype.goto = function (pageNumber) {
+                    this.page = pageNumber;
+                    return this.fetch();
+                };
+                /**
+                 * Sort by a given column. It toggles through Ascending > Descending > Not sorted on
+                 * @param column The column to sort on.
+                 */
                 EspalierCustomElement.prototype.sortBy = function (column) {
                     var sortProperty = this.getSortPropertyName(column);
                     if (!sortProperty) {
-                        return;
+                        return Promise.resolve();
                     }
                     this.loading = true;
                     if (this.sortColumn === column) {
@@ -76,7 +124,7 @@ System.register(["tippy.js", "aurelia-framework", "./page-info", "./enums", "./h
                             case enums_1.SortOrder.Descending:
                                 this.sortColumn.sortOrder = enums_1.SortOrder.NotSpecified;
                                 break;
-                            case enums_1.SortOrder.NotSpecified:
+                            default:
                                 this.sortColumn.sortOrder = enums_1.SortOrder.Ascending;
                                 break;
                         }
@@ -89,14 +137,26 @@ System.register(["tippy.js", "aurelia-framework", "./page-info", "./enums", "./h
                         this.sortColumn.sortOrder = enums_1.SortOrder.Ascending;
                     }
                     this.page = 1;
-                    this.fetch();
+                    return this.fetch();
                 };
-                EspalierCustomElement.prototype.getButtons = function (rowData) {
-                    return this.settings.getButtons ? this.settings.getButtons(rowData) : [];
+                /**
+                 * Used to figure out which buttons to show.
+                 * @param record Calculate which buttons should be available for the given record.
+                 */
+                EspalierCustomElement.prototype.getButtons = function (record) {
+                    return this.settings.getButtons ? this.settings.getButtons(record) : [];
                 };
+                /**
+                 * Handles the button click event of a table button in a row.
+                 * @param button The TableButton that was clicked.
+                 * @param record The record associated with the row the button is in.
+                 */
                 EspalierCustomElement.prototype.buttonClicked = function (button, record) {
                     button.onClick(record);
                 };
+                /**
+                 * Open the filter if this instance has one.
+                 */
                 EspalierCustomElement.prototype.openFilter = function () {
                     if (!this.settings || !this.settings.filter) {
                         return;
@@ -105,6 +165,9 @@ System.register(["tippy.js", "aurelia-framework", "./page-info", "./enums", "./h
                     this.settings.filter.container.style.top = this.tableHeader.clientHeight + "px";
                     this.filterShowing = true;
                 };
+                /**
+                 * Close the filter if it's open.
+                 */
                 EspalierCustomElement.prototype.closeFilter = function () {
                     if (!this.settings || !this.settings.filter) {
                         return;
@@ -147,6 +210,10 @@ System.register(["tippy.js", "aurelia-framework", "./page-info", "./enums", "./h
                         return _this.fetch();
                     });
                 };
+                /**
+                 * Figure out out the sort property name of a given column.
+                 * @param column The column to figure out the sort property name of.
+                 */
                 EspalierCustomElement.prototype.getSortPropertyName = function (column) {
                     if (column.disableSort) {
                         return "";
@@ -157,6 +224,9 @@ System.register(["tippy.js", "aurelia-framework", "./page-info", "./enums", "./h
                  * Check if the user has specified a filter.
                  */
                 EspalierCustomElement.prototype.filterIsNotEmpty = function () {
+                    if (!this.filter && this.defaultFilter) {
+                        this.filter = this.defaultFilter;
+                    }
                     if (typeof this.filter === "undefined" || this.filter == null) {
                         return true;
                     }
@@ -195,8 +265,12 @@ System.register(["tippy.js", "aurelia-framework", "./page-info", "./enums", "./h
                     if (this.filterIsNotEmpty()) {
                         queryParts.push(this.filter);
                     }
+                    var urlParts = this.url.split("?");
+                    if (urlParts.length > 1) {
+                        queryParts.push(urlParts[1]);
+                    }
                     var queryString = queryParts.join("&");
-                    return this.http.fetch(this.url + "?" + queryString)
+                    return this.http.fetch(urlParts[0] + "?" + queryString)
                         .then(function (response) {
                         if (response.status !== 200) {
                             throw response;
@@ -242,6 +316,18 @@ System.register(["tippy.js", "aurelia-framework", "./page-info", "./enums", "./h
                                     size: "big"
                                 });
                             }
+                            var columnHeads = helpers_1.ToArray(_this.tableHeader.querySelectorAll("th"));
+                            for (var _a = 0, columnHeads_1 = columnHeads; _a < columnHeads_1.length; _a++) {
+                                var columnHead = columnHeads_1[_a];
+                                if (!columnHead.title) {
+                                    continue;
+                                }
+                                tippy(columnHead, {
+                                    position: "bottom",
+                                    arrow: true,
+                                    size: "big"
+                                });
+                            }
                         });
                         _this.loading = false;
                     });
@@ -262,8 +348,8 @@ System.register(["tippy.js", "aurelia-framework", "./page-info", "./enums", "./h
                     aurelia_framework_1.bindable()
                 ], EspalierCustomElement.prototype, "buttonColor", void 0);
                 EspalierCustomElement = __decorate([
-                    aurelia_framework_1.autoinject,
-                    aurelia_framework_1.customElement("espalier")
+                    aurelia_framework_1.customElement("espalier"),
+                    aurelia_dependency_injection_1.inject(aurelia_fetch_client_1.HttpClient, aurelia_framework_1.TaskQueue, espalier_config_1.EspalierConfig)
                 ], EspalierCustomElement);
                 return EspalierCustomElement;
             }());

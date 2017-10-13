@@ -10,6 +10,8 @@ var table_button_1 = require("./grid/table-button");
 exports.TableButton = table_button_1.TableButton;
 var espalier_1 = require("./grid/espalier");
 exports.EspalierCustomElement = espalier_1.EspalierCustomElement;
+var espalier_config_1 = require("./grid/espalier-config");
+exports.EspalierConfig = espalier_config_1.EspalierConfig;
 function configure(config) {
     config.globalResources([
         aurelia_framework_1.PLATFORM.moduleName("./grid/espalier")

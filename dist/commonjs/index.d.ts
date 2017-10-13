@@ -6,4 +6,5 @@ export { EspalierFilter } from "./grid/espalier-filter";
 export { TableButton } from "./grid/table-button";
 export { EspalierCustomElement } from "./grid/espalier";
 export { IEspalierPage } from "./grid/espalier-page";
+export { EspalierConfig } from "./grid/espalier-config";
 export declare function configure(config: FrameworkConfiguration): void;

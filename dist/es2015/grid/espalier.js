@@ -4,48 +4,95 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+import { EspalierConfig } from "./espalier-config";
 import * as tippy from "tippy.js";
-import { autoinject, bindable, bindingMode, customElement } from "aurelia-framework";
+import { bindable, bindingMode, TaskQueue, customElement } from "aurelia-framework";
+import { inject } from "aurelia-dependency-injection";
+import { HttpClient } from "aurelia-fetch-client";
 import { PageInfo } from "./page-info";
 import { SortOrder } from "./enums";
 export { PageInfo } from "./page-info";
 import { ToArray } from "./helpers";
 const buttonStyleElementName = "espalier-button-styles";
+/**
+ * Espalier is a custom element build for the Aurelia framework that
+ * makes it simple to work with server-side page-able, sort-able
+ * datasets.
+ */
 let EspalierCustomElement = class EspalierCustomElement {
+    /**
+     * Create a new instance of Espalier.
+     * @param http The Aurelia Fetch Client HttpClient to use.
+     * @param taskQueue The Aurelia TaskQueue.
+     * @param config Global configuration for Espalier.
+     */
     constructor(http, taskQueue, config) {
         this.http = http;
         this.taskQueue = taskQueue;
         this.config = config;
-        this.loading = true;
+        /**
+         * The current page the grid is on.
+         */
         this.page = 1;
+        /**
+         * The color to use for the sort and filter icons.
+         */
+        this.buttonColor = "rgb(100,100,100)";
+        this.loading = true;
         this.pages = [];
         this.filterShowing = false;
-        this.buttonColor = "rgb(100,100,100)";
     }
-    goto(pageNumber) {
-        this.loading = true;
-        this.page = pageNumber;
-        this.fetch();
-    }
+    /**
+     * The Aurelia attached lifecycle event.
+     */
     attached() {
         if (!document.querySelectorAll(`#${buttonStyleElementName}`).length) {
             this.addButtonStyles();
         }
     }
-    applyFilter(filter) {
-        this.loading = true;
+    /**
+     * Fetches records that match the filter, goes to the first page, and loads the first page into the grid.
+     * @param filter A build-out query string to be appenended to any sorting and paging query parameters.
+     */
+    applyFilter(filter, friendlyDescription) {
         this.filter = filter;
+        this.friendlyFilterDescription = friendlyDescription;
         this.page = 1;
         return this.fetch();
     }
+    /**
+     * Reset the filter back to the default specified for this Espalier
+     * instance.
+     */
+    clearFilter() {
+        if (!this.settings.filter) {
+            this.filter = this.defaultFilter;
+            return this.fetch();
+        }
+        return this.settings.filter.reset();
+    }
+    /**
+     * Fetch the current page and load it into the grid.
+     */
     reload() {
-        this.loading = true;
         return this.fetch();
     }
+    /**
+     * Fetches records on the given page number and loads them into the grid.
+     * @param pageNumber The page number to fetch.
+     */
+    goto(pageNumber) {
+        this.page = pageNumber;
+        return this.fetch();
+    }
+    /**
+     * Sort by a given column. It toggles through Ascending > Descending > Not sorted on
+     * @param column The column to sort on.
+     */
     sortBy(column) {
         const sortProperty = this.getSortPropertyName(column);
         if (!sortProperty) {
-            return;
+            return Promise.resolve();
         }
         this.loading = true;
         if (this.sortColumn === column) {
@@ -56,7 +103,7 @@ let EspalierCustomElement = class EspalierCustomElement {
                 case SortOrder.Descending:
                     this.sortColumn.sortOrder = SortOrder.NotSpecified;
                     break;
-                case SortOrder.NotSpecified:
+                default:
                     this.sortColumn.sortOrder = SortOrder.Ascending;
                     break;
             }
@@ -69,14 +116,26 @@ let EspalierCustomElement = class EspalierCustomElement {
             this.sortColumn.sortOrder = SortOrder.Ascending;
         }
         this.page = 1;
-        this.fetch();
+        return this.fetch();
     }
-    getButtons(rowData) {
-        return this.settings.getButtons ? this.settings.getButtons(rowData) : [];
+    /**
+     * Used to figure out which buttons to show.
+     * @param record Calculate which buttons should be available for the given record.
+     */
+    getButtons(record) {
+        return this.settings.getButtons ? this.settings.getButtons(record) : [];
     }
+    /**
+     * Handles the button click event of a table button in a row.
+     * @param button The TableButton that was clicked.
+     * @param record The record associated with the row the button is in.
+     */
     buttonClicked(button, record) {
         button.onClick(record);
     }
+    /**
+     * Open the filter if this instance has one.
+     */
     openFilter() {
         if (!this.settings || !this.settings.filter) {
             return;
@@ -85,6 +144,9 @@ let EspalierCustomElement = class EspalierCustomElement {
         this.settings.filter.container.style.top = `${this.tableHeader.clientHeight}px`;
         this.filterShowing = true;
     }
+    /**
+     * Close the filter if it's open.
+     */
     closeFilter() {
         if (!this.settings || !this.settings.filter) {
             return;
@@ -125,6 +187,10 @@ let EspalierCustomElement = class EspalierCustomElement {
             return this.fetch();
         });
     }
+    /**
+     * Figure out out the sort property name of a given column.
+     * @param column The column to figure out the sort property name of.
+     */
     getSortPropertyName(column) {
         if (column.disableSort) {
             return "";
@@ -135,6 +201,9 @@ let EspalierCustomElement = class EspalierCustomElement {
      * Check if the user has specified a filter.
      */
     filterIsNotEmpty() {
+        if (!this.filter && this.defaultFilter) {
+            this.filter = this.defaultFilter;
+        }
         if (typeof this.filter === "undefined" || this.filter == null) {
             return true;
         }
@@ -192,8 +261,12 @@ let EspalierCustomElement = class EspalierCustomElement {
         if (this.filterIsNotEmpty()) {
             queryParts.push(this.filter);
         }
+        const urlParts = this.url.split("?");
+        if (urlParts.length > 1) {
+            queryParts.push(urlParts[1]);
+        }
         const queryString = queryParts.join("&");
-        return this.http.fetch(`${this.url}?${queryString}`)
+        return this.http.fetch(`${urlParts[0]}?${queryString}`)
             .then((response) => {
             if (response.status !== 200) {
                 throw response;
@@ -238,6 +311,17 @@ let EspalierCustomElement = class EspalierCustomElement {
                         size: "big"
                     });
                 }
+                const columnHeads = ToArray(this.tableHeader.querySelectorAll("th"));
+                for (const columnHead of columnHeads) {
+                    if (!columnHead.title) {
+                        continue;
+                    }
+                    tippy(columnHead, {
+                        position: "bottom",
+                        arrow: true,
+                        size: "big"
+                    });
+                }
             });
             this.loading = false;
         });
@@ -259,7 +343,7 @@ __decorate([
     bindable()
 ], EspalierCustomElement.prototype, "buttonColor", void 0);
 EspalierCustomElement = __decorate([
-    autoinject,
-    customElement("espalier")
+    customElement("espalier"),
+    inject(HttpClient, TaskQueue, EspalierConfig)
 ], EspalierCustomElement);
 export { EspalierCustomElement };

@@ -7,6 +7,16 @@ var EspalierFilter = /** @class */ (function () {
     function EspalierFilter() {
     }
     /**
+     * Reset the filter to the default state and apply it to the grid.
+     */
+    EspalierFilter.prototype.reset = function () {
+        var _this = this;
+        return this.clearFilter()
+            .then(function () {
+            return _this.applyFilter();
+        });
+    };
+    /**
      * Bind your action for applying the filter to this method. It applies
      * the filter generated from filterAsQueryString() to your grid, resets
      * the grid to the first page, clones and stores your current model for
@@ -15,7 +25,7 @@ var EspalierFilter = /** @class */ (function () {
      */
     EspalierFilter.prototype.applyFilter = function () {
         this.lastAppliedState = clone(this.model);
-        return this.espalier.applyFilter(this.filterAsQueryString);
+        return this.espalier.applyFilter(this.filterAsQueryString, this.friendlyFilterDescription);
     };
     /**
      * Bind your action for canceling the filter to this method. It resets
