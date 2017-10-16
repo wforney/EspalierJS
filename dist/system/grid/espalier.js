@@ -55,10 +55,6 @@ System.register(["./espalier-config", "tippy.js", "aurelia-framework", "aurelia-
                      * The current page the grid is on.
                      */
                     this.page = 1;
-                    /**
-                     * The color to use for the sort and filter icons.
-                     */
-                    this.buttonColor = "rgb(100,100,100)";
                     this.loading = true;
                     this.pages = [];
                     this.filterShowing = false;
@@ -195,7 +191,7 @@ System.register(["./espalier-config", "tippy.js", "aurelia-framework", "aurelia-
                     }
                     for (var _i = 0, _a = this.settings.columns; _i < _a.length; _i++) {
                         var column = _a[_i];
-                        if (column.sortOrder !== enums_1.SortOrder.NotSpecified) {
+                        if (column.sortOrder) {
                             this.sortColumn = column;
                         }
                     }
@@ -207,6 +203,9 @@ System.register(["./espalier-config", "tippy.js", "aurelia-framework", "aurelia-
                     }
                     this.pageSize = this.pageSize ? this.pageSize : this.config.defaultPageSize;
                     this.taskQueue.queueMicroTask(function () {
+                        if (_this.settings.filter) {
+                            return _this.settings.filter.reset();
+                        }
                         return _this.fetch();
                     });
                 };
@@ -237,7 +236,7 @@ System.register(["./espalier-config", "tippy.js", "aurelia-framework", "aurelia-
                  * does it this way so the button color is customizable by the consumer.
                  */
                 EspalierCustomElement.prototype.addButtonStyles = function () {
-                    var encodedColor = encodeURIComponent(this.buttonColor);
+                    var encodedColor = encodeURIComponent(this.config.buttonColor);
                     var redColor = encodeURIComponent("rgb(217,83,79)");
                     var filter = "%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2222%22%20height%3D%2228%22%20viewBox%3D%220%200%2022%2028%22%3E%0A%3Ctitle%3Efilter%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22" + encodedColor + "%22%20fill%3D%22" + encodedColor + "%22%20d%3D%22M21.922%204.609c0.156%200.375%200.078%200.812-0.219%201.094l-7.703%207.703v11.594c0%200.406-0.25%200.766-0.609%200.922-0.125%200.047-0.266%200.078-0.391%200.078-0.266%200-0.516-0.094-0.703-0.297l-4-4c-0.187-0.187-0.297-0.438-0.297-0.703v-7.594l-7.703-7.703c-0.297-0.281-0.375-0.719-0.219-1.094%200.156-0.359%200.516-0.609%200.922-0.609h20c0.406%200%200.766%200.25%200.922%200.609z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E";
                     var close = "%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Ctitle%3Ex%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22" + redColor + "%22%20fill%3D%22" + redColor + "%22%20d%3D%22M30%2024.398l-8.406-8.398%208.406-8.398-5.602-5.602-8.398%208.402-8.402-8.402-5.598%205.602%208.398%208.398-8.398%208.398%205.598%205.602%208.402-8.402%208.398%208.402z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E";
@@ -260,7 +259,7 @@ System.register(["./espalier-config", "tippy.js", "aurelia-framework", "aurelia-
                         this.config.pageParameterName + "=" + this.page,
                         this.config.pageSizeParameterName + "=" + this.pageSize,
                         this.config.sortOnParameterName + "=" + this.getSortPropertyName(this.sortColumn),
-                        this.config.sortOrderParameterName + "=" + (this.sortColumn.sortOrder === enums_1.SortOrder.Descending ? this.config.descConst : this.config.ascConst)
+                        this.config.sortOrderParameterName + "=" + (this.sortColumn.sortOrder == enums_1.SortOrder.Descending ? this.config.descConst : this.config.ascConst)
                     ];
                     if (this.filterIsNotEmpty()) {
                         queryParts.push(this.filter);
@@ -344,9 +343,6 @@ System.register(["./espalier-config", "tippy.js", "aurelia-framework", "aurelia-
                 __decorate([
                     aurelia_framework_1.bindable()
                 ], EspalierCustomElement.prototype, "settings", void 0);
-                __decorate([
-                    aurelia_framework_1.bindable()
-                ], EspalierCustomElement.prototype, "buttonColor", void 0);
                 EspalierCustomElement = __decorate([
                     aurelia_framework_1.customElement("espalier"),
                     aurelia_dependency_injection_1.inject(aurelia_fetch_client_1.HttpClient, aurelia_framework_1.TaskQueue, espalier_config_1.EspalierConfig)

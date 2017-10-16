@@ -18,6 +18,7 @@
     "radix": false,
     "space-before-function-paren": false,
     "no-bitwise": false,
-    "object-literal-shorthand": false
+    "object-literal-shorthand": false,
+    "triple-equals": false
   }
 }

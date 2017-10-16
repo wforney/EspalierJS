@@ -42,6 +42,10 @@ System.register([], function (exports_1, context_1) {
                      * The constant value indicating an ascending sort order.
                      */
                     this.ascConst = "asc";
+                    /**
+                     * The color to use for the sort and filter icons.
+                     */
+                    this.buttonColor = "rgb(100,100,100)";
                 }
                 /**
                  * Parse a response into an IEspalierPage. The default expects your

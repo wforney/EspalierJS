@@ -38,6 +38,10 @@ define(["require", "exports"], function (require, exports) {
              * The constant value indicating an ascending sort order.
              */
             this.ascConst = "asc";
+            /**
+             * The color to use for the sort and filter icons.
+             */
+            this.buttonColor = "rgb(100,100,100)";
         }
         /**
          * Parse a response into an IEspalierPage. The default expects your

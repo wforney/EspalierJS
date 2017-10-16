@@ -227,7 +227,7 @@ export class EspalierCustomElement<TRow> {
     }
 
     for (const column of this.settings.columns) {
-      if (column.sortOrder !== SortOrder.NotSpecified) {
+      if (column.sortOrder) {
         this.sortColumn = column;
       }
     }
@@ -243,6 +243,10 @@ export class EspalierCustomElement<TRow> {
     this.pageSize = this.pageSize ? this.pageSize : this.config.defaultPageSize;
 
     this.taskQueue.queueMicroTask(() => {
+      if (this.settings.filter) {
+        return this.settings.filter.reset();
+      }
+
       return this.fetch();
     });
   }
@@ -324,7 +328,7 @@ export class EspalierCustomElement<TRow> {
       `${this.config.pageParameterName}=${this.page}`,
       `${this.config.pageSizeParameterName}=${this.pageSize}`,
       `${this.config.sortOnParameterName}=${this.getSortPropertyName(this.sortColumn)}`,
-      `${this.config.sortOrderParameterName}=${(this.sortColumn.sortOrder === SortOrder.Descending ? this.config.descConst : this.config.ascConst)}`
+      `${this.config.sortOrderParameterName}=${(this.sortColumn.sortOrder == SortOrder.Descending ? this.config.descConst : this.config.ascConst)}`
     ];
 
     if (this.filterIsNotEmpty()) {

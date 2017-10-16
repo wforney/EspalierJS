@@ -6,7 +6,7 @@
       <thead ref="tableHeader">
         <tr if.bind="friendlyFilterDescription">
           <th colspan="${settings.columns.length}">
-            <section class="friendly-filter-description">${friendlyFilterDescription}</section>
+            <section class="friendly-filter-description" innerhtml.bind="friendlyFilterDescription"></section>
           </th>
           <th class="close-filter-button" title="Clear filter">
             <a click.delegate="clearFilter()" href="javascript: void(0)">
@@ -28,7 +28,7 @@
             </a>
           </th>
           <th if.bind="settings.filter && filterShowing" class="close-filter-button" title="Close filter">
-            <a click.delegate="cancelFilter()" href="javascript: void(0)">
+            <a click.delegate="closeFilter()" href="javascript: void(0)">
                 <i></i>
             </a>
           </th>

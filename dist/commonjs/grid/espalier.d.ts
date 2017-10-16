@@ -39,10 +39,6 @@ export declare class EspalierCustomElement<TRow> {
      * The settings for this Espalier instance.
      */
     settings: IEspalierSettings<TRow>;
-    /**
-     * The color to use for the sort and filter icons.
-     */
-    buttonColor: string;
     protected recordCount: number;
     protected filter: string;
     protected loading: boolean;
