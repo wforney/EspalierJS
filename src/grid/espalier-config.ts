@@ -1,6 +1,58 @@
 import { EspalierCustomElement } from "./espalier";
 import { IEspalierPage } from "./espalier-page";
 
+const viewMap = new Map<string, string>();
+
+viewMap.set("default",
+  `<template>
+  <div class="\${className}">
+    <a if.bind="onClick" href="javascript: void(0);" click.delegate="onClick()">
+      \${data}
+    </a>
+    <span if.bind="!onClick">
+      \${data}
+    </span>
+  </div>
+</template>`);
+
+viewMap.set("date",
+  `<template>
+  <div class="\${className}">
+    <a if.bind="onClick" href="javascript: void(0);" click.delegate="onClick()">
+      \${data.date}
+    </a>
+    <span if.bind="!onClick">
+      \${data.date}
+    </span>
+  </div>
+</template>`);
+
+viewMap.set("time",
+  `<template>
+  <div class="\${className}">
+    <a if.bind="onClick" href="javascript: void(0);" click.delegate="onClick()">
+      \${data.time}
+    </a>
+    <span if.bind="!onClick">
+      \${data.time}
+    </span>
+  </div>
+</template>`);
+
+viewMap.set("date-time",
+  `<template>
+  <div class="\${className}">
+    <a if.bind="onClick" href="javascript: void(0);" click.delegate="onClick()">
+      \${data.date}<br />
+      \${data.time}
+    </a>
+    <span if.bind="!onClick">
+      \${data.date}<br />
+      \${data.time}
+    </span>
+  </div>
+</template>`);
+
 /**
  * Global configuration options for Espalier with sensible defaults.
  */
@@ -48,6 +100,10 @@ export class EspalierConfig {
    * The color to use for the sort and filter icons.
    */
   public buttonColor: string = "rgb(100,100,100)";
+
+  public get cellViews(): Map<string, string> {
+    return viewMap;
+  }
 
   /**
    * Parse a response into an IEspalierPage. The default expects your

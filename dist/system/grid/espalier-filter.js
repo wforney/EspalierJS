@@ -34,8 +34,21 @@ System.register(["clone"], function (exports_1, context_1) {
                  * closes the filter.
                  */
                 EspalierFilter.prototype.applyFilter = function () {
+                    var _this = this;
                     this.lastAppliedState = clone(this.model);
-                    return this.espalier.applyFilter(this.filterAsQueryString, this.friendlyFilterDescription);
+                    var appliedFilters = this.appliedFilters;
+                    var _loop_1 = function (appliedFilter) {
+                        var definedRemove = appliedFilter.remove;
+                        appliedFilter.remove = function () {
+                            definedRemove();
+                            return _this.applyFilter();
+                        };
+                    };
+                    for (var _i = 0, appliedFilters_1 = appliedFilters; _i < appliedFilters_1.length; _i++) {
+                        var appliedFilter = appliedFilters_1[_i];
+                        _loop_1(appliedFilter);
+                    }
+                    return this.espalier.applyFilter(this.filterAsQueryString, appliedFilters);
                 };
                 /**
                  * Bind your action for canceling the filter to this method. It resets

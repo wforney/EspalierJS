@@ -6,11 +6,13 @@ import { IColumnDefinition } from "./column-definition";
 import { HttpClient } from "aurelia-fetch-client";
 import { IEspalierSettings } from "./espalier-settings";
 import { PageInfo } from "./page-info";
-import { SortOrder } from "./enums";
-import { TableButton } from "./table-button";
+import { SortOrder, ColumnType } from "./enums";
+import { ITableButton } from "./table-button";
 export { PageInfo } from "./page-info";
 import { ToArray } from "./helpers";
 import { IEspalierPage } from "./espalier-page";
+import { CurrencyFormatter, DateFormatter, IntegerFormatter, NumberFormatter, TextFormatter } from "./formatters/formatters";
+import { IFilterToken } from "./espalier-filter";
 
 const buttonStyleElementName = "espalier-button-styles";
 
@@ -67,7 +69,7 @@ export class EspalierCustomElement<TRow> {
   protected tableHeader: HTMLTableHeaderCellElement;
   protected filterShowing = false;
   protected tableBody: HTMLElement;
-  protected friendlyFilterDescription: string;
+  protected appliedFilters: IFilterToken[] = [];
 
   /**
    * Create a new instance of Espalier.
@@ -90,9 +92,9 @@ export class EspalierCustomElement<TRow> {
    * Fetches records that match the filter, goes to the first page, and loads the first page into the grid.
    * @param filter A build-out query string to be appenended to any sorting and paging query parameters.
    */
-  public applyFilter(filter: string, friendlyDescription: string): Promise<any> {
+  public applyFilter(filter: string, appliedFilters: IFilterToken[]): Promise<any> {
     this.filter = filter;
-    this.friendlyFilterDescription = friendlyDescription;
+    this.appliedFilters = appliedFilters ? appliedFilters : [];
     this.page = 1;
     return this.fetch();
   }
@@ -168,7 +170,7 @@ export class EspalierCustomElement<TRow> {
    * Used to figure out which buttons to show.
    * @param record Calculate which buttons should be available for the given record.
    */
-  protected getButtons(record: TRow): TableButton[] {
+  protected getButtons(record: TRow): ITableButton<TRow>[] {
     return this.settings.getButtons ? this.settings.getButtons(record) : [];
   }
 
@@ -177,7 +179,7 @@ export class EspalierCustomElement<TRow> {
    * @param button The TableButton that was clicked.
    * @param record The record associated with the row the button is in.
    */
-  protected buttonClicked(button: TableButton, record: TRow) {
+  protected buttonClicked(button: ITableButton<TRow>, record: TRow) {
     button.onClick(record);
   }
 
@@ -242,6 +244,47 @@ export class EspalierCustomElement<TRow> {
 
     this.pageSize = this.pageSize ? this.pageSize : this.config.defaultPageSize;
 
+    for (const column of this.settings.columns) {
+      if (!column.templateName) {
+        switch (column.type) {
+          case ColumnType.Date:
+            column.templateName = "date";
+            break;
+          case ColumnType.DateTime:
+            column.templateName = "date-time";
+            break;
+          case ColumnType.Time:
+            column.templateName = "time";
+            break;
+          default:
+            column.templateName = "default";
+            break;
+        }
+      }
+
+      if (!column.dataFormatter) {
+        switch (column.type) {
+          case ColumnType.Date:
+          case ColumnType.DateTime:
+          case ColumnType.Time:
+            column.dataFormatter = new DateFormatter();
+            break;
+          case ColumnType.Currency:
+            column.dataFormatter = new CurrencyFormatter();
+            break;
+          case ColumnType.Number:
+            column.dataFormatter = new NumberFormatter();
+            break;
+          case ColumnType.Integer:
+            column.dataFormatter = new IntegerFormatter();
+            break;
+          default:
+            column.dataFormatter = new TextFormatter();
+            break;
+        }
+      }
+    }
+
     this.taskQueue.queueMicroTask(() => {
       if (this.settings.filter) {
         return this.settings.filter.reset();
@@ -284,16 +327,27 @@ export class EspalierCustomElement<TRow> {
    */
   private addButtonStyles() {
     const encodedColor = encodeURIComponent(this.config.buttonColor);
-    const redColor = encodeURIComponent("rgb(217,83,79)");
+    const red = encodeURIComponent("rgb(217,83,79)");
+    const white = encodeURIComponent("rgb(255,255,255)");
     const filter = `%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2222%22%20height%3D%2228%22%20viewBox%3D%220%200%2022%2028%22%3E%0A%3Ctitle%3Efilter%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22${encodedColor}%22%20fill%3D%22${encodedColor}%22%20d%3D%22M21.922%204.609c0.156%200.375%200.078%200.812-0.219%201.094l-7.703%207.703v11.594c0%200.406-0.25%200.766-0.609%200.922-0.125%200.047-0.266%200.078-0.391%200.078-0.266%200-0.516-0.094-0.703-0.297l-4-4c-0.187-0.187-0.297-0.438-0.297-0.703v-7.594l-7.703-7.703c-0.297-0.281-0.375-0.719-0.219-1.094%200.156-0.359%200.516-0.609%200.922-0.609h20c0.406%200%200.766%200.25%200.922%200.609z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E`;
-    const close = `%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Ctitle%3Ex%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22${redColor}%22%20fill%3D%22${redColor}%22%20d%3D%22M30%2024.398l-8.406-8.398%208.406-8.398-5.602-5.602-8.398%208.402-8.402-8.402-5.598%205.602%208.398%208.398-8.398%208.398%205.598%205.602%208.402-8.402%208.398%208.402z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E`;
+    const close = `%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Ctitle%3Ex%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22${red}%22%20fill%3D%22${red}%22%20d%3D%22M30%2024.398l-8.406-8.398%208.406-8.398-5.602-5.602-8.398%208.402-8.402-8.402-5.598%205.602%208.398%208.398-8.398%208.398%205.598%205.602%208.402-8.402%208.398%208.402z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E`;
     const rightCaret = `%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%229%22%20height%3D%2228%22%20viewBox%3D%220%200%209%2028%22%3E%0A%3Ctitle%3Ecaret-right%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22${encodedColor}%22%20fill%3D%22${encodedColor}%22%20d%3D%22M9%2014c0%200.266-0.109%200.516-0.297%200.703l-7%207c-0.187%200.187-0.438%200.297-0.703%200.297-0.547%200-1-0.453-1-1v-14c0-0.547%200.453-1%201-1%200.266%200%200.516%200.109%200.703%200.297l7%207c0.187%200.187%200.297%200.438%200.297%200.703z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E`;
     const upCaret = `%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2228%22%20viewBox%3D%220%200%2016%2028%22%3E%0A%3Ctitle%3Ecaret-up%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22${encodedColor}%22%20fill%3D%22${encodedColor}%22%20d%3D%22M16%2019c0%200.547-0.453%201-1%201h-14c-0.547%200-1-0.453-1-1%200-0.266%200.109-0.516%200.297-0.703l7-7c0.187-0.187%200.438-0.297%200.703-0.297s0.516%200.109%200.703%200.297l7%207c0.187%200.187%200.297%200.438%200.297%200.703z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E`;
     const downCaret = `%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2228%22%20viewBox%3D%220%200%2016%2028%22%3E%0A%3Ctitle%3Ecaret-down%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22${encodedColor}%22%20fill%3D%22${encodedColor}%22%20d%3D%22M16%2011c0%200.266-0.109%200.516-0.297%200.703l-7%207c-0.187%200.187-0.438%200.297-0.703%200.297s-0.516-0.109-0.703-0.297l-7-7c-0.187-0.187-0.297-0.438-0.297-0.703%200-0.547%200.453-1%201-1h14c0.547%200%201%200.453%201%201z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E`;
+    const expandCaret = `%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2228%22%20viewBox%3D%220%200%2016%2028%22%3E%0A%3Ctitle%3Ecaret-down%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22${white}%22%20fill%3D%22${white}%22%20d%3D%22M16%2011c0%200.266-0.109%200.516-0.297%200.703l-7%207c-0.187%200.187-0.438%200.297-0.703%200.297s-0.516-0.109-0.703-0.297l-7-7c-0.187-0.187-0.297-0.438-0.297-0.703%200-0.547%200.453-1%201-1h14c0.547%200%201%200.453%201%201z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E`;
+    const closeButton = `%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Ctitle%3Ex%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22${white}%22%20fill%3D%22${white}%22%20d%3D%22M30%2024.398l-8.406-8.398%208.406-8.398-5.602-5.602-8.398%208.402-8.402-8.402-5.598%205.602%208.398%208.398-8.398%208.398%205.598%205.602%208.402-8.402%208.398%208.402z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E`;
     const css = document.createElement("style");
     css.type = "text/css";
     css.id = buttonStyleElementName;
     css.innerHTML = `
+      div.espalier-table button.expand-caret {
+        background-image: url('data:image/svg+xml,${expandCaret}');
+      }
+
+      div.espalier-table a.close-button, div.espalier-table button.close-button {
+        background-image: url('data:image/svg+xml,${closeButton}');
+      }
+
       th.sortable > div > span::after {
         background-image: url('data:image/svg+xml,${rightCaret}');
       }
@@ -388,16 +442,6 @@ export class EspalierCustomElement<TRow> {
         }
 
         this.taskQueue.queueMicroTask(() => {
-          const buttons = ToArray(this.tableBody.querySelectorAll("button"));
-
-          for (const button of buttons) {
-            tippy(button, {
-              position: "left",
-              arrow: true,
-              size: "big"
-            });
-          }
-
           const columnHeads = ToArray(this.tableHeader.querySelectorAll("th"));
 
           for (const columnHead of columnHeads) {

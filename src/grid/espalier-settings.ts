@@ -1,4 +1,4 @@
-﻿import { TableButton } from "./table-button";
+﻿import { ITableButton } from "./table-button";
 import { IColumnDefinition } from "./column-definition";
 import { EspalierFilter } from "./espalier-filter";
 
@@ -8,6 +8,6 @@ import { EspalierFilter } from "./espalier-filter";
 export interface IEspalierSettings<TRow> {
   columns: Array<IColumnDefinition<TRow>>;
   filter?: EspalierFilter;
-  getButtons?: (rowData: TRow) => TableButton[];
+  getButtons?: (rowData: TRow) => ITableButton<TRow>[];
   postFetch?: (records: TRow[]) => TRow[];
 }

@@ -1,17 +1,19 @@
 <template>
+  <require from="./espalier-cell"></require>
+  <require from="./buttons-cell"></require>
   <require from="./espalier.css"></require>
   <require from="./tippy.css"></require>
   <div ref="tableContainer" class="espalier-table">
     <table class="table table-striped">
       <thead ref="tableHeader">
-        <tr if.bind="friendlyFilterDescription">
-          <th colspan="${settings.columns.length}">
-            <section class="friendly-filter-description" innerhtml.bind="friendlyFilterDescription"></section>
-          </th>
-          <th class="close-filter-button" title="Clear filter">
-            <a click.delegate="clearFilter()" href="javascript: void(0)">
-                <i></i>
-            </a>
+        <tr if.bind="appliedFilters.length">
+          <th colspan="${settings.columns.length + 1}">
+            <section class="applied-filters">
+              <div repeat.for="filter of appliedFilters" class="alert alert-info" role="alert">
+                <span innerhtml.one-time="filter.description"></span>
+                <button class="btn btn-danger close-button" click.delegate="filter.remove()"></button>
+              </div>
+            </section>
           </th>
         </tr>
         <tr>
@@ -24,12 +26,12 @@
           </th>
           <th if.bind="settings.filter && !filterShowing" class="filter-button" title="Open filter">
             <a click.delegate="openFilter()" href="javascript: void(0)">
-                <i></i>
+              <i></i>
             </a>
           </th>
           <th if.bind="settings.filter && filterShowing" class="close-filter-button" title="Close filter">
             <a click.delegate="closeFilter()" href="javascript: void(0)">
-                <i></i>
+              <i></i>
             </a>
           </th>
         </tr>
@@ -40,18 +42,12 @@
             Loading...
           </td>
         </tr>
-        <tr if.bind="!loading" repeat.for="record of records">
-          <td colspan="${(!hasButtons && $index == (settings.columns.length - 1)) ? 2 : 1}" repeat.for="column of settings.columns & oneTime">
-            <span id="row${$parent.$index}col${$index}" if.bind="column.type !== 3 && !column.onClick" innerhtml.bind="record[column.propertyName]"></span>
-            <span id="row${$parent.$index}col${$index}" if.bind="column.type === 3" innerhtml.bind="record[column.propertyName] | dateFormat"></span>
-            <a click.delegate="column.onClick(record)" if.bind="column.onClick && !!record[column.propertyName]" href="javascript: void(0);"
-              innerhtml.bind="record[column.propertyName]"></a>
+        <tr id="row-${(record.Id ? record.Id : record.id ? record.id : $index)}" if.bind="!loading" repeat.for="record of records">
+          <td colspan="${(!settings.getButtons && $index == (settings.columns.length - 1)) ? 2 : 1}" repeat.for="column of settings.columns & oneTime">
+            <espalier-cell column.bind="column" record.bind="record"></espalier-cell>
           </td>
-          <td if.bind="hasButtons" class="buttons-cell">
-            <!-- TODO: If there is more than one button, show a drop down button and expand with the available options. -->
-            <button repeat.for="button of getButtons(record)" class="${button.buttonClass}" title="${button.title}" click.delegate="buttonClicked(button, record)">
-                <i class="${button.iconClass}"></i>
-            </button>
+          <td if.bind="settings.getButtons" class="buttons-cell">
+            <buttons-cell buttons.one-time="settings.getButtons(record)" record.bind="record"></buttons-cell>
           </td>
         </tr>
       </tbody>
@@ -62,8 +58,8 @@
               <ul class="pagination">
                 <li repeat.for="page of pages" class="page-item ${page.disabled ? 'disabled' : ''} ${page.active ? 'active' : ''}">
                   <a class="page-link" click.delegate="goto(page.page)" href="javascript: void(0);">
-                        <span aria-hidden="true" innerhtml.bind="page.text"></span>
-                    </a>
+                    <span aria-hidden="true" innerhtml.bind="page.text"></span>
+                  </a>
                 </li>
               </ul>
             </nav>

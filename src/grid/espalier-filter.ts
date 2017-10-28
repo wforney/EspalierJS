@@ -1,6 +1,11 @@
 import { EspalierCustomElement } from "./espalier";
 import * as clone from "clone";
 
+export interface IFilterToken {
+  description: string;
+  remove: () => void;
+}
+
 /**
  * EspalierFilter is an abstract class that should be implemented
  * by a custom control that represents the filter for your grid.
@@ -18,11 +23,10 @@ export abstract class EspalierFilter {
   protected abstract get filterAsQueryString(): string;
 
   /**
-   * Return a friendly description of which filters are currently applied.
-   * This will be displayed at the top of the grid with a button to reset
-   * the filter to the default.
+   * Return an array of the currently applied filters with a description
+   * of what the filter is and a method of removing the filter.
    */
-  protected abstract get friendlyFilterDescription(): string;
+  protected abstract get appliedFilters(): IFilterToken[];
 
   /**
    * Reset the filter to the default state and apply it to the grid.
@@ -49,7 +53,18 @@ export abstract class EspalierFilter {
    */
   protected applyFilter(): Promise<any> {
     this.lastAppliedState = clone(this.model);
-    return this.espalier.applyFilter(this.filterAsQueryString, this.friendlyFilterDescription);
+    const appliedFilters = this.appliedFilters;
+
+    for (const appliedFilter of appliedFilters) {
+      const definedRemove = appliedFilter.remove;
+
+      appliedFilter.remove = () => {
+        definedRemove();
+        return this.applyFilter();
+      };
+    }
+
+    return this.espalier.applyFilter(this.filterAsQueryString, appliedFilters);
   }
 
   /**

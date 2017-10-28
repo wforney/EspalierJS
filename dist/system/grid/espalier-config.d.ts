@@ -40,6 +40,7 @@ export declare class EspalierConfig {
      * The color to use for the sort and filter icons.
      */
     buttonColor: string;
+    readonly cellViews: Map<string, string>;
     /**
      * Parse a response into an IEspalierPage. The default expects your
      * response to contain JSON in the following format:

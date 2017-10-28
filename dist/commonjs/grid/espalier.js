@@ -16,6 +16,7 @@ var enums_1 = require("./enums");
 var page_info_2 = require("./page-info");
 exports.PageInfo = page_info_2.PageInfo;
 var helpers_1 = require("./helpers");
+var formatters_1 = require("./formatters/formatters");
 var buttonStyleElementName = "espalier-button-styles";
 /**
  * Espalier is a custom element build for the Aurelia framework that
@@ -40,6 +41,7 @@ var EspalierCustomElement = /** @class */ (function () {
         this.loading = true;
         this.pages = [];
         this.filterShowing = false;
+        this.appliedFilters = [];
     }
     /**
      * The Aurelia attached lifecycle event.
@@ -53,9 +55,9 @@ var EspalierCustomElement = /** @class */ (function () {
      * Fetches records that match the filter, goes to the first page, and loads the first page into the grid.
      * @param filter A build-out query string to be appenended to any sorting and paging query parameters.
      */
-    EspalierCustomElement.prototype.applyFilter = function (filter, friendlyDescription) {
+    EspalierCustomElement.prototype.applyFilter = function (filter, appliedFilters) {
         this.filter = filter;
-        this.friendlyFilterDescription = friendlyDescription;
+        this.appliedFilters = appliedFilters ? appliedFilters : [];
         this.page = 1;
         return this.fetch();
     };
@@ -184,6 +186,46 @@ var EspalierCustomElement = /** @class */ (function () {
             this.settings.filter["espalier"] = this;
         }
         this.pageSize = this.pageSize ? this.pageSize : this.config.defaultPageSize;
+        for (var _b = 0, _c = this.settings.columns; _b < _c.length; _b++) {
+            var column = _c[_b];
+            if (!column.templateName) {
+                switch (column.type) {
+                    case enums_1.ColumnType.Date:
+                        column.templateName = "date";
+                        break;
+                    case enums_1.ColumnType.DateTime:
+                        column.templateName = "date-time";
+                        break;
+                    case enums_1.ColumnType.Time:
+                        column.templateName = "time";
+                        break;
+                    default:
+                        column.templateName = "default";
+                        break;
+                }
+            }
+            if (!column.dataFormatter) {
+                switch (column.type) {
+                    case enums_1.ColumnType.Date:
+                    case enums_1.ColumnType.DateTime:
+                    case enums_1.ColumnType.Time:
+                        column.dataFormatter = new formatters_1.DateFormatter();
+                        break;
+                    case enums_1.ColumnType.Currency:
+                        column.dataFormatter = new formatters_1.CurrencyFormatter();
+                        break;
+                    case enums_1.ColumnType.Number:
+                        column.dataFormatter = new formatters_1.NumberFormatter();
+                        break;
+                    case enums_1.ColumnType.Integer:
+                        column.dataFormatter = new formatters_1.IntegerFormatter();
+                        break;
+                    default:
+                        column.dataFormatter = new formatters_1.TextFormatter();
+                        break;
+                }
+            }
+        }
         this.taskQueue.queueMicroTask(function () {
             if (_this.settings.filter) {
                 return _this.settings.filter.reset();
@@ -219,16 +261,19 @@ var EspalierCustomElement = /** @class */ (function () {
      */
     EspalierCustomElement.prototype.addButtonStyles = function () {
         var encodedColor = encodeURIComponent(this.config.buttonColor);
-        var redColor = encodeURIComponent("rgb(217,83,79)");
+        var red = encodeURIComponent("rgb(217,83,79)");
+        var white = encodeURIComponent("rgb(255,255,255)");
         var filter = "%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2222%22%20height%3D%2228%22%20viewBox%3D%220%200%2022%2028%22%3E%0A%3Ctitle%3Efilter%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22" + encodedColor + "%22%20fill%3D%22" + encodedColor + "%22%20d%3D%22M21.922%204.609c0.156%200.375%200.078%200.812-0.219%201.094l-7.703%207.703v11.594c0%200.406-0.25%200.766-0.609%200.922-0.125%200.047-0.266%200.078-0.391%200.078-0.266%200-0.516-0.094-0.703-0.297l-4-4c-0.187-0.187-0.297-0.438-0.297-0.703v-7.594l-7.703-7.703c-0.297-0.281-0.375-0.719-0.219-1.094%200.156-0.359%200.516-0.609%200.922-0.609h20c0.406%200%200.766%200.25%200.922%200.609z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E";
-        var close = "%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Ctitle%3Ex%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22" + redColor + "%22%20fill%3D%22" + redColor + "%22%20d%3D%22M30%2024.398l-8.406-8.398%208.406-8.398-5.602-5.602-8.398%208.402-8.402-8.402-5.598%205.602%208.398%208.398-8.398%208.398%205.598%205.602%208.402-8.402%208.398%208.402z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E";
+        var close = "%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Ctitle%3Ex%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22" + red + "%22%20fill%3D%22" + red + "%22%20d%3D%22M30%2024.398l-8.406-8.398%208.406-8.398-5.602-5.602-8.398%208.402-8.402-8.402-5.598%205.602%208.398%208.398-8.398%208.398%205.598%205.602%208.402-8.402%208.398%208.402z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E";
         var rightCaret = "%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%229%22%20height%3D%2228%22%20viewBox%3D%220%200%209%2028%22%3E%0A%3Ctitle%3Ecaret-right%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22" + encodedColor + "%22%20fill%3D%22" + encodedColor + "%22%20d%3D%22M9%2014c0%200.266-0.109%200.516-0.297%200.703l-7%207c-0.187%200.187-0.438%200.297-0.703%200.297-0.547%200-1-0.453-1-1v-14c0-0.547%200.453-1%201-1%200.266%200%200.516%200.109%200.703%200.297l7%207c0.187%200.187%200.297%200.438%200.297%200.703z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E";
         var upCaret = "%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2228%22%20viewBox%3D%220%200%2016%2028%22%3E%0A%3Ctitle%3Ecaret-up%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22" + encodedColor + "%22%20fill%3D%22" + encodedColor + "%22%20d%3D%22M16%2019c0%200.547-0.453%201-1%201h-14c-0.547%200-1-0.453-1-1%200-0.266%200.109-0.516%200.297-0.703l7-7c0.187-0.187%200.438-0.297%200.703-0.297s0.516%200.109%200.703%200.297l7%207c0.187%200.187%200.297%200.438%200.297%200.703z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E";
         var downCaret = "%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2228%22%20viewBox%3D%220%200%2016%2028%22%3E%0A%3Ctitle%3Ecaret-down%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22" + encodedColor + "%22%20fill%3D%22" + encodedColor + "%22%20d%3D%22M16%2011c0%200.266-0.109%200.516-0.297%200.703l-7%207c-0.187%200.187-0.438%200.297-0.703%200.297s-0.516-0.109-0.703-0.297l-7-7c-0.187-0.187-0.297-0.438-0.297-0.703%200-0.547%200.453-1%201-1h14c0.547%200%201%200.453%201%201z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E";
+        var expandCaret = "%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2228%22%20viewBox%3D%220%200%2016%2028%22%3E%0A%3Ctitle%3Ecaret-down%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22" + white + "%22%20fill%3D%22" + white + "%22%20d%3D%22M16%2011c0%200.266-0.109%200.516-0.297%200.703l-7%207c-0.187%200.187-0.438%200.297-0.703%200.297s-0.516-0.109-0.703-0.297l-7-7c-0.187-0.187-0.297-0.438-0.297-0.703%200-0.547%200.453-1%201-1h14c0.547%200%201%200.453%201%201z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E";
+        var closeButton = "%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%0A%3Ctitle%3Ex%3C%2Ftitle%3E%0A%3Cpath%20stroke%3D%22" + white + "%22%20fill%3D%22" + white + "%22%20d%3D%22M30%2024.398l-8.406-8.398%208.406-8.398-5.602-5.602-8.398%208.402-8.402-8.402-5.598%205.602%208.398%208.398-8.398%208.398%205.598%205.602%208.402-8.402%208.398%208.402z%22%3E%3C%2Fpath%3E%0A%3C%2Fsvg%3E";
         var css = document.createElement("style");
         css.type = "text/css";
         css.id = buttonStyleElementName;
-        css.innerHTML = "\n      th.sortable > div > span::after {\n        background-image: url('data:image/svg+xml," + rightCaret + "');\n      }\n\n      thead th.filter-button a i::after {\n        background-image: url('data:image/svg+xml," + filter + "');\n      }\n\n      thead th.close-filter-button a i::after {\n        background-image: url('data:image/svg+xml," + close + "');\n      }\n\n      th.sortable.sort-asc > div > span::after {\n        background-image: url('data:image/svg+xml," + upCaret + "');\n      }\n\n      th.sortable.sort-desc > div > span::after {\n        background-image: url('data:image/svg+xml," + downCaret + "');\n      }\n    ";
+        css.innerHTML = "\n      div.espalier-table button.expand-caret {\n        background-image: url('data:image/svg+xml," + expandCaret + "');\n      }\n\n      div.espalier-table a.close-button, div.espalier-table button.close-button {\n        background-image: url('data:image/svg+xml," + closeButton + "');\n      }\n\n      th.sortable > div > span::after {\n        background-image: url('data:image/svg+xml," + rightCaret + "');\n      }\n\n      thead th.filter-button a i::after {\n        background-image: url('data:image/svg+xml," + filter + "');\n      }\n\n      thead th.close-filter-button a i::after {\n        background-image: url('data:image/svg+xml," + close + "');\n      }\n\n      th.sortable.sort-asc > div > span::after {\n        background-image: url('data:image/svg+xml," + upCaret + "');\n      }\n\n      th.sortable.sort-desc > div > span::after {\n        background-image: url('data:image/svg+xml," + downCaret + "');\n      }\n    ";
         document.querySelectorAll("head")[0].appendChild(css);
     };
     /**
@@ -288,18 +333,9 @@ var EspalierCustomElement = /** @class */ (function () {
                 _this.closeFilter();
             }
             _this.taskQueue.queueMicroTask(function () {
-                var buttons = helpers_1.ToArray(_this.tableBody.querySelectorAll("button"));
-                for (var _i = 0, buttons_1 = buttons; _i < buttons_1.length; _i++) {
-                    var button = buttons_1[_i];
-                    tippy(button, {
-                        position: "left",
-                        arrow: true,
-                        size: "big"
-                    });
-                }
                 var columnHeads = helpers_1.ToArray(_this.tableHeader.querySelectorAll("th"));
-                for (var _a = 0, columnHeads_1 = columnHeads; _a < columnHeads_1.length; _a++) {
-                    var columnHead = columnHeads_1[_a];
+                for (var _i = 0, columnHeads_1 = columnHeads; _i < columnHeads_1.length; _i++) {
+                    var columnHead = columnHeads_1[_i];
                     if (!columnHead.title) {
                         continue;
                     }

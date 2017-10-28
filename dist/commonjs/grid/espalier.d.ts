@@ -4,8 +4,9 @@ import { IColumnDefinition } from "./column-definition";
 import { HttpClient } from "aurelia-fetch-client";
 import { IEspalierSettings } from "./espalier-settings";
 import { PageInfo } from "./page-info";
-import { TableButton } from "./table-button";
+import { ITableButton } from "./table-button";
 export { PageInfo } from "./page-info";
+import { IFilterToken } from "./espalier-filter";
 /**
  * Espalier is a custom element build for the Aurelia framework that
  * makes it simple to work with server-side page-able, sort-able
@@ -50,7 +51,7 @@ export declare class EspalierCustomElement<TRow> {
     protected tableHeader: HTMLTableHeaderCellElement;
     protected filterShowing: boolean;
     protected tableBody: HTMLElement;
-    protected friendlyFilterDescription: string;
+    protected appliedFilters: IFilterToken[];
     /**
      * Create a new instance of Espalier.
      * @param http The Aurelia Fetch Client HttpClient to use.
@@ -66,7 +67,7 @@ export declare class EspalierCustomElement<TRow> {
      * Fetches records that match the filter, goes to the first page, and loads the first page into the grid.
      * @param filter A build-out query string to be appenended to any sorting and paging query parameters.
      */
-    applyFilter(filter: string, friendlyDescription: string): Promise<any>;
+    applyFilter(filter: string, appliedFilters: IFilterToken[]): Promise<any>;
     /**
      * Reset the filter back to the default specified for this Espalier
      * instance.
@@ -90,13 +91,13 @@ export declare class EspalierCustomElement<TRow> {
      * Used to figure out which buttons to show.
      * @param record Calculate which buttons should be available for the given record.
      */
-    protected getButtons(record: TRow): TableButton[];
+    protected getButtons(record: TRow): ITableButton<TRow>[];
     /**
      * Handles the button click event of a table button in a row.
      * @param button The TableButton that was clicked.
      * @param record The record associated with the row the button is in.
      */
-    protected buttonClicked(button: TableButton, record: TRow): void;
+    protected buttonClicked(button: ITableButton<TRow>, record: TRow): void;
     /**
      * Open the filter if this instance has one.
      */

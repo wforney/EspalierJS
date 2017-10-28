@@ -1,3 +1,7 @@
+export interface IFilterToken {
+    description: string;
+    remove: () => void;
+}
 /**
  * EspalierFilter is an abstract class that should be implemented
  * by a custom control that represents the filter for your grid.
@@ -13,11 +17,10 @@ export declare abstract class EspalierFilter {
      */
     protected readonly abstract filterAsQueryString: string;
     /**
-     * Return a friendly description of which filters are currently applied.
-     * This will be displayed at the top of the grid with a button to reset
-     * the filter to the default.
+     * Return an array of the currently applied filters with a description
+     * of what the filter is and a method of removing the filter.
      */
-    protected readonly abstract friendlyFilterDescription: string;
+    protected readonly abstract appliedFilters: IFilterToken[];
     /**
      * Reset the filter to the default state and apply it to the grid.
      */

@@ -1,4 +1,5 @@
-﻿import { ColumnType, SortOrder } from "./enums";
+﻿import { IEspalierDataFormatter } from "./espalier-data-formatter";
+import { ColumnType, SortOrder } from "./enums";
 
 // TODO: Make this one better.
 export interface IColumnDefinition<TRow> {
@@ -53,4 +54,18 @@ export interface IColumnDefinition<TRow> {
    * to true.
    */
   disableSort?: boolean;
+
+  /**
+   * The name of the template to use to display the data in
+   * this column. This will be chosen based on the column type
+   * if none is specified. You can configure a custom template
+   * in the config, and use that here if desired.
+   */
+  templateName?: string;
+
+  /**
+   * The data formatter to use. This will be chosen based on the
+   * column type if none is specified.
+   */
+  dataFormatter?: IEspalierDataFormatter;
 }

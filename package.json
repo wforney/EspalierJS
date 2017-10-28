@@ -1,6 +1,6 @@
 {
   "name": "espalier-js",
-  "version": "1.0.11",
+  "version": "1.1.1",
   "description": "An easy-to-use grid component for Aurelia.",
   "keywords": [
     "aurelia",
@@ -43,7 +43,7 @@
     "postbuild:system": "cross-env copyfiles --up 1 src/**/*.html src/**/*.css dist/system",
     "prebuild": "cross-env rimraf dist",
     "build": "concurrently \"npm run build:amd\" \"npm run build:commonjs\" \"npm run build:es2015\" \"npm run build:native-modules\" \"npm run build:system\"",
-    "predoc": "cross-env rimraf docs && rimraf ../espalier-js-docs/RTFM",
+    "predoc": "cross-env rimraf docs && rimraf ../espalier-js-docs/RTFM && rimraf node_modules/@types/handlebars",
     "doc": "cross-env typedoc --out docs src/index.ts --excludeExternals --mode modules --target ES6 --name espalier-js-docs",
     "postdoc": "cross-env copyfiles --up 1 docs/**/*.* ../espalier-js-docs/RTFM && rimraf docs",
     "changelog": "cross-env conventional-changelog -p ux -i doc/CHANGELOG.md -s",
@@ -99,7 +99,7 @@
     "aurelia-fetch-client": "^1.1.3",
     "aurelia-framework": "^1.0.0",
     "clone": "^2.1.1",
-    "moment": "^2.18.1",
+    "moment": "^2.19.1",
     "tippy.js": "^1.3.0"
   },
   "devDependencies": {
@@ -124,6 +124,7 @@
     "requirejs": "^2.3.3",
     "requirejs-text": "^2.0.15",
     "rimraf": "^2.6.1",
+    "touch": "^3.1.0",
     "tslint": "^4.4.2",
     "typedoc": "^0.5.9",
     "typescript": "^2.2.1"

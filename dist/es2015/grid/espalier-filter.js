@@ -22,7 +22,15 @@ export class EspalierFilter {
      */
     applyFilter() {
         this.lastAppliedState = clone(this.model);
-        return this.espalier.applyFilter(this.filterAsQueryString, this.friendlyFilterDescription);
+        const appliedFilters = this.appliedFilters;
+        for (const appliedFilter of appliedFilters) {
+            const definedRemove = appliedFilter.remove;
+            appliedFilter.remove = () => {
+                definedRemove();
+                return this.applyFilter();
+            };
+        }
+        return this.espalier.applyFilter(this.filterAsQueryString, appliedFilters);
     }
     /**
      * Bind your action for canceling the filter to this method. It resets
