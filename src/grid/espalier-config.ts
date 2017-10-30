@@ -6,12 +6,8 @@ const viewMap = new Map<string, string>();
 viewMap.set("default",
   `<template>
   <div class="\${className}">
-    <a if.bind="onClick" href="javascript: void(0);" click.delegate="onClick()">
-      \${data}
-    </a>
-    <span if.bind="!onClick">
-      \${data}
-    </span>
+    <a if.bind="onClick" href="javascript: void(0);" click.delegate="onClick()" innerhtml.bind="data"></a>
+    <span if.bind="!onClick" innerhtml.bind="data"></span>
   </div>
 </template>`);
 

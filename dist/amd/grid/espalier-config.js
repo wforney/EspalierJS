@@ -2,7 +2,7 @@ define(["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var viewMap = new Map();
-    viewMap.set("default", "<template>\n  <div class=\"${className}\">\n    <a if.bind=\"onClick\" href=\"javascript: void(0);\" click.delegate=\"onClick()\">\n      ${data}\n    </a>\n    <span if.bind=\"!onClick\">\n      ${data}\n    </span>\n  </div>\n</template>");
+    viewMap.set("default", "<template>\n  <div class=\"${className}\">\n    <a if.bind=\"onClick\" href=\"javascript: void(0);\" click.delegate=\"onClick()\" innerhtml.bind=\"data\"></a>\n    <span if.bind=\"!onClick\" innerhtml.bind=\"data\"></span>\n  </div>\n</template>");
     viewMap.set("date", "<template>\n  <div class=\"${className}\">\n    <a if.bind=\"onClick\" href=\"javascript: void(0);\" click.delegate=\"onClick()\">\n      ${data.date}\n    </a>\n    <span if.bind=\"!onClick\">\n      ${data.date}\n    </span>\n  </div>\n</template>");
     viewMap.set("time", "<template>\n  <div class=\"${className}\">\n    <a if.bind=\"onClick\" href=\"javascript: void(0);\" click.delegate=\"onClick()\">\n      ${data.time}\n    </a>\n    <span if.bind=\"!onClick\">\n      ${data.time}\n    </span>\n  </div>\n</template>");
     viewMap.set("date-time", "<template>\n  <div class=\"${className}\">\n    <a if.bind=\"onClick\" href=\"javascript: void(0);\" click.delegate=\"onClick()\">\n      ${data.date}<br />\n      ${data.time}\n    </a>\n    <span if.bind=\"!onClick\">\n      ${data.date}<br />\n      ${data.time}\n    </span>\n  </div>\n</template>");
@@ -58,10 +58,8 @@ define(["require", "exports"], function (require, exports) {
         /**
          * Parse a response into an IEspalierPage. The default expects your
          * response to contain JSON in the following format:
-         * {
-         *   TotalRecords: number, // Total number or records matching the current filter.
-         *   Results: any[] // The records in the page.
-         * }
+         *
+         * <pre><code>{\n  TotalRecords: number, // Total number or records matching the current filter.\n  Results: any[] // The records in the page.\n}</code></pre>
          * @param instance The Espalier instance to get a page for.
          * @param response The response from the Aurelia Fetch Client call to your API.
          */

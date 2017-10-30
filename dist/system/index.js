@@ -1,4 +1,4 @@
-System.register(["aurelia-framework", "./grid/enums", "./grid/espalier-filter", "./grid/espalier", "./grid/espalier-config"], function (exports_1, context_1) {
+System.register(["aurelia-framework", "./grid/enums", "./grid/espalier-filter", "./grid/espalier", "./grid/espalier-config", "./grid/espalier-cell", "./grid/buttons-cell"], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     function configure(config) {
@@ -32,6 +32,16 @@ System.register(["aurelia-framework", "./grid/enums", "./grid/espalier-filter", 
             function (espalier_config_1_1) {
                 exports_1({
                     "EspalierConfig": espalier_config_1_1["EspalierConfig"]
+                });
+            },
+            function (espalier_cell_1_1) {
+                exports_1({
+                    "EspalierCell": espalier_cell_1_1["EspalierCell"]
+                });
+            },
+            function (buttons_cell_1_1) {
+                exports_1({
+                    "ButtonsCell": buttons_cell_1_1["ButtonsCell"]
                 });
             }
         ],

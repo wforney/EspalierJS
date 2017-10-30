@@ -44,10 +44,8 @@ export declare class EspalierConfig {
     /**
      * Parse a response into an IEspalierPage. The default expects your
      * response to contain JSON in the following format:
-     * {
-     *   TotalRecords: number, // Total number or records matching the current filter.
-     *   Results: any[] // The records in the page.
-     * }
+     *
+     * <pre><code>{\n  TotalRecords: number, // Total number or records matching the current filter.\n  Results: any[] // The records in the page.\n}</code></pre>
      * @param instance The Espalier instance to get a page for.
      * @param response The response from the Aurelia Fetch Client call to your API.
      */
