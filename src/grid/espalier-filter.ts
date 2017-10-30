@@ -1,8 +1,19 @@
 import { EspalierCustomElement } from "./espalier";
 import * as clone from "clone";
 
+/**
+ * A token representing a filter that has been applied to the grid
+ * with a method of removing that individual piece of the filter.
+ */
 export interface IFilterToken {
+  /**
+   * A description of the filter.
+   */
   description: string;
+  /**
+   * Remove the filter. Espalier will reload the grid after this method 
+   * is called.
+   */
   remove: () => void;
 }
 
@@ -11,8 +22,19 @@ export interface IFilterToken {
  * by a custom control that represents the filter for your grid.
  */
 export abstract class EspalierFilter {
+  /**
+   * The HTML element that contains the user interface for the filter.
+   * Espalier will open this when the filter button is clicked in the
+   * top-right of the grid.
+   */
   public abstract container: HTMLElement;
+
+  /**
+   * The model backing the filter data. EspalierFilter clones the
+   * model to maintain state between events.
+   */
   protected abstract model: any;
+
   private espalier: EspalierCustomElement<any>;
   private lastAppliedState: any;
 
