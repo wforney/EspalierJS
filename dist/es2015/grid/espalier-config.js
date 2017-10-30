@@ -79,6 +79,13 @@ export class EspalierConfig {
          */
         this.buttonColor = "rgb(100,100,100)";
     }
+    /**
+     * Returns the view map. Espalier uses string-keyed cell templates
+     * when rendering cells. It has four built-in template: "default",
+     * "date", "time", and "date-time". You can override those here, or
+     * add your own templates and specify them on a column definition
+     * later.
+     */
     get cellViews() {
         return viewMap;
     }
@@ -86,7 +93,7 @@ export class EspalierConfig {
      * Parse a response into an IEspalierPage. The default expects your
      * response to contain JSON in the following format:
      *
-     * <pre><code>{\n  TotalRecords: number, // Total number or records matching the current filter.\n  Results: any[] // The records in the page.\n}</code></pre>
+     * <pre><code>{<br />  TotalRecords: number, // Total number or records matching the current filter.<br />  Results: any[] // The records in the page.<br />}</code></pre>
      * @param instance The Espalier instance to get a page for.
      * @param response The response from the Aurelia Fetch Client call to your API.
      */

@@ -10,6 +10,7 @@ export { IEspalierPage } from "./grid/espalier-page";
 export { EspalierConfig } from "./grid/espalier-config";
 export { EspalierCell } from "./grid/espalier-cell";
 export { ButtonsCell } from "./grid/buttons-cell";
+export { IEspalierDataFormatter } from "./grid/espalier-data-formatter";
 
 export function configure(config: FrameworkConfiguration) {
   config.globalResources([

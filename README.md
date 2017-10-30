@@ -92,73 +92,28 @@ values is to import ```EspalierConfig``` into your app class, and set the config
 to match your API. Because Aurelia dependency injection treats models such as these as
 a singleton, the values you set in the app class will persist throughout your application. 
 
-## ```EspalierConfig``` global configuration options
-
-### defaultPageSize
-
-Set the default page size that Espalier requests if you do not specifiy it on
-an Espalier instance. The default is 20.
-
-### pageParameterName
-
-The parameter name indicating which page of results Espalier is requesting.
-The default is "Page".
-
-### pageSizeParameterName
-
-The parameter name indicating the page size parameter name. The default is
-"PageSize".
-
-### sortOnParameterName
-
-The parameter name that indicates which column to sort on. The default is "SortOn".
-
-### sortOrderParameterName
-
-The parameter name that indicates the sort order. The default is "SortOrder"
-
-### descConst
-
-Indicates the constant value that will be passed to the sort order parameter when
-the user is requesting to sort in descending order. The default is "desc".
-
-### ascConst
-
-Indicates the constant value that will be passed to the sort order parameter when
-the user is requesting to sort in ascending order. The default is "asc".
-
-### buttonColor
-
-This rgb(x,x,x) color to use for the sorting and filter buttons. Espalier has several 
-SVG icons hard-coded into the script. It writes a CSS header with the button color 
-specified. This defaults to "rgb(100,100,100)".
-
-### getPage
-
-The function that is used to parse a page of results from the response from the
-server. Here you can customize how results from your server are parsed and sent
-back to Espalier. The default is:
-
 ```
-public getPage(instance: EspalierCustomElement<any>, response: Response): Promise<IEspalierPage> {
-  return response.json()
-    .then((data: any) => {
-      const page: IEspalierPage = {
-        totalRecords: data.TotalRecords,
-        records: data.Results,
-        pageCount: Math.ceil(data.TotalRecords / instance.pageSize),
-        currentPage: instance.page
-      };
+import { EspalierConfig } from "espalier-js";
 
-      return page;
-    });
+@autoinject
+export class App {
+  constructor(espalierConfig: EspalierConfig) {
+      espalierConfig.defaultPageSize = 20;
+      espalierConfig.pageParameterName = "filter.page";
+      espalierConfig.pageSizeParameterName = "filter.pageSize";
+      espalierConfig.sortOnParameterName = "filter.sortOn";
+      espalierConfig.sortOrderParameterName = "filter.sortOrder";
+      espalierConfig.buttonColor = "rgb(11,66,104)";
+  }
 }
 ```
+
+View the documentation for [EspalierConfig](http://jeremeevans.github.io/EspalierJS/RTFM/classes/_src_grid_espalier_config_.espalierconfig.html) to see all the available options.
 
 ## Configuring an Espalier instance
 
 Individual instances of Espalier can be configured both through binding on the element in
-HTML, and via the more advanced IEspalierSettings<TRow> interface. The options that can be
+HTML, and an instance of ```IEspalierSettings<TRow>``` interface. The options that can be
 bound in the HTML are:
 
 ### page-size
@@ -178,12 +133,11 @@ The URL Espalier will call (using the Aurelia Fetch Client) to retrieve records 
 the grid. If you have configured your fetch client with a base URL, this is a relative path
 to the API endpoint you wish to consume. This value is required.
 
-### settings: IEspalierSettings<TRow>;
-
+The other instance-related options that can be configured using an [```IEspalierSettings<TRow>```](http://jeremeevans.github.io/EspalierJS/RTFM/interfaces/_src_grid_espalier_settings_.iespaliersettings.html).
 
 ## Filtering an Espalier grid
 
-To filter an Espalier grid, create a control that implements EspalierFilter.
+To filter an Espalier grid, create a control that implements [```EspalierFilter```](http://jeremeevans.github.io/EspalierJS/RTFM/classes/_src_grid_espalier_filter_.espalierfilter.html).
 
 ```
 import { EspalierFilter } from "espalier-js";
@@ -195,8 +149,8 @@ export class LookupsFilter extends EspalierFilter {
   public container: HTMLFormElement;
   protected model: MyFilterModel = new MyFilterModel();
 
-  protected get friendlyFilterDescription(): string {
-    return this.model.friendlyDescription();
+  protected get appliedFilters(): IFilterToken[] {
+    return this.model.getTokens();
   }
 
   protected get filterAsQueryString(): string {
