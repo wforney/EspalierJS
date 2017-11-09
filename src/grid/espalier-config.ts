@@ -49,6 +49,28 @@ viewMap.set("date-time",
   </div>
 </template>`);
 
+viewMap.set("buttons-cell",
+`<div>
+<div if.bind="buttons.length == 1">
+  <button repeat.for="button of buttons" class="espalier-button \${button.buttonClass}" title="\${button.title}" click.delegate="buttonClicked(button)">
+    <i class="\${button.iconClass}"></i>
+  </button>
+</div>
+
+<div if.bind="buttons.length > 1" class="dropdown">
+  <button show.bind="!opened" click.delegate="openMenu()" class="btn btn-primary expand-caret" href="javascript: void(0);"
+    title="Show actions" role="button" aria-haspopup="true"></button>
+  <button show.bind="opened" click.delegate="closeMenu()" class="btn btn-danger close-button" href="javascript: void(0);" title="Hide actions"
+    role="button" aria-haspopup="true"></button>
+  <div id="buttons-menu" class="dropdown-menu">
+    <a repeat.for="button of buttons" class="dropdown-item \${button.buttonClass}" title="\${button.title}" click.delegate="buttonClicked(button)">
+      <i class="\${button.iconClass}"></i>
+      \${button.title}
+    </a>
+  </div>
+</div>
+</div>`);
+
 /**
  * Global configuration options for Espalier with sensible defaults.
  */

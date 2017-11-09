@@ -14,12 +14,10 @@ export class ButtonsCell {
   public record: any;
 
   protected menuContainer: HTMLDivElement;
-  protected menu: HTMLDivElement;
-  protected buttonsContainer: HTMLDivElement;
   protected opened: boolean = false;
 
   protected attached() {
-    const buttons = ToArray(this.buttonsContainer.querySelectorAll("button"));
+    const buttons = ToArray(this.menuContainer.querySelectorAll("button"));
 
     for (const button of buttons) {
       tippy(button, {
@@ -31,24 +29,35 @@ export class ButtonsCell {
   }
 
   protected buttonClicked(button: ITableButton<any>) {
+    this.tryClose();
     button.onClick(this.record);
   }
 
   protected openMenu() {
-    if (currentOpenCell) {
-      currentOpenCell.closeMenu();
-    }
+    this.tryClose();
+    const menu = this.menuContainer.querySelectorAll("#buttons-menu").item(0);
 
     this.opened = true;
-    this.menu.classList.add("show");
+    menu.classList.add("show");
     this.menuContainer.classList.add("show");
     currentOpenCell = this;
   }
 
   protected closeMenu() {
+    const menu = this.menuContainer.querySelectorAll("#buttons-menu").item(0);
     this.opened = false;
-    this.menu.classList.remove("show");
+    menu.classList.remove("show");
     this.menuContainer.classList.remove("show");
     currentOpenCell = null;
+  }
+
+  private tryClose() {
+    if (currentOpenCell) {
+      try {
+        currentOpenCell.closeMenu();
+      } catch {
+        currentOpenCell = null;
+      }
+    }
   }
 }

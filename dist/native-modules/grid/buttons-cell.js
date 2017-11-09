@@ -13,7 +13,7 @@ var ButtonsCell = /** @class */ (function () {
         this.opened = false;
     }
     ButtonsCell.prototype.attached = function () {
-        var buttons = ToArray(this.buttonsContainer.querySelectorAll("button"));
+        var buttons = ToArray(this.menuContainer.querySelectorAll("button"));
         for (var _i = 0, buttons_1 = buttons; _i < buttons_1.length; _i++) {
             var button = buttons_1[_i];
             tippy(button, {
@@ -24,22 +24,33 @@ var ButtonsCell = /** @class */ (function () {
         }
     };
     ButtonsCell.prototype.buttonClicked = function (button) {
+        this.tryClose();
         button.onClick(this.record);
     };
     ButtonsCell.prototype.openMenu = function () {
-        if (currentOpenCell) {
-            currentOpenCell.closeMenu();
-        }
+        this.tryClose();
+        var menu = this.menuContainer.querySelectorAll("#buttons-menu").item(0);
         this.opened = true;
-        this.menu.classList.add("show");
+        menu.classList.add("show");
         this.menuContainer.classList.add("show");
         currentOpenCell = this;
     };
     ButtonsCell.prototype.closeMenu = function () {
+        var menu = this.menuContainer.querySelectorAll("#buttons-menu").item(0);
         this.opened = false;
-        this.menu.classList.remove("show");
+        menu.classList.remove("show");
         this.menuContainer.classList.remove("show");
         currentOpenCell = null;
+    };
+    ButtonsCell.prototype.tryClose = function () {
+        if (currentOpenCell) {
+            try {
+                currentOpenCell.closeMenu();
+            }
+            catch (_a) {
+                currentOpenCell = null;
+            }
+        }
     };
     __decorate([
         bindable
