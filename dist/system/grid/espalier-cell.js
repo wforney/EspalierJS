@@ -1,4 +1,4 @@
-System.register(["./espalier-config", "aurelia-framework", "./enums"], function (exports_1, context_1) {
+System.register(["aurelia-framework", "./enums"], function (exports_1, context_1) {
     "use strict";
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -7,12 +7,9 @@ System.register(["./espalier-config", "aurelia-framework", "./enums"], function 
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
     var __moduleName = context_1 && context_1.id;
-    var espalier_config_1, aurelia_framework_1, enums_1, EspalierCell;
+    var aurelia_framework_1, enums_1, EspalierCell;
     return {
         setters: [
-            function (espalier_config_1_1) {
-                espalier_config_1 = espalier_config_1_1;
-            },
             function (aurelia_framework_1_1) {
                 aurelia_framework_1 = aurelia_framework_1_1;
             },
@@ -22,8 +19,10 @@ System.register(["./espalier-config", "aurelia-framework", "./enums"], function 
         ],
         execute: function () {
             EspalierCell = /** @class */ (function () {
-                function EspalierCell(config) {
-                    this.config = config;
+                function EspalierCell(viewSlot, container) {
+                    this.viewSlot = viewSlot;
+                    this.container = container;
+                    this.isAttached = false;
                 }
                 Object.defineProperty(EspalierCell.prototype, "className", {
                     get: function () {
@@ -48,9 +47,15 @@ System.register(["./espalier-config", "aurelia-framework", "./enums"], function 
                     configurable: true
                 });
                 EspalierCell.prototype.attached = function () {
-                    this.render();
+                    this.isAttached = true;
+                    this.loadView();
                 };
-                EspalierCell.prototype.render = function () {
+                EspalierCell.prototype.viewChanged = function () {
+                    if (this.isAttached) {
+                        this.loadView();
+                    }
+                };
+                EspalierCell.prototype.loadView = function () {
                     var _this = this;
                     if (this.column.onClick) {
                         this.onClick = function () {
@@ -62,8 +67,10 @@ System.register(["./espalier-config", "aurelia-framework", "./enums"], function 
                     }
                     var propertyValue = this.record[this.column.propertyName];
                     this.data = this.column.dataFormatter.format(propertyValue, this.record);
-                    var view = this.config.cellViews.get(this.column.templateName);
-                    this.viewStrategy = new aurelia_framework_1.InlineViewStrategy(view);
+                    var view = this.view.create(this.container);
+                    view.bind(this);
+                    this.viewSlot.add(view);
+                    this.viewSlot.attached();
                 };
                 __decorate([
                     aurelia_framework_1.bindable
@@ -71,9 +78,13 @@ System.register(["./espalier-config", "aurelia-framework", "./enums"], function 
                 __decorate([
                     aurelia_framework_1.bindable
                 ], EspalierCell.prototype, "record", void 0);
+                __decorate([
+                    aurelia_framework_1.bindable
+                ], EspalierCell.prototype, "view", void 0);
                 EspalierCell = __decorate([
                     aurelia_framework_1.customElement("espalier-cell"),
-                    aurelia_framework_1.inject(espalier_config_1.EspalierConfig)
+                    aurelia_framework_1.noView(),
+                    aurelia_framework_1.inject(aurelia_framework_1.ViewSlot, aurelia_framework_1.Container)
                 ], EspalierCell);
                 return EspalierCell;
             }());

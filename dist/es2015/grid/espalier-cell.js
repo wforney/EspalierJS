@@ -4,12 +4,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-import { EspalierConfig } from "./espalier-config";
-import { bindable, customElement, inject, InlineViewStrategy } from "aurelia-framework";
+import { bindable, customElement, inject, noView, ViewSlot, Container } from "aurelia-framework";
 import { ColumnType } from "./enums";
 let EspalierCell = class EspalierCell {
-    constructor(config) {
-        this.config = config;
+    constructor(viewSlot, container) {
+        this.viewSlot = viewSlot;
+        this.container = container;
+        this.isAttached = false;
     }
     get className() {
         switch (this.column.type) {
@@ -30,9 +31,15 @@ let EspalierCell = class EspalierCell {
         }
     }
     attached() {
-        this.render();
+        this.isAttached = true;
+        this.loadView();
     }
-    render() {
+    viewChanged() {
+        if (this.isAttached) {
+            this.loadView();
+        }
+    }
+    loadView() {
         if (this.column.onClick) {
             this.onClick = () => {
                 if (this.column.onClick == undefined) {
@@ -43,8 +50,10 @@ let EspalierCell = class EspalierCell {
         }
         const propertyValue = this.record[this.column.propertyName];
         this.data = this.column.dataFormatter.format(propertyValue, this.record);
-        const view = this.config.cellViews.get(this.column.templateName);
-        this.viewStrategy = new InlineViewStrategy(view);
+        let view = this.view.create(this.container);
+        view.bind(this);
+        this.viewSlot.add(view);
+        this.viewSlot.attached();
     }
 };
 __decorate([
@@ -53,8 +62,12 @@ __decorate([
 __decorate([
     bindable
 ], EspalierCell.prototype, "record", void 0);
+__decorate([
+    bindable
+], EspalierCell.prototype, "view", void 0);
 EspalierCell = __decorate([
     customElement("espalier-cell"),
-    inject(EspalierConfig)
+    noView(),
+    inject(ViewSlot, Container)
 ], EspalierCell);
 export { EspalierCell };

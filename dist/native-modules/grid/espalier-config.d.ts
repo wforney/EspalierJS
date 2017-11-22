@@ -1,5 +1,6 @@
 import { EspalierCustomElement } from "./espalier";
 import { IEspalierPage } from "./espalier-page";
+import { ViewFactory } from "aurelia-framework";
 /**
  * Global configuration options for Espalier with sensible defaults.
  */
@@ -48,6 +49,8 @@ export declare class EspalierConfig {
      * later.
      */
     readonly cellViews: Map<string, string>;
+    getView(name: string): ViewFactory | undefined;
+    setView(name: string, view: ViewFactory): void;
     /**
      * Parse a response into an IEspalierPage. The default expects your
      * response to contain JSON in the following format:

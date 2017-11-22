@@ -1,5 +1,5 @@
 import { EspalierConfig } from "./espalier-config";
-import { TaskQueue } from "aurelia-framework";
+import { TaskQueue, ViewCompiler, ViewResources } from "aurelia-framework";
 import { IColumnDefinition } from "./column-definition";
 import { HttpClient } from "aurelia-fetch-client";
 import { IEspalierSettings } from "./espalier-settings";
@@ -16,6 +16,8 @@ export declare class EspalierCustomElement<TRow> {
     private http;
     private taskQueue;
     private config;
+    private viewCompiler;
+    private viewResources;
     /**
      * The current page of records Espalier is displaying.
      */
@@ -58,7 +60,7 @@ export declare class EspalierCustomElement<TRow> {
      * @param taskQueue The Aurelia TaskQueue.
      * @param config Global configuration for Espalier.
      */
-    constructor(http: HttpClient, taskQueue: TaskQueue, config: EspalierConfig);
+    constructor(http: HttpClient, taskQueue: TaskQueue, config: EspalierConfig, viewCompiler: ViewCompiler, viewResources: ViewResources);
     /**
      * The Aurelia attached lifecycle event.
      */

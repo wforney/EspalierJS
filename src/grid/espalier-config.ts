@@ -1,7 +1,9 @@
 import { EspalierCustomElement } from "./espalier";
 import { IEspalierPage } from "./espalier-page";
+import { ViewFactory } from "aurelia-framework";
 
 const viewMap = new Map<string, string>();
+const compiledViews = new Map<string, ViewFactory>();
 
 viewMap.set("default",
   `<template>
@@ -50,7 +52,8 @@ viewMap.set("date-time",
 </template>`);
 
 viewMap.set("buttons-cell",
-`<div>
+  `<template>
+  <div>
 <div if.bind="buttons.length == 1">
   <button repeat.for="button of buttons" class="espalier-button \${button.buttonClass}" title="\${button.title}" click.delegate="buttonClicked(button)">
     <i class="\${button.iconClass}"></i>
@@ -69,7 +72,7 @@ viewMap.set("buttons-cell",
     </a>
   </div>
 </div>
-</div>`);
+</div></template>`);
 
 /**
  * Global configuration options for Espalier with sensible defaults.
@@ -128,6 +131,18 @@ export class EspalierConfig {
    */
   public get cellViews(): Map<string, string> {
     return viewMap;
+  }
+
+  public getView(name: string): ViewFactory | undefined {
+    if (compiledViews.has(name)) {
+      return compiledViews.get(name);
+    }
+
+    return undefined;
+  }
+
+  public setView(name: string, view: ViewFactory) {
+    compiledViews.set(name, view);
   }
 
   /**

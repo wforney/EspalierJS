@@ -44,7 +44,7 @@
         </tr>
         <tr id="row-${(record.Id ? record.Id : record.id ? record.id : $index)}" if.bind="!loading" repeat.for="record of records">
           <td colspan="${(!settings.getButtons && $index == (settings.columns.length - 1)) ? 2 : 1}" repeat.for="column of settings.columns & oneTime">
-            <espalier-cell column.bind="column" record.bind="record"></espalier-cell>
+            <espalier-cell column.bind="column" view.bind="column.view" record.bind="record"></espalier-cell>
           </td>
           <td if.bind="settings.getButtons" class="buttons-cell">
             <buttons-cell buttons.one-time="settings.getButtons(record)" record.bind="record"></buttons-cell>

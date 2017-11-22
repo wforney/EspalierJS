@@ -1,11 +1,11 @@
 import { IEspalierDataFormatter } from "./espalier-data-formatter";
 import { IColumnDefinition } from "./column-definition";
-import { EspalierConfig } from "./espalier-config";
-import { bindable, customElement, inject, InlineViewStrategy } from "aurelia-framework";
+import { bindable, customElement, inject, noView, ViewSlot, ViewFactory, Container } from "aurelia-framework";
 import { ColumnType } from "./enums";
 
 @customElement("espalier-cell")
-@inject(EspalierConfig)
+@noView()
+@inject(ViewSlot, Container)
 export class EspalierCell {
   @bindable
   public column: IColumnDefinition<any>;
@@ -13,9 +13,11 @@ export class EspalierCell {
   @bindable
   public record: any;
 
+  @bindable
+  public view: ViewFactory;
+
   protected onClick: () => void;
   protected data: any;
-  protected viewStrategy: InlineViewStrategy;
   protected get className(): string {
     switch (this.column.type) {
       case ColumnType.Currency:
@@ -34,14 +36,22 @@ export class EspalierCell {
         return "default-cell";
     }
   }
+  private isAttached = false;
 
-  constructor(private config: EspalierConfig) { }
+  constructor(private viewSlot: ViewSlot, private container: Container) { }
 
   protected attached() {
-    this.render();
+    this.isAttached = true;
+    this.loadView();
   }
 
-  private render() {
+  protected viewChanged() {
+    if (this.isAttached) {
+      this.loadView();
+    }
+  }
+
+  private loadView() {
     if (this.column.onClick) {
       this.onClick = () => {
         if (this.column.onClick == undefined) {
@@ -54,7 +64,9 @@ export class EspalierCell {
 
     const propertyValue = this.record[this.column.propertyName];
     this.data = (<IEspalierDataFormatter>this.column.dataFormatter).format(propertyValue, this.record);
-    const view = <string>this.config.cellViews.get(<string>this.column.templateName);
-    this.viewStrategy = new InlineViewStrategy(view);
+    let view = this.view.create(this.container);
+    view.bind(this);
+    this.viewSlot.add(view);
+    this.viewSlot.attached();
   }
 }

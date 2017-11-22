@@ -1,5 +1,6 @@
 import { IEspalierDataFormatter } from "./espalier-data-formatter";
 import { ColumnType, SortOrder } from "./enums";
+import { ViewFactory } from "aurelia-framework";
 export interface IColumnDefinition<TRow> {
     /**
      * The name of the property to bind the value of the table
@@ -57,4 +58,9 @@ export interface IColumnDefinition<TRow> {
      * column type if none is specified.
      */
     dataFormatter?: IEspalierDataFormatter;
+    /**
+     * View to use for the cell. If this is null, a view will be chosen
+     * based on the column type.
+     */
+    view?: ViewFactory;
 }

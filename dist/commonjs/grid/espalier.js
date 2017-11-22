@@ -30,10 +30,12 @@ var EspalierCustomElement = /** @class */ (function () {
      * @param taskQueue The Aurelia TaskQueue.
      * @param config Global configuration for Espalier.
      */
-    function EspalierCustomElement(http, taskQueue, config) {
+    function EspalierCustomElement(http, taskQueue, config, viewCompiler, viewResources) {
         this.http = http;
         this.taskQueue = taskQueue;
         this.config = config;
+        this.viewCompiler = viewCompiler;
+        this.viewResources = viewResources;
         /**
          * The current page the grid is on.
          */
@@ -204,6 +206,9 @@ var EspalierCustomElement = /** @class */ (function () {
                         break;
                 }
             }
+            if (!this.config.getView(column.templateName)) {
+                this.config.setView(column.templateName, this.viewCompiler.compile(this.config.cellViews.get(column.templateName), this.viewResources));
+            }
             if (!column.dataFormatter) {
                 switch (column.type) {
                     case enums_1.ColumnType.Date:
@@ -225,6 +230,7 @@ var EspalierCustomElement = /** @class */ (function () {
                         break;
                 }
             }
+            column.view = this.config.getView(column.templateName);
         }
         this.taskQueue.queueMicroTask(function () {
             if (_this.settings.filter) {
@@ -342,7 +348,8 @@ var EspalierCustomElement = /** @class */ (function () {
                     tippy(columnHead, {
                         position: "bottom",
                         arrow: true,
-                        size: "big"
+                        size: "big",
+                        followCursor: true
                     });
                 }
             });
@@ -363,7 +370,7 @@ var EspalierCustomElement = /** @class */ (function () {
     ], EspalierCustomElement.prototype, "settings", void 0);
     EspalierCustomElement = __decorate([
         aurelia_framework_1.customElement("espalier"),
-        aurelia_dependency_injection_1.inject(aurelia_fetch_client_1.HttpClient, aurelia_framework_1.TaskQueue, espalier_config_1.EspalierConfig)
+        aurelia_dependency_injection_1.inject(aurelia_fetch_client_1.HttpClient, aurelia_framework_1.TaskQueue, espalier_config_1.EspalierConfig, aurelia_framework_1.ViewCompiler, aurelia_framework_1.ViewResources)
     ], EspalierCustomElement);
     return EspalierCustomElement;
 }());

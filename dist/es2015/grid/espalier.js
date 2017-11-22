@@ -6,7 +6,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { EspalierConfig } from "./espalier-config";
 import * as tippy from "tippy.js";
-import { bindable, bindingMode, TaskQueue, customElement } from "aurelia-framework";
+import { bindable, bindingMode, TaskQueue, customElement, ViewCompiler, ViewResources } from "aurelia-framework";
 import { inject } from "aurelia-dependency-injection";
 import { HttpClient } from "aurelia-fetch-client";
 import { PageInfo } from "./page-info";
@@ -27,10 +27,12 @@ let EspalierCustomElement = class EspalierCustomElement {
      * @param taskQueue The Aurelia TaskQueue.
      * @param config Global configuration for Espalier.
      */
-    constructor(http, taskQueue, config) {
+    constructor(http, taskQueue, config, viewCompiler, viewResources) {
         this.http = http;
         this.taskQueue = taskQueue;
         this.config = config;
+        this.viewCompiler = viewCompiler;
+        this.viewResources = viewResources;
         /**
          * The current page the grid is on.
          */
@@ -198,6 +200,9 @@ let EspalierCustomElement = class EspalierCustomElement {
                         break;
                 }
             }
+            if (!this.config.getView(column.templateName)) {
+                this.config.setView(column.templateName, this.viewCompiler.compile(this.config.cellViews.get(column.templateName), this.viewResources));
+            }
             if (!column.dataFormatter) {
                 switch (column.type) {
                     case ColumnType.Date:
@@ -219,6 +224,7 @@ let EspalierCustomElement = class EspalierCustomElement {
                         break;
                 }
             }
+            column.view = this.config.getView(column.templateName);
         }
         this.taskQueue.queueMicroTask(() => {
             if (this.settings.filter) {
@@ -362,7 +368,8 @@ let EspalierCustomElement = class EspalierCustomElement {
                     tippy(columnHead, {
                         position: "bottom",
                         arrow: true,
-                        size: "big"
+                        size: "big",
+                        followCursor: true
                     });
                 }
             });
@@ -384,6 +391,6 @@ __decorate([
 ], EspalierCustomElement.prototype, "settings", void 0);
 EspalierCustomElement = __decorate([
     customElement("espalier"),
-    inject(HttpClient, TaskQueue, EspalierConfig)
+    inject(HttpClient, TaskQueue, EspalierConfig, ViewCompiler, ViewResources)
 ], EspalierCustomElement);
 export { EspalierCustomElement };

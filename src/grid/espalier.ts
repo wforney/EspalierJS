@@ -1,6 +1,6 @@
 import { EspalierConfig } from "./espalier-config";
 import * as tippy from "tippy.js";
-import { bindable, bindingMode, TaskQueue, customElement } from "aurelia-framework";
+import { bindable, bindingMode, TaskQueue, customElement, ViewCompiler, ViewResources } from "aurelia-framework";
 import { inject } from "aurelia-dependency-injection";
 import { IColumnDefinition } from "./column-definition";
 import { HttpClient } from "aurelia-fetch-client";
@@ -22,7 +22,7 @@ const buttonStyleElementName = "espalier-button-styles";
  * datasets.
  */
 @customElement("espalier")
-@inject(HttpClient, TaskQueue, EspalierConfig)
+@inject(HttpClient, TaskQueue, EspalierConfig, ViewCompiler, ViewResources)
 export class EspalierCustomElement<TRow> {
   /**
    * The current page of records Espalier is displaying.
@@ -77,7 +77,9 @@ export class EspalierCustomElement<TRow> {
    * @param taskQueue The Aurelia TaskQueue.
    * @param config Global configuration for Espalier.
    */
-  constructor(private http: HttpClient, private taskQueue: TaskQueue, private config: EspalierConfig) { }
+  constructor(private http: HttpClient, private taskQueue: TaskQueue,
+    private config: EspalierConfig, private viewCompiler: ViewCompiler,
+    private viewResources: ViewResources) { }
 
   /**
    * The Aurelia attached lifecycle event.
@@ -262,6 +264,10 @@ export class EspalierCustomElement<TRow> {
         }
       }
 
+      if (!this.config.getView(column.templateName)) {
+        this.config.setView(column.templateName, this.viewCompiler.compile(<string>this.config.cellViews.get(column.templateName), this.viewResources));
+      }
+
       if (!column.dataFormatter) {
         switch (column.type) {
           case ColumnType.Date:
@@ -283,6 +289,8 @@ export class EspalierCustomElement<TRow> {
             break;
         }
       }
+
+      column.view = this.config.getView(column.templateName);
     }
 
     this.taskQueue.queueMicroTask(() => {
@@ -452,7 +460,8 @@ export class EspalierCustomElement<TRow> {
             tippy(columnHead, {
               position: "bottom",
               arrow: true,
-              size: "big"
+              size: "big",
+              followCursor: true
             });
           }
         });

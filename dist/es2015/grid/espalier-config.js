@@ -1,4 +1,5 @@
 const viewMap = new Map();
+const compiledViews = new Map();
 viewMap.set("default", `<template>
   <div class="\${className}">
     <a if.bind="onClick" href="javascript: void(0);" click.delegate="onClick()" innerhtml.bind="data"></a>
@@ -37,7 +38,8 @@ viewMap.set("date-time", `<template>
     </span>
   </div>
 </template>`);
-viewMap.set("buttons-cell", `<div>
+viewMap.set("buttons-cell", `<template>
+  <div>
 <div if.bind="buttons.length == 1">
   <button repeat.for="button of buttons" class="espalier-button \${button.buttonClass}" title="\${button.title}" click.delegate="buttonClicked(button)">
     <i class="\${button.iconClass}"></i>
@@ -56,7 +58,7 @@ viewMap.set("buttons-cell", `<div>
     </a>
   </div>
 </div>
-</div>`);
+</div></template>`);
 /**
  * Global configuration options for Espalier with sensible defaults.
  */
@@ -108,6 +110,15 @@ export class EspalierConfig {
      */
     get cellViews() {
         return viewMap;
+    }
+    getView(name) {
+        if (compiledViews.has(name)) {
+            return compiledViews.get(name);
+        }
+        return undefined;
+    }
+    setView(name, view) {
+        compiledViews.set(name, view);
     }
     /**
      * Parse a response into an IEspalierPage. The default expects your

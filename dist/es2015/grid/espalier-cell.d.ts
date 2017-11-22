@@ -1,15 +1,17 @@
 import { IColumnDefinition } from "./column-definition";
-import { EspalierConfig } from "./espalier-config";
-import { InlineViewStrategy } from "aurelia-framework";
+import { ViewSlot, ViewFactory, Container } from "aurelia-framework";
 export declare class EspalierCell {
-    private config;
+    private viewSlot;
+    private container;
     column: IColumnDefinition<any>;
     record: any;
+    view: ViewFactory;
     protected onClick: () => void;
     protected data: any;
-    protected viewStrategy: InlineViewStrategy;
     protected readonly className: string;
-    constructor(config: EspalierConfig);
+    private isAttached;
+    constructor(viewSlot: ViewSlot, container: Container);
     protected attached(): void;
-    private render();
+    protected viewChanged(): void;
+    private loadView();
 }
