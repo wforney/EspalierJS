@@ -2,6 +2,7 @@ import { IEspalierDataFormatter } from "./espalier-data-formatter";
 import { IColumnDefinition } from "./column-definition";
 import { bindable, customElement, inject, noView, ViewSlot, ViewFactory, Container } from "aurelia-framework";
 import { ColumnType } from "./enums";
+import { TextFormatter } from "./formatters/formatters";
 
 @customElement("espalier-cell")
 @noView()
@@ -62,8 +63,22 @@ export class EspalierCell {
       };
     }
 
-    const propertyValue = this.record[this.column.propertyName];
-    this.data = (<IEspalierDataFormatter>this.column.dataFormatter).format(propertyValue, this.record);
+    let propertyValue: any = this.record;
+    const paths = this.column.propertyName.split(".");
+
+    for (const path of paths) {
+      if (propertyValue) {
+        propertyValue = propertyValue[path];
+      }
+    }
+
+    let formatter: IEspalierDataFormatter = (<IEspalierDataFormatter>this.column.dataFormatter);
+
+    if (!formatter) {
+      formatter = new TextFormatter();
+    }
+
+    this.data = formatter.format(propertyValue, this.record);
     let view = this.view.create(this.container);
     view.bind(this);
     this.viewSlot.add(view);

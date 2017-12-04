@@ -1,6 +1,7 @@
 import { EspalierCustomElement } from "./espalier";
 import { IEspalierPage } from "./espalier-page";
 import { ViewFactory } from "aurelia-framework";
+import { SortOrder } from "./enums";
 /**
  * Global configuration options for Espalier with sensible defaults.
  */
@@ -60,4 +61,5 @@ export declare class EspalierConfig {
      * @param response The response from the Aurelia Fetch Client call to your API.
      */
     getPage(instance: EspalierCustomElement<any>, response: Response): Promise<IEspalierPage>;
+    buildPagingQueryString(page: number, pageSize: number, sortPropertyName: string, sortOrder: SortOrder | undefined): string;
 }

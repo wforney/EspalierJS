@@ -4,7 +4,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define(["require", "exports", "aurelia-framework", "./enums"], function (require, exports, aurelia_framework_1, enums_1) {
+define(["require", "exports", "aurelia-framework", "./enums", "./formatters/formatters"], function (require, exports, aurelia_framework_1, enums_1, formatters_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var EspalierCell = /** @class */ (function () {
@@ -54,8 +54,19 @@ define(["require", "exports", "aurelia-framework", "./enums"], function (require
                     _this.column.onClick(_this.record);
                 };
             }
-            var propertyValue = this.record[this.column.propertyName];
-            this.data = this.column.dataFormatter.format(propertyValue, this.record);
+            var propertyValue = this.record;
+            var paths = this.column.propertyName.split(".");
+            for (var _i = 0, paths_1 = paths; _i < paths_1.length; _i++) {
+                var path = paths_1[_i];
+                if (propertyValue) {
+                    propertyValue = propertyValue[path];
+                }
+            }
+            var formatter = this.column.dataFormatter;
+            if (!formatter) {
+                formatter = new formatters_1.TextFormatter();
+            }
+            this.data = formatter.format(propertyValue, this.record);
             var view = this.view.create(this.container);
             view.bind(this);
             this.viewSlot.add(view);

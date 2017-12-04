@@ -11,6 +11,11 @@ export { EspalierConfig } from "./grid/espalier-config";
 export { EspalierCell } from "./grid/espalier-cell";
 export { ButtonsCell } from "./grid/buttons-cell";
 export { IEspalierDataFormatter } from "./grid/espalier-data-formatter";
+export { CurrencyFormatter } from "./grid/formatters/currency-formatter";
+export { DateFormatter } from "./grid/formatters/date-formatter";
+export { IntegerFormatter } from "./grid/formatters/integer-formatter";
+export { NumberFormatter } from "./grid/formatters/number-formatter";
+export { TextFormatter } from "./grid/formatters/text-formatter";
 
 export function configure(config: FrameworkConfiguration) {
   config.globalResources([

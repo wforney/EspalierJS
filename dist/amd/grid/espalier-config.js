@@ -1,4 +1,4 @@
-define(["require", "exports"], function (require, exports) {
+define(["require", "exports", "./enums"], function (require, exports, enums_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var viewMap = new Map();
@@ -92,6 +92,15 @@ define(["require", "exports"], function (require, exports) {
                 };
                 return page;
             });
+        };
+        EspalierConfig.prototype.buildPagingQueryString = function (page, pageSize, sortPropertyName, sortOrder) {
+            var queryParts = [
+                this.pageParameterName + "=" + page,
+                this.pageSizeParameterName + "=" + pageSize,
+                this.sortOnParameterName + "=" + sortPropertyName,
+                this.sortOrderParameterName + "=" + (sortOrder == enums_1.SortOrder.Descending ? this.descConst : this.ascConst)
+            ];
+            return queryParts.join("&");
         };
         return EspalierConfig;
     }());

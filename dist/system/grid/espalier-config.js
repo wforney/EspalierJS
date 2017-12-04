@@ -1,9 +1,13 @@
-System.register([], function (exports_1, context_1) {
+System.register(["./enums"], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
-    var viewMap, compiledViews, EspalierConfig;
+    var enums_1, viewMap, compiledViews, EspalierConfig;
     return {
-        setters: [],
+        setters: [
+            function (enums_1_1) {
+                enums_1 = enums_1_1;
+            }
+        ],
         execute: function () {
             viewMap = new Map();
             compiledViews = new Map();
@@ -96,6 +100,15 @@ System.register([], function (exports_1, context_1) {
                         };
                         return page;
                     });
+                };
+                EspalierConfig.prototype.buildPagingQueryString = function (page, pageSize, sortPropertyName, sortOrder) {
+                    var queryParts = [
+                        this.pageParameterName + "=" + page,
+                        this.pageSizeParameterName + "=" + pageSize,
+                        this.sortOnParameterName + "=" + sortPropertyName,
+                        this.sortOrderParameterName + "=" + (sortOrder == enums_1.SortOrder.Descending ? this.descConst : this.ascConst)
+                    ];
+                    return queryParts.join("&");
                 };
                 return EspalierConfig;
             }());

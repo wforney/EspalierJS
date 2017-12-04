@@ -265,7 +265,14 @@ export class EspalierCustomElement<TRow> {
       }
 
       if (!this.config.getView(column.templateName)) {
-        this.config.setView(column.templateName, this.viewCompiler.compile(<string>this.config.cellViews.get(column.templateName), this.viewResources));
+        const templateString = this.config.cellViews.get(column.templateName);
+
+        if (!templateString) {
+          throw new Error(`Espalier was unable to find a template named "${column.templateName}"... perhaps you need to register it using EspalierConfig?`);
+        }
+
+        const factory = this.viewCompiler.compile(<string>templateString, this.viewResources);
+        this.config.setView(column.templateName, factory);
       }
 
       if (!column.dataFormatter) {
@@ -307,7 +314,7 @@ export class EspalierCustomElement<TRow> {
    * @param column The column to figure out the sort property name of.
    */
   protected getSortPropertyName(column: IColumnDefinition<TRow>): string {
-    if (column.disableSort) {
+    if (!column || column.disableSort) {
       return "";
     }
 
@@ -385,12 +392,12 @@ export class EspalierCustomElement<TRow> {
    */
   private fetch(): Promise<any> {
     this.loading = true;
+    const pagingExpression = this.config.buildPagingQueryString(
+      this.page, this.pageSize, this.getSortPropertyName(this.sortColumn), this.sortColumn ? this.sortColumn.sortOrder : SortOrder.NotSpecified
+    );
 
     const queryParts = [
-      `${this.config.pageParameterName}=${this.page}`,
-      `${this.config.pageSizeParameterName}=${this.pageSize}`,
-      `${this.config.sortOnParameterName}=${this.getSortPropertyName(this.sortColumn)}`,
-      `${this.config.sortOrderParameterName}=${(this.sortColumn.sortOrder == SortOrder.Descending ? this.config.descConst : this.config.ascConst)}`
+      pagingExpression
     ];
 
     if (this.filterIsNotEmpty()) {

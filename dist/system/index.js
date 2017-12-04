@@ -1,4 +1,4 @@
-System.register(["aurelia-framework", "./grid/enums", "./grid/espalier-filter", "./grid/espalier", "./grid/espalier-config", "./grid/espalier-cell", "./grid/buttons-cell"], function (exports_1, context_1) {
+System.register(["aurelia-framework", "./grid/enums", "./grid/espalier-filter", "./grid/espalier", "./grid/espalier-config", "./grid/espalier-cell", "./grid/buttons-cell", "./grid/formatters/currency-formatter", "./grid/formatters/date-formatter", "./grid/formatters/integer-formatter", "./grid/formatters/number-formatter", "./grid/formatters/text-formatter"], function (exports_1, context_1) {
     "use strict";
     var __moduleName = context_1 && context_1.id;
     function configure(config) {
@@ -42,6 +42,31 @@ System.register(["aurelia-framework", "./grid/enums", "./grid/espalier-filter", 
             function (buttons_cell_1_1) {
                 exports_1({
                     "ButtonsCell": buttons_cell_1_1["ButtonsCell"]
+                });
+            },
+            function (currency_formatter_1_1) {
+                exports_1({
+                    "CurrencyFormatter": currency_formatter_1_1["CurrencyFormatter"]
+                });
+            },
+            function (date_formatter_1_1) {
+                exports_1({
+                    "DateFormatter": date_formatter_1_1["DateFormatter"]
+                });
+            },
+            function (integer_formatter_1_1) {
+                exports_1({
+                    "IntegerFormatter": integer_formatter_1_1["IntegerFormatter"]
+                });
+            },
+            function (number_formatter_1_1) {
+                exports_1({
+                    "NumberFormatter": number_formatter_1_1["NumberFormatter"]
+                });
+            },
+            function (text_formatter_1_1) {
+                exports_1({
+                    "TextFormatter": text_formatter_1_1["TextFormatter"]
                 });
             }
         ],

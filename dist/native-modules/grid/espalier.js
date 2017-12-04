@@ -204,7 +204,12 @@ var EspalierCustomElement = /** @class */ (function () {
                 }
             }
             if (!this.config.getView(column.templateName)) {
-                this.config.setView(column.templateName, this.viewCompiler.compile(this.config.cellViews.get(column.templateName), this.viewResources));
+                var templateString = this.config.cellViews.get(column.templateName);
+                if (!templateString) {
+                    throw new Error("Espalier was unable to find a template named \"" + column.templateName + "\"... perhaps you need to register it using EspalierConfig?");
+                }
+                var factory = this.viewCompiler.compile(templateString, this.viewResources);
+                this.config.setView(column.templateName, factory);
             }
             if (!column.dataFormatter) {
                 switch (column.type) {
@@ -241,7 +246,7 @@ var EspalierCustomElement = /** @class */ (function () {
      * @param column The column to figure out the sort property name of.
      */
     EspalierCustomElement.prototype.getSortPropertyName = function (column) {
-        if (column.disableSort) {
+        if (!column || column.disableSort) {
             return "";
         }
         return column.sortPropertyName ? column.sortPropertyName : column.propertyName;
@@ -285,11 +290,9 @@ var EspalierCustomElement = /** @class */ (function () {
     EspalierCustomElement.prototype.fetch = function () {
         var _this = this;
         this.loading = true;
+        var pagingExpression = this.config.buildPagingQueryString(this.page, this.pageSize, this.getSortPropertyName(this.sortColumn), this.sortColumn ? this.sortColumn.sortOrder : SortOrder.NotSpecified);
         var queryParts = [
-            this.config.pageParameterName + "=" + this.page,
-            this.config.pageSizeParameterName + "=" + this.pageSize,
-            this.config.sortOnParameterName + "=" + this.getSortPropertyName(this.sortColumn),
-            this.config.sortOrderParameterName + "=" + (this.sortColumn.sortOrder == SortOrder.Descending ? this.config.descConst : this.config.ascConst)
+            pagingExpression
         ];
         if (this.filterIsNotEmpty()) {
             queryParts.push(this.filter);

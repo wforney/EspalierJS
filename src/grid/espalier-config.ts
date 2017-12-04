@@ -1,6 +1,7 @@
 import { EspalierCustomElement } from "./espalier";
 import { IEspalierPage } from "./espalier-page";
 import { ViewFactory } from "aurelia-framework";
+import { SortOrder } from "./enums";
 
 const viewMap = new Map<string, string>();
 const compiledViews = new Map<string, ViewFactory>();
@@ -165,5 +166,16 @@ export class EspalierConfig {
 
         return page;
       });
+  }
+
+  public buildPagingQueryString(page: number, pageSize: number, sortPropertyName: string, sortOrder: SortOrder | undefined): string {
+    const queryParts = [
+      `${this.pageParameterName}=${page}`,
+      `${this.pageSizeParameterName}=${pageSize}`,
+      `${this.sortOnParameterName}=${sortPropertyName}`,
+      `${this.sortOrderParameterName}=${(sortOrder == SortOrder.Descending ? this.descConst : this.ascConst)}`
+    ];
+
+    return queryParts.join("&");
   }
 }

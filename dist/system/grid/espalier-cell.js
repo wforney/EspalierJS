@@ -1,4 +1,4 @@
-System.register(["aurelia-framework", "./enums"], function (exports_1, context_1) {
+System.register(["aurelia-framework", "./enums", "./formatters/formatters"], function (exports_1, context_1) {
     "use strict";
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -7,7 +7,7 @@ System.register(["aurelia-framework", "./enums"], function (exports_1, context_1
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
     var __moduleName = context_1 && context_1.id;
-    var aurelia_framework_1, enums_1, EspalierCell;
+    var aurelia_framework_1, enums_1, formatters_1, EspalierCell;
     return {
         setters: [
             function (aurelia_framework_1_1) {
@@ -15,6 +15,9 @@ System.register(["aurelia-framework", "./enums"], function (exports_1, context_1
             },
             function (enums_1_1) {
                 enums_1 = enums_1_1;
+            },
+            function (formatters_1_1) {
+                formatters_1 = formatters_1_1;
             }
         ],
         execute: function () {
@@ -65,8 +68,19 @@ System.register(["aurelia-framework", "./enums"], function (exports_1, context_1
                             _this.column.onClick(_this.record);
                         };
                     }
-                    var propertyValue = this.record[this.column.propertyName];
-                    this.data = this.column.dataFormatter.format(propertyValue, this.record);
+                    var propertyValue = this.record;
+                    var paths = this.column.propertyName.split(".");
+                    for (var _i = 0, paths_1 = paths; _i < paths_1.length; _i++) {
+                        var path = paths_1[_i];
+                        if (propertyValue) {
+                            propertyValue = propertyValue[path];
+                        }
+                    }
+                    var formatter = this.column.dataFormatter;
+                    if (!formatter) {
+                        formatter = new formatters_1.TextFormatter();
+                    }
+                    this.data = formatter.format(propertyValue, this.record);
                     var view = this.view.create(this.container);
                     view.bind(this);
                     this.viewSlot.add(view);

@@ -1,3 +1,4 @@
+import { SortOrder } from "./enums";
 const viewMap = new Map();
 const compiledViews = new Map();
 viewMap.set("default", `<template>
@@ -139,5 +140,14 @@ export class EspalierConfig {
             };
             return page;
         });
+    }
+    buildPagingQueryString(page, pageSize, sortPropertyName, sortOrder) {
+        const queryParts = [
+            `${this.pageParameterName}=${page}`,
+            `${this.pageSizeParameterName}=${pageSize}`,
+            `${this.sortOnParameterName}=${sortPropertyName}`,
+            `${this.sortOrderParameterName}=${(sortOrder == SortOrder.Descending ? this.descConst : this.ascConst)}`
+        ];
+        return queryParts.join("&");
     }
 }

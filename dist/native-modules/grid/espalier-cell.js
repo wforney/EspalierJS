@@ -6,6 +6,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { bindable, customElement, inject, noView, ViewSlot, Container } from "aurelia-framework";
 import { ColumnType } from "./enums";
+import { TextFormatter } from "./formatters/formatters";
 var EspalierCell = /** @class */ (function () {
     function EspalierCell(viewSlot, container) {
         this.viewSlot = viewSlot;
@@ -53,8 +54,19 @@ var EspalierCell = /** @class */ (function () {
                 _this.column.onClick(_this.record);
             };
         }
-        var propertyValue = this.record[this.column.propertyName];
-        this.data = this.column.dataFormatter.format(propertyValue, this.record);
+        var propertyValue = this.record;
+        var paths = this.column.propertyName.split(".");
+        for (var _i = 0, paths_1 = paths; _i < paths_1.length; _i++) {
+            var path = paths_1[_i];
+            if (propertyValue) {
+                propertyValue = propertyValue[path];
+            }
+        }
+        var formatter = this.column.dataFormatter;
+        if (!formatter) {
+            formatter = new TextFormatter();
+        }
+        this.data = formatter.format(propertyValue, this.record);
         var view = this.view.create(this.container);
         view.bind(this);
         this.viewSlot.add(view);

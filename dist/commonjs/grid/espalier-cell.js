@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 var aurelia_framework_1 = require("aurelia-framework");
 var enums_1 = require("./enums");
+var formatters_1 = require("./formatters/formatters");
 var EspalierCell = /** @class */ (function () {
     function EspalierCell(viewSlot, container) {
         this.viewSlot = viewSlot;
@@ -55,8 +56,19 @@ var EspalierCell = /** @class */ (function () {
                 _this.column.onClick(_this.record);
             };
         }
-        var propertyValue = this.record[this.column.propertyName];
-        this.data = this.column.dataFormatter.format(propertyValue, this.record);
+        var propertyValue = this.record;
+        var paths = this.column.propertyName.split(".");
+        for (var _i = 0, paths_1 = paths; _i < paths_1.length; _i++) {
+            var path = paths_1[_i];
+            if (propertyValue) {
+                propertyValue = propertyValue[path];
+            }
+        }
+        var formatter = this.column.dataFormatter;
+        if (!formatter) {
+            formatter = new formatters_1.TextFormatter();
+        }
+        this.data = formatter.format(propertyValue, this.record);
         var view = this.view.create(this.container);
         view.bind(this);
         this.viewSlot.add(view);

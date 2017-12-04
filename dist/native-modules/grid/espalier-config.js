@@ -1,3 +1,4 @@
+import { SortOrder } from "./enums";
 var viewMap = new Map();
 var compiledViews = new Map();
 viewMap.set("default", "<template>\n  <div class=\"${className}\">\n    <a if.bind=\"onClick\" href=\"javascript: void(0);\" click.delegate=\"onClick()\" innerhtml.bind=\"data\"></a>\n    <span if.bind=\"!onClick\" innerhtml.bind=\"data\"></span>\n  </div>\n</template>");
@@ -89,6 +90,15 @@ var EspalierConfig = /** @class */ (function () {
             };
             return page;
         });
+    };
+    EspalierConfig.prototype.buildPagingQueryString = function (page, pageSize, sortPropertyName, sortOrder) {
+        var queryParts = [
+            this.pageParameterName + "=" + page,
+            this.pageSizeParameterName + "=" + pageSize,
+            this.sortOnParameterName + "=" + sortPropertyName,
+            this.sortOrderParameterName + "=" + (sortOrder == SortOrder.Descending ? this.descConst : this.ascConst)
+        ];
+        return queryParts.join("&");
     };
     return EspalierConfig;
 }());

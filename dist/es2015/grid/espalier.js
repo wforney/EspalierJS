@@ -201,7 +201,12 @@ let EspalierCustomElement = class EspalierCustomElement {
                 }
             }
             if (!this.config.getView(column.templateName)) {
-                this.config.setView(column.templateName, this.viewCompiler.compile(this.config.cellViews.get(column.templateName), this.viewResources));
+                const templateString = this.config.cellViews.get(column.templateName);
+                if (!templateString) {
+                    throw new Error(`Espalier was unable to find a template named "${column.templateName}"... perhaps you need to register it using EspalierConfig?`);
+                }
+                const factory = this.viewCompiler.compile(templateString, this.viewResources);
+                this.config.setView(column.templateName, factory);
             }
             if (!column.dataFormatter) {
                 switch (column.type) {
@@ -238,7 +243,7 @@ let EspalierCustomElement = class EspalierCustomElement {
      * @param column The column to figure out the sort property name of.
      */
     getSortPropertyName(column) {
-        if (column.disableSort) {
+        if (!column || column.disableSort) {
             return "";
         }
         return column.sortPropertyName ? column.sortPropertyName : column.propertyName;
@@ -309,11 +314,9 @@ let EspalierCustomElement = class EspalierCustomElement {
      */
     fetch() {
         this.loading = true;
+        const pagingExpression = this.config.buildPagingQueryString(this.page, this.pageSize, this.getSortPropertyName(this.sortColumn), this.sortColumn ? this.sortColumn.sortOrder : SortOrder.NotSpecified);
         const queryParts = [
-            `${this.config.pageParameterName}=${this.page}`,
-            `${this.config.pageSizeParameterName}=${this.pageSize}`,
-            `${this.config.sortOnParameterName}=${this.getSortPropertyName(this.sortColumn)}`,
-            `${this.config.sortOrderParameterName}=${(this.sortColumn.sortOrder == SortOrder.Descending ? this.config.descConst : this.config.ascConst)}`
+            pagingExpression
         ];
         if (this.filterIsNotEmpty()) {
             queryParts.push(this.filter);
