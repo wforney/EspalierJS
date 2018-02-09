@@ -2,6 +2,7 @@ import { EspalierCustomElement } from "./espalier";
 import { IEspalierPage } from "./espalier-page";
 import { ViewFactory } from "aurelia-framework";
 import { SortOrder } from "./enums";
+import { HttpClientConfiguration } from "aurelia-fetch-client";
 /**
  * Global configuration options for Espalier with sensible defaults.
  */
@@ -10,6 +11,10 @@ export declare class EspalierConfig {
      * The default page size if none is specified.
      */
     defaultPageSize: number;
+    /**
+     * The root url to use when fetching a resource.
+     */
+    rootUrl: string;
     /**
      * The name of the query string parameter for the 1-based
      * page number to return.
@@ -42,6 +47,10 @@ export declare class EspalierConfig {
      * The color to use for the sort and filter icons.
      */
     buttonColor: string;
+    /**
+     * Http configuration to use if it has not been configured.
+     */
+    configureHttp: (config: HttpClientConfiguration) => void;
     /**
      * Returns the view map. Espalier uses string-keyed cell templates
      * when rendering cells. It has four built-in template: "default",

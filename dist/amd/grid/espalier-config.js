@@ -18,6 +18,10 @@ define(["require", "exports", "./enums"], function (require, exports, enums_1) {
              */
             this.defaultPageSize = 20;
             /**
+             * The root url to use when fetching a resource.
+             */
+            this.rootUrl = "";
+            /**
              * The name of the query string parameter for the 1-based
              * page number to return.
              */

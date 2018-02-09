@@ -325,7 +325,11 @@ System.register(["./espalier-config", "tippy.js", "aurelia-framework", "aurelia-
                         queryParts.push(urlParts[1]);
                     }
                     var queryString = queryParts.join("&");
-                    return this.http.fetch(urlParts[0] + "?" + queryString)
+                    var url = this.config.rootUrl ? "" + this.config.rootUrl + urlParts[0] + "?" + queryString : urlParts[0] + "?" + queryString;
+                    if (!this.http.isConfigured && this.config.configureHttp) {
+                        this.http.configure(this.config.configureHttp);
+                    }
+                    return this.http.fetch(url)
                         .then(function (response) {
                         if (response.status !== 200) {
                             throw response;

@@ -79,8 +79,8 @@ th.sortable > div > span::after {
   content: '';
   display: block;
   position: absolute;
-  right: 0px;
-  top: 0;
+  right: 0;
+  bottom: 0;
   width: 1.35em;
   height: 1.35em;
   background-repeat: no-repeat;

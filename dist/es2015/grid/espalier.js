@@ -326,7 +326,11 @@ let EspalierCustomElement = class EspalierCustomElement {
             queryParts.push(urlParts[1]);
         }
         const queryString = queryParts.join("&");
-        return this.http.fetch(`${urlParts[0]}?${queryString}`)
+        const url = this.config.rootUrl ? `${this.config.rootUrl}${urlParts[0]}?${queryString}` : `${urlParts[0]}?${queryString}`;
+        if (!this.http.isConfigured && this.config.configureHttp) {
+            this.http.configure(this.config.configureHttp);
+        }
+        return this.http.fetch(url)
             .then((response) => {
             if (response.status !== 200) {
                 throw response;

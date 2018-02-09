@@ -28,4 +28,9 @@ export interface IEspalierSettings<TRow> {
    * Manipulate data returned from the server.
    */
   postFetch?: (records: TRow[]) => TRow[];
+
+  /**
+   * A message to display if there were no records returned.
+   */
+  noRecordsMessage?: string;
 }
