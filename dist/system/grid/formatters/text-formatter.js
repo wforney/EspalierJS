@@ -9,6 +9,9 @@ System.register([], function (exports_1, context_1) {
                 function TextFormatter() {
                 }
                 TextFormatter.prototype.format = function (data) {
+                    if (!data) {
+                        return "";
+                    }
                     return data;
                 };
                 return TextFormatter;

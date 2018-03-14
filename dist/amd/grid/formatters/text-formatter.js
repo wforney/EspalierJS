@@ -5,6 +5,9 @@ define(["require", "exports"], function (require, exports) {
         function TextFormatter() {
         }
         TextFormatter.prototype.format = function (data) {
+            if (!data) {
+                return "";
+            }
             return data;
         };
         return TextFormatter;
