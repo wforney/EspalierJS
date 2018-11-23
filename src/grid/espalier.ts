@@ -219,10 +219,6 @@ export class EspalierCustomElement<TRow> {
       return;
     }
 
-    if (!this.settings) {
-      return;
-    }
-
     if (this.settings.filter &&
       this.settings.filter.container &&
       this.settings.filter.container.parentElement) {
@@ -302,7 +298,7 @@ export class EspalierCustomElement<TRow> {
 
     this.taskQueue.queueMicroTask(() => {
       if (this.settings.filter) {
-        return this.settings.filter.reset();
+        return this.settings.filter.applyFilter();
       }
 
       return this.fetch();

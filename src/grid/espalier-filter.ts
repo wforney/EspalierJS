@@ -61,19 +61,17 @@ export abstract class EspalierFilter {
   }
 
   /**
-   * The user would like to clear the filter. Reset the filter model to
-   * it's default state. It will be applied once that is done.
-   */
-  protected abstract clearFilter(): Promise<void>;
-
-  /**
    * Bind your action for applying the filter to this method. It applies
    * the filter generated from filterAsQueryString() to your grid, resets
    * the grid to the first page, clones and stores your current model for
    * the filter (so it is remembered next time your filter is opened), and
    * closes the filter.
    */
-  protected applyFilter(): Promise<any> {
+  public applyFilter(): Promise<any> {
+    if (!this.espalier) {
+      return Promise.resolve();
+    }
+
     this.lastAppliedState = clone(this.model);
     const appliedFilters = this.appliedFilters;
 
@@ -88,6 +86,12 @@ export abstract class EspalierFilter {
 
     return this.espalier.applyFilter(this.filterAsQueryString, appliedFilters);
   }
+
+  /**
+   * The user would like to clear the filter. Reset the filter model to
+   * it's default state. It will be applied once that is done.
+   */
+  protected abstract clearFilter(): Promise<void>;
 
   /**
    * Bind your action for canceling the filter to this method. It resets

@@ -35,6 +35,9 @@ System.register(["clone"], function (exports_1, context_1) {
                  */
                 EspalierFilter.prototype.applyFilter = function () {
                     var _this = this;
+                    if (!this.espalier) {
+                        return Promise.resolve();
+                    }
                     this.lastAppliedState = clone(this.model);
                     var appliedFilters = this.appliedFilters;
                     var _loop_1 = function (appliedFilter) {

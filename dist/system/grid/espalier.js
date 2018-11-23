@@ -186,9 +186,6 @@ System.register(["./espalier-config", "tippy.js", "aurelia-framework", "aurelia-
                     if (!this.settings) {
                         return;
                     }
-                    if (!this.settings) {
-                        return;
-                    }
                     if (this.settings.filter &&
                         this.settings.filter.container &&
                         this.settings.filter.container.parentElement) {
@@ -259,7 +256,7 @@ System.register(["./espalier-config", "tippy.js", "aurelia-framework", "aurelia-
                     }
                     this.taskQueue.queueMicroTask(function () {
                         if (_this.settings.filter) {
-                            return _this.settings.filter.reset();
+                            return _this.settings.filter.applyFilter();
                         }
                         return _this.fetch();
                     });

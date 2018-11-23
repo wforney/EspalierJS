@@ -157,9 +157,6 @@ define(["require", "exports", "./espalier-config", "tippy.js", "aurelia-framewor
             if (!this.settings) {
                 return;
             }
-            if (!this.settings) {
-                return;
-            }
             if (this.settings.filter &&
                 this.settings.filter.container &&
                 this.settings.filter.container.parentElement) {
@@ -230,7 +227,7 @@ define(["require", "exports", "./espalier-config", "tippy.js", "aurelia-framewor
             }
             this.taskQueue.queueMicroTask(function () {
                 if (_this.settings.filter) {
-                    return _this.settings.filter.reset();
+                    return _this.settings.filter.applyFilter();
                 }
                 return _this.fetch();
             });

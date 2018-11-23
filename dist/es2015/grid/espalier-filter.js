@@ -21,6 +21,9 @@ export class EspalierFilter {
      * closes the filter.
      */
     applyFilter() {
+        if (!this.espalier) {
+            return Promise.resolve();
+        }
         this.lastAppliedState = clone(this.model);
         const appliedFilters = this.appliedFilters;
         for (const appliedFilter of appliedFilters) {

@@ -46,18 +46,18 @@ export declare abstract class EspalierFilter {
      */
     reset(): Promise<any>;
     /**
-     * The user would like to clear the filter. Reset the filter model to
-     * it's default state. It will be applied once that is done.
-     */
-    protected abstract clearFilter(): Promise<void>;
-    /**
      * Bind your action for applying the filter to this method. It applies
      * the filter generated from filterAsQueryString() to your grid, resets
      * the grid to the first page, clones and stores your current model for
      * the filter (so it is remembered next time your filter is opened), and
      * closes the filter.
      */
-    protected applyFilter(): Promise<any>;
+    applyFilter(): Promise<any>;
+    /**
+     * The user would like to clear the filter. Reset the filter model to
+     * it's default state. It will be applied once that is done.
+     */
+    protected abstract clearFilter(): Promise<void>;
     /**
      * Bind your action for canceling the filter to this method. It resets
      * the model to the last applied version of the filter, and closes the
