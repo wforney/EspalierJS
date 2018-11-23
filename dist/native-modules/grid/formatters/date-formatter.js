@@ -1,21 +1,20 @@
-import * as moment from "moment";
+import { DateTime } from "luxon";
 var DateFormatter = /** @class */ (function () {
     function DateFormatter() {
     }
     DateFormatter.prototype.format = function (data) {
-        var parsedDate = moment(data);
-        if (!parsedDate.isValid()) {
+        var parsedDate = DateTime.fromISO(data);
+        if (!parsedDate.isValid) {
             return {
                 date: "INVALID",
                 time: "INVALID"
             };
         }
         return {
-            date: parsedDate.format("L"),
-            time: parsedDate.format("LT")
+            date: parsedDate.toLocaleString(),
+            time: parsedDate.toLocaleString(DateTime.TIME_SIMPLE)
         };
     };
-    ;
     return DateFormatter;
 }());
 export { DateFormatter };

@@ -1,11 +1,11 @@
-System.register(["moment"], function (exports_1, context_1) {
+System.register(["luxon"], function (exports_1, context_1) {
     "use strict";
+    var luxon_1, DateFormatter;
     var __moduleName = context_1 && context_1.id;
-    var moment, DateFormatter;
     return {
         setters: [
-            function (moment_1) {
-                moment = moment_1;
+            function (luxon_1_1) {
+                luxon_1 = luxon_1_1;
             }
         ],
         execute: function () {
@@ -13,19 +13,18 @@ System.register(["moment"], function (exports_1, context_1) {
                 function DateFormatter() {
                 }
                 DateFormatter.prototype.format = function (data) {
-                    var parsedDate = moment(data);
-                    if (!parsedDate.isValid()) {
+                    var parsedDate = luxon_1.DateTime.fromISO(data);
+                    if (!parsedDate.isValid) {
                         return {
                             date: "INVALID",
                             time: "INVALID"
                         };
                     }
                     return {
-                        date: parsedDate.format("L"),
-                        time: parsedDate.format("LT")
+                        date: parsedDate.toLocaleString(),
+                        time: parsedDate.toLocaleString(luxon_1.DateTime.TIME_SIMPLE)
                     };
                 };
-                ;
                 return DateFormatter;
             }());
             exports_1("DateFormatter", DateFormatter);

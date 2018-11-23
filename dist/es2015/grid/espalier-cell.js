@@ -61,7 +61,7 @@ let EspalierCell = class EspalierCell {
             formatter = new TextFormatter();
         }
         this.data = formatter.format(propertyValue, this.record);
-        let view = this.view.create(this.container);
+        const view = this.view.create(this.container);
         view.bind(this);
         this.viewSlot.add(view);
         this.viewSlot.attached();

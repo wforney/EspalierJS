@@ -35,12 +35,12 @@ export declare abstract class EspalierFilter {
      * Return a query string that will be appended to the query string
      * Espalier generates for paging and sorting.
      */
-    protected readonly abstract filterAsQueryString: string;
+    protected abstract readonly filterAsQueryString: string;
     /**
      * Return an array of the currently applied filters with a description
      * of what the filter is and a method of removing the filter.
      */
-    protected readonly abstract appliedFilters: IFilterToken[];
+    protected abstract readonly appliedFilters: IFilterToken[];
     /**
      * Reset the filter to the default state and apply it to the grid.
      */

@@ -7,7 +7,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var espalier_config_1 = require("./espalier-config");
-var tippy = require("tippy.js");
 var aurelia_framework_1 = require("aurelia-framework");
 var aurelia_dependency_injection_1 = require("aurelia-dependency-injection");
 var aurelia_fetch_client_1 = require("aurelia-fetch-client");
@@ -17,6 +16,7 @@ var page_info_2 = require("./page-info");
 exports.PageInfo = page_info_2.PageInfo;
 var helpers_1 = require("./helpers");
 var formatters_1 = require("./formatters/formatters");
+var tippy_js_1 = require("tippy.js");
 var buttonStyleElementName = "espalier-button-styles";
 /**
  * Espalier is a custom element build for the Aurelia framework that
@@ -349,11 +349,12 @@ var EspalierCustomElement = /** @class */ (function () {
                     if (!columnHead.title) {
                         continue;
                     }
-                    tippy(columnHead, {
-                        position: "bottom",
+                    tippy_js_1.default(columnHead, {
+                        placement: "bottom",
                         arrow: true,
-                        size: "big",
-                        followCursor: true
+                        size: "large",
+                        followCursor: true,
+                        content: columnHead.title
                     });
                 }
             });

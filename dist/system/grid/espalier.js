@@ -1,4 +1,4 @@
-System.register(["./espalier-config", "tippy.js", "aurelia-framework", "aurelia-dependency-injection", "aurelia-fetch-client", "./page-info", "./enums", "./helpers", "./formatters/formatters"], function (exports_1, context_1) {
+System.register(["./espalier-config", "aurelia-framework", "aurelia-dependency-injection", "aurelia-fetch-client", "./page-info", "./enums", "./helpers", "./formatters/formatters", "tippy.js"], function (exports_1, context_1) {
     "use strict";
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -6,15 +6,12 @@ System.register(["./espalier-config", "tippy.js", "aurelia-framework", "aurelia-
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
+    var espalier_config_1, aurelia_framework_1, aurelia_dependency_injection_1, aurelia_fetch_client_1, page_info_1, enums_1, helpers_1, formatters_1, tippy_js_1, buttonStyleElementName, EspalierCustomElement;
     var __moduleName = context_1 && context_1.id;
-    var espalier_config_1, tippy, aurelia_framework_1, aurelia_dependency_injection_1, aurelia_fetch_client_1, page_info_1, enums_1, helpers_1, formatters_1, buttonStyleElementName, EspalierCustomElement;
     return {
         setters: [
             function (espalier_config_1_1) {
                 espalier_config_1 = espalier_config_1_1;
-            },
-            function (tippy_1) {
-                tippy = tippy_1;
             },
             function (aurelia_framework_1_1) {
                 aurelia_framework_1 = aurelia_framework_1_1;
@@ -39,6 +36,9 @@ System.register(["./espalier-config", "tippy.js", "aurelia-framework", "aurelia-
             },
             function (formatters_1_1) {
                 formatters_1 = formatters_1_1;
+            },
+            function (tippy_js_1_1) {
+                tippy_js_1 = tippy_js_1_1;
             }
         ],
         execute: function () {
@@ -369,11 +369,12 @@ System.register(["./espalier-config", "tippy.js", "aurelia-framework", "aurelia-
                                 if (!columnHead.title) {
                                     continue;
                                 }
-                                tippy(columnHead, {
-                                    position: "bottom",
+                                tippy_js_1.default(columnHead, {
+                                    placement: "bottom",
                                     arrow: true,
-                                    size: "big",
-                                    followCursor: true
+                                    size: "large",
+                                    followCursor: true,
+                                    content: columnHead.title
                                 });
                             }
                         });

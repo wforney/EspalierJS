@@ -5,7 +5,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 import { EspalierConfig } from "./espalier-config";
-import * as tippy from "tippy.js";
 import { bindable, bindingMode, TaskQueue, customElement, ViewCompiler, ViewResources } from "aurelia-framework";
 import { inject } from "aurelia-dependency-injection";
 import { HttpClient } from "aurelia-fetch-client";
@@ -14,6 +13,7 @@ import { SortOrder, ColumnType } from "./enums";
 export { PageInfo } from "./page-info";
 import { ToArray } from "./helpers";
 import { CurrencyFormatter, DateFormatter, IntegerFormatter, NumberFormatter, TextFormatter } from "./formatters/formatters";
+import tippy from "tippy.js";
 const buttonStyleElementName = "espalier-button-styles";
 /**
  * Espalier is a custom element build for the Aurelia framework that
@@ -370,10 +370,11 @@ let EspalierCustomElement = class EspalierCustomElement {
                         continue;
                     }
                     tippy(columnHead, {
-                        position: "bottom",
+                        placement: "bottom",
                         arrow: true,
-                        size: "big",
-                        followCursor: true
+                        size: "large",
+                        followCursor: true,
+                        content: columnHead.title
                     });
                 }
             });

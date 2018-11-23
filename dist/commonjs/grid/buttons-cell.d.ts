@@ -8,5 +8,5 @@ export declare class ButtonsCell {
     protected buttonClicked(button: ITableButton<any>): void;
     protected openMenu(): void;
     protected closeMenu(): void;
-    private tryClose();
+    private tryClose;
 }

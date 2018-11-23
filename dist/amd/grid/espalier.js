@@ -4,7 +4,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define(["require", "exports", "./espalier-config", "tippy.js", "aurelia-framework", "aurelia-dependency-injection", "aurelia-fetch-client", "./page-info", "./enums", "./page-info", "./helpers", "./formatters/formatters"], function (require, exports, espalier_config_1, tippy, aurelia_framework_1, aurelia_dependency_injection_1, aurelia_fetch_client_1, page_info_1, enums_1, page_info_2, helpers_1, formatters_1) {
+define(["require", "exports", "./espalier-config", "aurelia-framework", "aurelia-dependency-injection", "aurelia-fetch-client", "./page-info", "./enums", "./page-info", "./helpers", "./formatters/formatters", "tippy.js"], function (require, exports, espalier_config_1, aurelia_framework_1, aurelia_dependency_injection_1, aurelia_fetch_client_1, page_info_1, enums_1, page_info_2, helpers_1, formatters_1, tippy_js_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.PageInfo = page_info_2.PageInfo;
@@ -340,11 +340,12 @@ define(["require", "exports", "./espalier-config", "tippy.js", "aurelia-framewor
                         if (!columnHead.title) {
                             continue;
                         }
-                        tippy(columnHead, {
-                            position: "bottom",
+                        tippy_js_1.default(columnHead, {
+                            placement: "bottom",
                             arrow: true,
-                            size: "big",
-                            followCursor: true
+                            size: "large",
+                            followCursor: true,
+                            content: columnHead.title
                         });
                     }
                 });

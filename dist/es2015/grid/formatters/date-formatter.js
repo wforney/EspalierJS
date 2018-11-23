@@ -1,17 +1,16 @@
-import * as moment from "moment";
+import { DateTime } from "luxon";
 export class DateFormatter {
     format(data) {
-        let parsedDate = moment(data);
-        if (!parsedDate.isValid()) {
+        const parsedDate = DateTime.fromISO(data);
+        if (!parsedDate.isValid) {
             return {
                 date: "INVALID",
                 time: "INVALID"
             };
         }
         return {
-            date: parsedDate.format("L"),
-            time: parsedDate.format("LT")
+            date: parsedDate.toLocaleString(),
+            time: parsedDate.toLocaleString(DateTime.TIME_SIMPLE)
         };
     }
-    ;
 }

@@ -8,7 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 var aurelia_framework_1 = require("aurelia-framework");
 var helpers_1 = require("./helpers");
-var tippy = require("tippy.js");
+var tippy_js_1 = require("tippy.js");
 var currentOpenCell;
 var ButtonsCell = /** @class */ (function () {
     function ButtonsCell() {
@@ -18,10 +18,11 @@ var ButtonsCell = /** @class */ (function () {
         var buttons = helpers_1.ToArray(this.menuContainer.querySelectorAll("button"));
         for (var _i = 0, buttons_1 = buttons; _i < buttons_1.length; _i++) {
             var button = buttons_1[_i];
-            tippy(button, {
-                position: "left",
+            tippy_js_1.default(button, {
+                placement: "left",
                 arrow: true,
-                size: "big"
+                size: "large",
+                content: button.title
             });
         }
     };

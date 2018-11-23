@@ -6,8 +6,8 @@ System.register(["aurelia-framework", "./helpers", "tippy.js"], function (export
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
+    var aurelia_framework_1, helpers_1, tippy_js_1, currentOpenCell, ButtonsCell;
     var __moduleName = context_1 && context_1.id;
-    var aurelia_framework_1, helpers_1, tippy, currentOpenCell, ButtonsCell;
     return {
         setters: [
             function (aurelia_framework_1_1) {
@@ -16,8 +16,8 @@ System.register(["aurelia-framework", "./helpers", "tippy.js"], function (export
             function (helpers_1_1) {
                 helpers_1 = helpers_1_1;
             },
-            function (tippy_1) {
-                tippy = tippy_1;
+            function (tippy_js_1_1) {
+                tippy_js_1 = tippy_js_1_1;
             }
         ],
         execute: function () {
@@ -29,10 +29,11 @@ System.register(["aurelia-framework", "./helpers", "tippy.js"], function (export
                     var buttons = helpers_1.ToArray(this.menuContainer.querySelectorAll("button"));
                     for (var _i = 0, buttons_1 = buttons; _i < buttons_1.length; _i++) {
                         var button = buttons_1[_i];
-                        tippy(button, {
-                            position: "left",
+                        tippy_js_1.default(button, {
+                            placement: "left",
                             arrow: true,
-                            size: "big"
+                            size: "large",
+                            content: button.title
                         });
                     }
                 };

@@ -121,14 +121,14 @@ export declare class EspalierCustomElement<TRow> {
     /**
      * Check if the user has specified a filter.
      */
-    private filterIsNotEmpty();
+    private filterIsNotEmpty;
     /**
      * Add url encoded SVG image styles for sort, filter, and close icons. Espalier
      * does it this way so the button color is customizable by the consumer.
      */
-    private addButtonStyles();
+    private addButtonStyles;
     /**
      * Fetch a page of records from the server.
      */
-    private fetch();
+    private fetch;
 }

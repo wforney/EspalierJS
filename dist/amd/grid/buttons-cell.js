@@ -4,7 +4,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define(["require", "exports", "aurelia-framework", "./helpers", "tippy.js"], function (require, exports, aurelia_framework_1, helpers_1, tippy) {
+define(["require", "exports", "aurelia-framework", "./helpers", "tippy.js"], function (require, exports, aurelia_framework_1, helpers_1, tippy_js_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var currentOpenCell;
@@ -16,10 +16,11 @@ define(["require", "exports", "aurelia-framework", "./helpers", "tippy.js"], fun
             var buttons = helpers_1.ToArray(this.menuContainer.querySelectorAll("button"));
             for (var _i = 0, buttons_1 = buttons; _i < buttons_1.length; _i++) {
                 var button = buttons_1[_i];
-                tippy(button, {
-                    position: "left",
+                tippy_js_1.default(button, {
+                    placement: "left",
                     arrow: true,
-                    size: "big"
+                    size: "large",
+                    content: button.title
                 });
             }
         };

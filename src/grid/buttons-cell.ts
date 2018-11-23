@@ -1,7 +1,7 @@
 import { ITableButton } from "./table-button";
 import { bindable, customElement } from "aurelia-framework";
 import { ToArray } from "./helpers";
-import * as tippy from "tippy.js";
+import tippy from "tippy.js";
 
 let currentOpenCell: ButtonsCell | null;
 
@@ -21,9 +21,10 @@ export class ButtonsCell {
 
     for (const button of buttons) {
       tippy(button, {
-        position: "left",
+        placement: "left",
         arrow: true,
-        size: "big"
+        size: "large",
+        content: button.title
       });
     }
   }

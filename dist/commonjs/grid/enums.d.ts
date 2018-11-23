@@ -4,7 +4,7 @@
 export declare enum SortOrder {
     NotSpecified = 0,
     Ascending = 1,
-    Descending = 2,
+    Descending = 2
 }
 /**
  * Tells Espalier what format to apply to a column.
@@ -39,5 +39,5 @@ export declare enum ColumnType {
      * Formats the value as an integer using the users locale and
      * rounds to the nearest number.
      */
-    Integer = 6,
+    Integer = 6
 }

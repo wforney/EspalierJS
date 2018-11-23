@@ -6,7 +6,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { bindable, customElement } from "aurelia-framework";
 import { ToArray } from "./helpers";
-import * as tippy from "tippy.js";
+import tippy from "tippy.js";
 let currentOpenCell;
 let ButtonsCell = class ButtonsCell {
     constructor() {
@@ -16,9 +16,10 @@ let ButtonsCell = class ButtonsCell {
         const buttons = ToArray(this.menuContainer.querySelectorAll("button"));
         for (const button of buttons) {
             tippy(button, {
-                position: "left",
+                placement: "left",
                 arrow: true,
-                size: "big"
+                size: "large",
+                content: button.title
             });
         }
     }

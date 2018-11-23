@@ -1,6 +1,6 @@
 {
   "name": "espalier-js",
-  "version": "1.1.37",
+  "version": "1.2.1",
   "description": "An easy-to-use grid component for Aurelia.",
   "keywords": [
     "aurelia",
@@ -51,82 +51,20 @@
     "preprepare-release": "cross-env npm run test",
     "prepare-release": "cross-env npm run changelog && npm run build && npm run doc"
   },
-  "jspm": {
-    "registry": "npm",
-    "jspmPackage": true,
-    "main": "index",
-    "format": "amd",
-    "directories": {
-      "dist": "dist/amd"
-    },
-    "peerDependencies": {
-      "aurelia-binding": "^1.0.0",
-      "aurelia-dependency-injection": "^1.0.0",
-      "aurelia-logging": "^1.0.0",
-      "aurelia-pal": "^1.0.0",
-      "aurelia-task-queue": "^1.0.0",
-      "aurelia-templating": "^1.0.0",
-      "aurelia-loader": "^1.0.0",
-      "aurelia-templating-binding": "^1.0.0",
-      "aurelia-framework": "^1.0.0",
-      "aurelia-metadata": "^1.0.0",
-      "aurelia-path": "^1.0.0",
-      "aurelia-fetch-client": "^1.1.3",
-      "clone": "^2.1.1",
-      "moment": "^2.18.1",
-      "tippy.js": "^1.3.0"
-    },
-    "dependencies": {
-      "aurelia-binding": "^1.0.0",
-      "aurelia-dependency-injection": "^1.0.0",
-      "aurelia-logging": "^1.0.0",
-      "aurelia-pal": "^1.0.0",
-      "aurelia-task-queue": "^1.0.0",
-      "aurelia-templating": "^1.0.0",
-      "aurelia-loader": "^1.0.0",
-      "aurelia-templating-binding": "^1.0.0",
-      "aurelia-framework": "^1.0.0",
-      "aurelia-metadata": "^1.0.0",
-      "aurelia-path": "^1.0.0",
-      "aurelia-fetch-client": "^1.1.3",
-      "clone": "^2.1.1",
-      "moment": "^2.18.1",
-      "tippy.js": "^1.3.0"
-    },
-    "devDependencies": {}
-  },
   "dependencies": {
-    "aurelia-fetch-client": "^1.3.1",
-    "aurelia-framework": "^1.1.5",
-    "clone": "^2.1.1",
-    "moment": "^2.20.1",
-    "tippy.js": "^1.4.1"
+    "aurelia-fetch-client": "^1.6.0",
+    "aurelia-framework": "^1.3.0",
+    "clone": "^2.1.2",
+    "luxon": "^1.8.0",
+    "tippy.js": "^3.2.0"
   },
   "devDependencies": {
     "@types/clone": "^0.1.30",
-    "@types/jasmine": "^2.8.6",
-    "@types/node": "^7.0.52",
-    "aurelia-bootstrapper": "^2.2.0",
-    "aurelia-pal-browser": "^1.4.0",
-    "aurelia-pal-nodejs": "^1.0.0",
-    "aurelia-polyfills": "^1.3.0",
-    "aurelia-testing": "^1.0.0-beta.4.0.0",
-    "concurrently": "^3.5.1",
-    "conventional-changelog-cli": "^1.3.8",
-    "copyfiles": "^1.2.0",
-    "cross-env": "^3.2.4",
-    "jasmine-core": "^2.9.1",
-    "karma": "^1.5.0",
-    "karma-chrome-launcher": "^2.0.0",
-    "karma-ie-launcher": "^1.0.0",
-    "karma-jasmine": "^1.1.1",
-    "karma-requirejs": "^1.1.0",
-    "requirejs": "^2.3.3",
-    "requirejs-text": "^2.0.15",
-    "rimraf": "^2.6.1",
-    "touch": "^3.1.0",
-    "tslint": "^4.4.2",
-    "typedoc": "^0.5.9",
-    "typescript": "^2.6.2"
+    "@types/luxon": "^1.4.1",
+    "concurrently": "^4.1.0",
+    "copyfiles": "^2.1.0",
+    "cross-env": "^5.2.0",
+    "rimraf": "^2.6.2",
+    "tslint": "^5.11.0"
   }
 }

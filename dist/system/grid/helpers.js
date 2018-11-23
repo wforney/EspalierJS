@@ -1,10 +1,10 @@
 System.register([], function (exports_1, context_1) {
     "use strict";
+    var toStr, isCallable, toInteger, maxSafeInteger, toLength, ToArray;
     var __moduleName = context_1 && context_1.id;
     function newFunction() {
         return "undefined";
     }
-    var toStr, isCallable, toInteger, maxSafeInteger, toLength, ToArray;
     return {
         setters: [],
         execute: function () {

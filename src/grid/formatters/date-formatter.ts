@@ -1,11 +1,11 @@
-import * as moment from "moment";
+import { DateTime } from "luxon";
 import { IEspalierDataFormatter } from "../espalier-data-formatter";
 
 export class DateFormatter implements IEspalierDataFormatter {
   public format(data: any) {
-    let parsedDate = moment(data);
+    const parsedDate = DateTime.fromISO(data);
 
-    if (!parsedDate.isValid()) {
+    if (!parsedDate.isValid) {
       return {
         date: "INVALID",
         time: "INVALID"
@@ -13,8 +13,8 @@ export class DateFormatter implements IEspalierDataFormatter {
     }
 
     return {
-      date: parsedDate.format("L"),
-      time: parsedDate.format("LT")
+      date: parsedDate.toLocaleString(),
+      time: parsedDate.toLocaleString(DateTime.TIME_SIMPLE)
     };
-  };
+  }
 }

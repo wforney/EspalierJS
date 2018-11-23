@@ -1,5 +1,6 @@
 System.register(["aurelia-framework", "./grid/enums", "./grid/espalier-filter", "./grid/espalier", "./grid/espalier-config", "./grid/espalier-cell", "./grid/buttons-cell", "./grid/formatters/currency-formatter", "./grid/formatters/date-formatter", "./grid/formatters/integer-formatter", "./grid/formatters/number-formatter", "./grid/formatters/text-formatter"], function (exports_1, context_1) {
     "use strict";
+    var aurelia_framework_1;
     var __moduleName = context_1 && context_1.id;
     function configure(config) {
         config.globalResources([
@@ -7,7 +8,6 @@ System.register(["aurelia-framework", "./grid/enums", "./grid/espalier-filter", 
         ]);
     }
     exports_1("configure", configure);
-    var aurelia_framework_1;
     return {
         setters: [
             function (aurelia_framework_1_1) {

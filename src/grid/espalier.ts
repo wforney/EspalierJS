@@ -1,5 +1,4 @@
 import { EspalierConfig } from "./espalier-config";
-import * as tippy from "tippy.js";
 import { bindable, bindingMode, TaskQueue, customElement, ViewCompiler, ViewResources } from "aurelia-framework";
 import { inject } from "aurelia-dependency-injection";
 import { IColumnDefinition } from "./column-definition";
@@ -13,6 +12,7 @@ import { ToArray } from "./helpers";
 import { IEspalierPage } from "./espalier-page";
 import { CurrencyFormatter, DateFormatter, IntegerFormatter, NumberFormatter, TextFormatter } from "./formatters/formatters";
 import { IFilterToken } from "./espalier-filter";
+import tippy from "tippy.js";
 
 const buttonStyleElementName = "espalier-button-styles";
 
@@ -409,7 +409,7 @@ export class EspalierCustomElement<TRow> {
     const queryString = queryParts.join("&");
     const url = this.config.rootUrl ? `${this.config.rootUrl}${urlParts[0]}?${queryString}` : `${urlParts[0]}?${queryString}`;
 
-    if(!this.http.isConfigured && this.config.configureHttp) {
+    if (!this.http.isConfigured && this.config.configureHttp) {
       this.http.configure(this.config.configureHttp);
     }
 
@@ -466,10 +466,11 @@ export class EspalierCustomElement<TRow> {
             }
 
             tippy(columnHead, {
-              position: "bottom",
+              placement: "bottom",
               arrow: true,
-              size: "big",
-              followCursor: true
+              size: "large",
+              followCursor: true,
+              content: columnHead.title
             });
           }
         });

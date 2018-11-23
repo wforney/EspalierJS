@@ -6,7 +6,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { bindable, customElement } from "aurelia-framework";
 import { ToArray } from "./helpers";
-import * as tippy from "tippy.js";
+import tippy from "tippy.js";
 var currentOpenCell;
 var ButtonsCell = /** @class */ (function () {
     function ButtonsCell() {
@@ -17,9 +17,10 @@ var ButtonsCell = /** @class */ (function () {
         for (var _i = 0, buttons_1 = buttons; _i < buttons_1.length; _i++) {
             var button = buttons_1[_i];
             tippy(button, {
-                position: "left",
+                placement: "left",
                 arrow: true,
-                size: "big"
+                size: "large",
+                content: button.title
             });
         }
     };

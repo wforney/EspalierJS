@@ -13,5 +13,5 @@ export declare class EspalierCell {
     constructor(viewSlot: ViewSlot, container: Container);
     protected attached(): void;
     protected viewChanged(): void;
-    private loadView();
+    private loadView;
 }
