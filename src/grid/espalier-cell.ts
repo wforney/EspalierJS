@@ -8,13 +8,13 @@ import { TextFormatter } from "./formatters/formatters";
 @noView()
 @inject(ViewSlot, Container)
 export class EspalierCell {
-  @bindable
+  @bindable()
   public column: IColumnDefinition<any>;
 
-  @bindable
+  @bindable()
   public record: any;
 
-  @bindable
+  @bindable()
   public view: ViewFactory;
 
   protected onClick: () => void;
