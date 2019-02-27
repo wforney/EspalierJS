@@ -2,7 +2,7 @@ import { EspalierConfig } from "./espalier-config";
 import { bindable, bindingMode, TaskQueue, customElement, ViewCompiler, ViewResources } from "aurelia-framework";
 import { inject } from "aurelia-dependency-injection";
 import { IColumnDefinition } from "./column-definition";
-import { HttpClient } from "aurelia-fetch-client";
+import { HttpClient, HttpResponseMessage } from "aurelia-http-client";
 import { IEspalierSettings } from "./espalier-settings";
 import { PageInfo } from "./page-info";
 import { SortOrder, ColumnType } from "./enums";
@@ -409,12 +409,10 @@ export class EspalierCustomElement<TRow> {
     const queryString = queryParts.join("&");
     const url = this.config.rootUrl ? `${this.config.rootUrl}${urlParts[0]}?${queryString}` : `${urlParts[0]}?${queryString}`;
 
-    if (!this.http.isConfigured && this.config.configureHttp) {
-      this.http.configure(this.config.configureHttp);
-    }
+    return this.http.get(url)
+      .then((responseMessage: HttpResponseMessage) => {
+        const response = responseMessage.response;
 
-    return this.http.fetch(url)
-      .then((response: Response) => {
         if (response.status !== 200) {
           throw response;
         }

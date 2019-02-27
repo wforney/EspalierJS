@@ -2,7 +2,6 @@ import { EspalierCustomElement } from "./espalier";
 import { IEspalierPage } from "./espalier-page";
 import { ViewFactory } from "aurelia-framework";
 import { SortOrder } from "./enums";
-import { HttpClientConfiguration } from "aurelia-fetch-client";
 
 const viewMap = new Map<string, string>();
 const compiledViews = new Map<string, ViewFactory>();
@@ -128,11 +127,6 @@ export class EspalierConfig {
    * The color to use for the sort and filter icons.
    */
   public buttonColor: string = "rgb(100,100,100)";
-
-  /**
-   * Http configuration to use if it has not been configured.
-   */
-  public configureHttp: (config: HttpClientConfiguration) => void;
 
   /**
    * Returns the view map. Espalier uses string-keyed cell templates

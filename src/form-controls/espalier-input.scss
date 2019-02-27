@@ -1,0 +1,63 @@
+@import "../styles/variables";
+
+.espalier-control {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: .5rem;
+
+  label {
+    box-sizing: border-box;
+    display: block;
+    font-weight: bold;
+    font-size: 1.75rem;
+    width: 100%;
+  }
+
+  input {
+    outline: none;
+    box-sizing: border-box;
+    padding: 1em;
+    width: 100%;
+    border: 2px solid #006666;
+    border-bottom-width: 0px;
+    border-top-left-radius: $border-radius;
+    border-top-right-radius: $border-radius;
+
+    &:last-child {
+      border-bottom-left-radius: $border-radius;
+      border-bottom-right-radius: $border-radius;
+      border-bottom-width: 2px;
+    }
+
+    &:focus {
+      border-color: $focused-outline;
+      box-shadow: 0 0 4px $primary-background;
+
+      &+span.error {
+        box-shadow: 0 0 4px $primary-background;
+      }
+    }
+  }
+
+  input+span.error {
+    border-top: 1px dashed $negative-border;
+  }
+
+  span.error {
+    box-sizing: border-box;
+    font-size: .75em;
+    padding: .5em 1em;
+    display: block;
+    width: 100%;
+    color: $negative-text;
+    background: $negative-background;
+    border-left: 2px solid $negative-border;
+    border-right: 2px solid $negative-border;
+
+    &:last-child {
+      border-bottom-left-radius: .15em;
+      border-bottom-right-radius: .15em;
+      border-bottom: 2px solid $negative-border;
+    }
+  }
+}

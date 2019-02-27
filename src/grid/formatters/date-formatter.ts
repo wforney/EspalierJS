@@ -1,20 +1,12 @@
-import { DateTime } from "luxon";
 import { IEspalierDataFormatter } from "../espalier-data-formatter";
 
 export class DateFormatter implements IEspalierDataFormatter {
-  public format(data: any) {
-    const parsedDate = DateTime.fromISO(data);
-
-    if (!parsedDate.isValid) {
-      return {
-        date: "INVALID",
-        time: "INVALID"
-      };
-    }
+  public format(isoDate: any) {
+    const parsedDate = new Date(isoDate);
 
     return {
-      date: parsedDate.toLocaleString(),
-      time: parsedDate.toLocaleString(DateTime.TIME_SIMPLE)
+      date: parsedDate.toLocaleDateString(),
+      time: parsedDate.toLocaleTimeString()
     };
   }
 }
