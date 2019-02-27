@@ -7,7 +7,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 import { EspalierConfig } from "./espalier-config";
 import { bindable, bindingMode, TaskQueue, customElement, ViewCompiler, ViewResources } from "aurelia-framework";
 import { inject } from "aurelia-dependency-injection";
-import { HttpClient } from "aurelia-fetch-client";
+import { HttpClient } from "aurelia-http-client";
 import { PageInfo } from "./page-info";
 import { SortOrder, ColumnType } from "./enums";
 export { PageInfo } from "./page-info";
@@ -324,15 +324,12 @@ let EspalierCustomElement = class EspalierCustomElement {
         }
         const queryString = queryParts.join("&");
         const url = this.config.rootUrl ? `${this.config.rootUrl}${urlParts[0]}?${queryString}` : `${urlParts[0]}?${queryString}`;
-        if (!this.http.isConfigured && this.config.configureHttp) {
-            this.http.configure(this.config.configureHttp);
-        }
-        return this.http.fetch(url)
-            .then((response) => {
-            if (response.status !== 200) {
-                throw response;
+        return this.http.get(url)
+            .then((responseMessage) => {
+            if (responseMessage.statusCode !== 200) {
+                throw responseMessage;
             }
-            return this.config.getPage(this, response);
+            return this.config.getPage(this, responseMessage.content);
         })
             .then((page) => {
             this.recordCount = page.totalRecords;

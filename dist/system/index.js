@@ -1,10 +1,12 @@
-System.register(["aurelia-framework", "./grid/enums", "./grid/espalier-filter", "./grid/espalier", "./grid/espalier-config", "./grid/espalier-cell", "./grid/buttons-cell", "./grid/formatters/currency-formatter", "./grid/formatters/date-formatter", "./grid/formatters/integer-formatter", "./grid/formatters/number-formatter", "./grid/formatters/text-formatter"], function (exports_1, context_1) {
+System.register(["aurelia-framework", "./grid/enums", "./grid/espalier-filter", "./grid/espalier", "./grid/espalier-config", "./grid/espalier-cell", "./grid/buttons-cell", "./grid/formatters/currency-formatter", "./grid/formatters/date-formatter", "./grid/formatters/integer-formatter", "./grid/formatters/number-formatter", "./grid/formatters/text-formatter", "./form-controls/espalier-input", "./form-controls/espalier-checkbox"], function (exports_1, context_1) {
     "use strict";
     var aurelia_framework_1;
     var __moduleName = context_1 && context_1.id;
     function configure(config) {
         config.globalResources([
-            aurelia_framework_1.PLATFORM.moduleName("./grid/espalier")
+            aurelia_framework_1.PLATFORM.moduleName("./grid/espalier"),
+            aurelia_framework_1.PLATFORM.moduleName("./form-controls/espalier-checkbox"),
+            aurelia_framework_1.PLATFORM.moduleName("./form-controls/espalier-input")
         ]);
     }
     exports_1("configure", configure);
@@ -67,6 +69,16 @@ System.register(["aurelia-framework", "./grid/enums", "./grid/espalier-filter", 
             function (text_formatter_1_1) {
                 exports_1({
                     "TextFormatter": text_formatter_1_1["TextFormatter"]
+                });
+            },
+            function (espalier_input_1_1) {
+                exports_1({
+                    "EspalierInputCustomElement": espalier_input_1_1["EspalierInputCustomElement"]
+                });
+            },
+            function (espalier_checkbox_1_1) {
+                exports_1({
+                    "EspalierCheckboxCustomElement": espalier_checkbox_1_1["EspalierCheckboxCustomElement"]
                 });
             }
         ],

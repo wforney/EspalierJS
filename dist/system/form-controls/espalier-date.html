@@ -1,0 +1,10 @@
+<template>
+  <require from="flatpickr/flatpickr.css"></require>
+  <div class="espalier-control">
+    <label if.bind="label" for.one-time="controlid">${label}</label>
+    <input ref="input" id.one-time="controlid" blur.trigger="doBlur()" type.one-time="type || 'text'" value.bind="value & validate">
+    <span repeat.for="error of errors" class="error">
+      ${error}
+    </span>
+  </div>
+</template>

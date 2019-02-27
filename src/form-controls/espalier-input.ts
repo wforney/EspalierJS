@@ -1,12 +1,12 @@
-import { bindable, customElement, bindingMode, autoinject } from "aurelia-framework";
+import { bindable, customElement, bindingMode, inject } from "aurelia-framework";
 import { IEspalierFormControl } from "./espalier-form-control";
 import { ValidationController, ValidationRenderer, RenderInstruction } from "aurelia-validation";
 import { EventAggregator, Subscription } from "aurelia-event-aggregator";
 
 let isBlurCheck = false;
 
-@autoinject()
 @customElement("esp-input")
+@inject(ValidationController, EventAggregator)
 export class EspalierInputCustomElement implements IEspalierFormControl, ValidationRenderer {
   @bindable()
   public controlid: string;
@@ -37,7 +37,7 @@ export class EspalierInputCustomElement implements IEspalierFormControl, Validat
 
     for (const { result, elements } of instruction.unrender) {
       for (const element of elements) {
-        if (!(element["au"].controller.viewModel == this)) { continue; }
+        if (!(element["au"].controller.viewModel == this) || !result.message) { continue; }
         const index = this.errors.indexOf(result.message);
         if (index < 0) { continue; }
         this.errors.splice(index, 1);
@@ -45,10 +45,10 @@ export class EspalierInputCustomElement implements IEspalierFormControl, Validat
     }
 
     for (const { result, elements } of instruction.render) {
-      if (result.valid) { continue; }
+      if (result.valid || !result.message) { continue; }
 
       for (const element of elements) {
-        if (!(element["au"].controller.viewModel == this)
+        if (!((<any>element["au"]).controller.viewModel == this)
           || this.errors.indexOf(result.message) > -1) { continue; }
         this.errors.push(result.message);
       }

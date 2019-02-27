@@ -24,9 +24,15 @@ var number_formatter_1 = require("./grid/formatters/number-formatter");
 exports.NumberFormatter = number_formatter_1.NumberFormatter;
 var text_formatter_1 = require("./grid/formatters/text-formatter");
 exports.TextFormatter = text_formatter_1.TextFormatter;
+var espalier_input_1 = require("./form-controls/espalier-input");
+exports.EspalierInputCustomElement = espalier_input_1.EspalierInputCustomElement;
+var espalier_checkbox_1 = require("./form-controls/espalier-checkbox");
+exports.EspalierCheckboxCustomElement = espalier_checkbox_1.EspalierCheckboxCustomElement;
 function configure(config) {
     config.globalResources([
-        aurelia_framework_1.PLATFORM.moduleName("./grid/espalier")
+        aurelia_framework_1.PLATFORM.moduleName("./grid/espalier"),
+        aurelia_framework_1.PLATFORM.moduleName("./form-controls/espalier-checkbox"),
+        aurelia_framework_1.PLATFORM.moduleName("./form-controls/espalier-input")
     ]);
 }
 exports.configure = configure;

@@ -411,13 +411,11 @@ export class EspalierCustomElement<TRow> {
 
     return this.http.get(url)
       .then((responseMessage: HttpResponseMessage) => {
-        const response = responseMessage.response;
-
-        if (response.status !== 200) {
-          throw response;
+        if (responseMessage.statusCode !== 200) {
+          throw responseMessage;
         }
 
-        return this.config.getPage(this, response);
+        return this.config.getPage(this, responseMessage.content);
       })
       .then((page: IEspalierPage) => {
         this.recordCount = page.totalRecords;
@@ -427,7 +425,7 @@ export class EspalierCustomElement<TRow> {
         const startAtPage = Math.max(1, this.page - 3);
         const endAtPage = Math.min(page.pageCount, this.page + 3 + Math.max(3 - this.page, 1));
         const nextPage = (this.page + 1);
-        const pages = [];
+        const pages: PageInfo[] = [];
 
         if (this.page > 2) {
           pages.push(new PageInfo(false, false, "&laquo;", 1));

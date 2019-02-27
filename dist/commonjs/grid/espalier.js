@@ -9,7 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var espalier_config_1 = require("./espalier-config");
 var aurelia_framework_1 = require("aurelia-framework");
 var aurelia_dependency_injection_1 = require("aurelia-dependency-injection");
-var aurelia_fetch_client_1 = require("aurelia-fetch-client");
+var aurelia_http_client_1 = require("aurelia-http-client");
 var page_info_1 = require("./page-info");
 var enums_1 = require("./enums");
 var page_info_2 = require("./page-info");
@@ -303,15 +303,12 @@ var EspalierCustomElement = /** @class */ (function () {
         }
         var queryString = queryParts.join("&");
         var url = this.config.rootUrl ? "" + this.config.rootUrl + urlParts[0] + "?" + queryString : urlParts[0] + "?" + queryString;
-        if (!this.http.isConfigured && this.config.configureHttp) {
-            this.http.configure(this.config.configureHttp);
-        }
-        return this.http.fetch(url)
-            .then(function (response) {
-            if (response.status !== 200) {
-                throw response;
+        return this.http.get(url)
+            .then(function (responseMessage) {
+            if (responseMessage.statusCode !== 200) {
+                throw responseMessage;
             }
-            return _this.config.getPage(_this, response);
+            return _this.config.getPage(_this, responseMessage.content);
         })
             .then(function (page) {
             _this.recordCount = page.totalRecords;
@@ -375,7 +372,7 @@ var EspalierCustomElement = /** @class */ (function () {
     ], EspalierCustomElement.prototype, "settings", void 0);
     EspalierCustomElement = __decorate([
         aurelia_framework_1.customElement("espalier"),
-        aurelia_dependency_injection_1.inject(aurelia_fetch_client_1.HttpClient, aurelia_framework_1.TaskQueue, espalier_config_1.EspalierConfig, aurelia_framework_1.ViewCompiler, aurelia_framework_1.ViewResources)
+        aurelia_dependency_injection_1.inject(aurelia_http_client_1.HttpClient, aurelia_framework_1.TaskQueue, espalier_config_1.EspalierConfig, aurelia_framework_1.ViewCompiler, aurelia_framework_1.ViewResources)
     ], EspalierCustomElement);
     return EspalierCustomElement;
 }());

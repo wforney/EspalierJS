@@ -1,18 +1,11 @@
-import { DateTime } from "luxon";
 var DateFormatter = /** @class */ (function () {
     function DateFormatter() {
     }
-    DateFormatter.prototype.format = function (data) {
-        var parsedDate = DateTime.fromISO(data);
-        if (!parsedDate.isValid) {
-            return {
-                date: "INVALID",
-                time: "INVALID"
-            };
-        }
+    DateFormatter.prototype.format = function (isoDate) {
+        var parsedDate = new Date(isoDate);
         return {
-            date: parsedDate.toLocaleString(),
-            time: parsedDate.toLocaleString(DateTime.TIME_SIMPLE)
+            date: parsedDate.toLocaleDateString(),
+            time: parsedDate.toLocaleTimeString()
         };
     };
     return DateFormatter;

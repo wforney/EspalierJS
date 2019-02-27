@@ -1,28 +1,18 @@
-System.register(["luxon"], function (exports_1, context_1) {
+System.register([], function (exports_1, context_1) {
     "use strict";
-    var luxon_1, DateFormatter;
+    var DateFormatter;
     var __moduleName = context_1 && context_1.id;
     return {
-        setters: [
-            function (luxon_1_1) {
-                luxon_1 = luxon_1_1;
-            }
-        ],
+        setters: [],
         execute: function () {
             DateFormatter = /** @class */ (function () {
                 function DateFormatter() {
                 }
-                DateFormatter.prototype.format = function (data) {
-                    var parsedDate = luxon_1.DateTime.fromISO(data);
-                    if (!parsedDate.isValid) {
-                        return {
-                            date: "INVALID",
-                            time: "INVALID"
-                        };
-                    }
+                DateFormatter.prototype.format = function (isoDate) {
+                    var parsedDate = new Date(isoDate);
                     return {
-                        date: parsedDate.toLocaleString(),
-                        time: parsedDate.toLocaleString(luxon_1.DateTime.TIME_SIMPLE)
+                        date: parsedDate.toLocaleDateString(),
+                        time: parsedDate.toLocaleTimeString()
                     };
                 };
                 return DateFormatter;

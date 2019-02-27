@@ -68,13 +68,13 @@ let EspalierCell = class EspalierCell {
     }
 };
 __decorate([
-    bindable
+    bindable()
 ], EspalierCell.prototype, "column", void 0);
 __decorate([
-    bindable
+    bindable()
 ], EspalierCell.prototype, "record", void 0);
 __decorate([
-    bindable
+    bindable()
 ], EspalierCell.prototype, "view", void 0);
 EspalierCell = __decorate([
     customElement("espalier-cell"),

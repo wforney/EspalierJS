@@ -1,4 +1,4 @@
-import Flatpickr from "flatpickr";
+// import Flatpickr from "flatpickr";
 import { customElement, autoinject } from "aurelia-framework";
 
 @autoinject()

@@ -1,7 +1,7 @@
 import { EspalierConfig } from "./espalier-config";
 import { TaskQueue, ViewCompiler, ViewResources } from "aurelia-framework";
 import { IColumnDefinition } from "./column-definition";
-import { HttpClient } from "aurelia-fetch-client";
+import { HttpClient } from "aurelia-http-client";
 import { IEspalierSettings } from "./espalier-settings";
 import { PageInfo } from "./page-info";
 import { ITableButton } from "./table-button";

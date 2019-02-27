@@ -2,7 +2,6 @@ import { EspalierCustomElement } from "./espalier";
 import { IEspalierPage } from "./espalier-page";
 import { ViewFactory } from "aurelia-framework";
 import { SortOrder } from "./enums";
-import { HttpClientConfiguration } from "aurelia-fetch-client";
 /**
  * Global configuration options for Espalier with sensible defaults.
  */
@@ -48,10 +47,6 @@ export declare class EspalierConfig {
      */
     buttonColor: string;
     /**
-     * Http configuration to use if it has not been configured.
-     */
-    configureHttp: (config: HttpClientConfiguration) => void;
-    /**
      * Returns the view map. Espalier uses string-keyed cell templates
      * when rendering cells. It has four built-in template: "default",
      * "date", "time", and "date-time". You can override those here, or
@@ -69,6 +64,6 @@ export declare class EspalierConfig {
      * @param instance The Espalier instance to get a page for.
      * @param response The response from the Aurelia Fetch Client call to your API.
      */
-    getPage(instance: EspalierCustomElement<any>, response: Response): Promise<IEspalierPage>;
+    getPage(instance: EspalierCustomElement<any>, data: any): Promise<IEspalierPage>;
     buildPagingQueryString(page: number, pageSize: number, sortPropertyName: string, sortOrder: SortOrder | undefined): string;
 }

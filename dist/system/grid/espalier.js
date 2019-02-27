@@ -1,4 +1,4 @@
-System.register(["./espalier-config", "aurelia-framework", "aurelia-dependency-injection", "aurelia-fetch-client", "./page-info", "./enums", "./helpers", "./formatters/formatters", "tippy.js"], function (exports_1, context_1) {
+System.register(["./espalier-config", "aurelia-framework", "aurelia-dependency-injection", "aurelia-http-client", "./page-info", "./enums", "./helpers", "./formatters/formatters", "tippy.js"], function (exports_1, context_1) {
     "use strict";
     var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
         var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -6,7 +6,7 @@ System.register(["./espalier-config", "aurelia-framework", "aurelia-dependency-i
         else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
         return c > 3 && r && Object.defineProperty(target, key, r), r;
     };
-    var espalier_config_1, aurelia_framework_1, aurelia_dependency_injection_1, aurelia_fetch_client_1, page_info_1, enums_1, helpers_1, formatters_1, tippy_js_1, buttonStyleElementName, EspalierCustomElement;
+    var espalier_config_1, aurelia_framework_1, aurelia_dependency_injection_1, aurelia_http_client_1, page_info_1, enums_1, helpers_1, formatters_1, tippy_js_1, buttonStyleElementName, EspalierCustomElement;
     var __moduleName = context_1 && context_1.id;
     return {
         setters: [
@@ -19,8 +19,8 @@ System.register(["./espalier-config", "aurelia-framework", "aurelia-dependency-i
             function (aurelia_dependency_injection_1_1) {
                 aurelia_dependency_injection_1 = aurelia_dependency_injection_1_1;
             },
-            function (aurelia_fetch_client_1_1) {
-                aurelia_fetch_client_1 = aurelia_fetch_client_1_1;
+            function (aurelia_http_client_1_1) {
+                aurelia_http_client_1 = aurelia_http_client_1_1;
             },
             function (page_info_1_1) {
                 page_info_1 = page_info_1_1;
@@ -323,15 +323,12 @@ System.register(["./espalier-config", "aurelia-framework", "aurelia-dependency-i
                     }
                     var queryString = queryParts.join("&");
                     var url = this.config.rootUrl ? "" + this.config.rootUrl + urlParts[0] + "?" + queryString : urlParts[0] + "?" + queryString;
-                    if (!this.http.isConfigured && this.config.configureHttp) {
-                        this.http.configure(this.config.configureHttp);
-                    }
-                    return this.http.fetch(url)
-                        .then(function (response) {
-                        if (response.status !== 200) {
-                            throw response;
+                    return this.http.get(url)
+                        .then(function (responseMessage) {
+                        if (responseMessage.statusCode !== 200) {
+                            throw responseMessage;
                         }
-                        return _this.config.getPage(_this, response);
+                        return _this.config.getPage(_this, responseMessage.content);
                     })
                         .then(function (page) {
                         _this.recordCount = page.totalRecords;
@@ -395,7 +392,7 @@ System.register(["./espalier-config", "aurelia-framework", "aurelia-dependency-i
                 ], EspalierCustomElement.prototype, "settings", void 0);
                 EspalierCustomElement = __decorate([
                     aurelia_framework_1.customElement("espalier"),
-                    aurelia_dependency_injection_1.inject(aurelia_fetch_client_1.HttpClient, aurelia_framework_1.TaskQueue, espalier_config_1.EspalierConfig, aurelia_framework_1.ViewCompiler, aurelia_framework_1.ViewResources)
+                    aurelia_dependency_injection_1.inject(aurelia_http_client_1.HttpClient, aurelia_framework_1.TaskQueue, espalier_config_1.EspalierConfig, aurelia_framework_1.ViewCompiler, aurelia_framework_1.ViewResources)
                 ], EspalierCustomElement);
                 return EspalierCustomElement;
             }());

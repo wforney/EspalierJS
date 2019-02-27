@@ -1,6 +1,6 @@
 import { IEspalierDataFormatter } from "../espalier-data-formatter";
 export declare class DateFormatter implements IEspalierDataFormatter {
-    format(data: any): {
+    format(isoDate: any): {
         date: string;
         time: string;
     };

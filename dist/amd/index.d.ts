@@ -15,4 +15,6 @@ export { DateFormatter } from "./grid/formatters/date-formatter";
 export { IntegerFormatter } from "./grid/formatters/integer-formatter";
 export { NumberFormatter } from "./grid/formatters/number-formatter";
 export { TextFormatter } from "./grid/formatters/text-formatter";
+export { EspalierInputCustomElement } from "./form-controls/espalier-input";
+export { EspalierCheckboxCustomElement } from "./form-controls/espalier-checkbox";
 export declare function configure(config: FrameworkConfiguration): void;

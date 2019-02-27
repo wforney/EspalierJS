@@ -75,13 +75,13 @@ var EspalierCell = /** @class */ (function () {
         this.viewSlot.attached();
     };
     __decorate([
-        aurelia_framework_1.bindable
+        aurelia_framework_1.bindable()
     ], EspalierCell.prototype, "column", void 0);
     __decorate([
-        aurelia_framework_1.bindable
+        aurelia_framework_1.bindable()
     ], EspalierCell.prototype, "record", void 0);
     __decorate([
-        aurelia_framework_1.bindable
+        aurelia_framework_1.bindable()
     ], EspalierCell.prototype, "view", void 0);
     EspalierCell = __decorate([
         aurelia_framework_1.customElement("espalier-cell"),

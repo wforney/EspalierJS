@@ -133,17 +133,14 @@ export class EspalierConfig {
      * @param instance The Espalier instance to get a page for.
      * @param response The response from the Aurelia Fetch Client call to your API.
      */
-    getPage(instance, response) {
-        return response.json()
-            .then((data) => {
-            const page = {
-                totalRecords: data.TotalRecords,
-                records: data.Results,
-                pageCount: Math.ceil(data.TotalRecords / instance.pageSize),
-                currentPage: instance.page
-            };
-            return page;
-        });
+    getPage(instance, data) {
+        const page = {
+            totalRecords: data.TotalRecords,
+            records: data.Results,
+            pageCount: Math.ceil(data.TotalRecords / instance.pageSize),
+            currentPage: instance.page
+        };
+        return Promise.resolve(page);
     }
     buildPagingQueryString(page, pageSize, sortPropertyName, sortOrder) {
         const queryParts = [

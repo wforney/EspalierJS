@@ -93,17 +93,14 @@ System.register(["./enums"], function (exports_1, context_1) {
                  * @param instance The Espalier instance to get a page for.
                  * @param response The response from the Aurelia Fetch Client call to your API.
                  */
-                EspalierConfig.prototype.getPage = function (instance, response) {
-                    return response.json()
-                        .then(function (data) {
-                        var page = {
-                            totalRecords: data.TotalRecords,
-                            records: data.Results,
-                            pageCount: Math.ceil(data.TotalRecords / instance.pageSize),
-                            currentPage: instance.page
-                        };
-                        return page;
-                    });
+                EspalierConfig.prototype.getPage = function (instance, data) {
+                    var page = {
+                        totalRecords: data.TotalRecords,
+                        records: data.Results,
+                        pageCount: Math.ceil(data.TotalRecords / instance.pageSize),
+                        currentPage: instance.page
+                    };
+                    return Promise.resolve(page);
                 };
                 EspalierConfig.prototype.buildPagingQueryString = function (page, pageSize, sortPropertyName, sortOrder) {
                     var queryParts = [
