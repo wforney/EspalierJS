@@ -1,7 +1,4 @@
-import { EspalierCustomElement } from "./espalier";
-import { IEspalierPage } from "./espalier-page";
 import { ViewFactory } from "aurelia-framework";
-import { SortOrder } from "./enums";
 
 const viewMap = new Map<string, string>();
 const compiledViews = new Map<string, ViewFactory>();
@@ -90,40 +87,6 @@ export class EspalierConfig {
   public rootUrl: string = "";
 
   /**
-   * The name of the query string parameter for the 1-based
-   * page number to return.
-   */
-  public pageParameterName = "Page";
-
-  /**
-   * The name of the query string parameter that specifies
-   * the number of records to return.
-   */
-  public pageSizeParameterName = "PageSize";
-
-  /**
-   * The name of the query string parameter that specifies
-   * the name of the  column to sort on.
-   */
-  public sortOnParameterName = "SortOn";
-
-  /**
-   * The name of the query string parameter that specified
-   * the order to sort in, either ascending or descending.
-   */
-  public sortOrderParameterName = "SortOrder";
-
-  /**
-   * The constant value indicating a descending sort order.
-   */
-  public descConst = "desc";
-
-  /**
-   * The constant value indicating an ascending sort order.
-   */
-  public ascConst = "asc";
-
-  /**
    * The color to use for the sort and filter icons.
    */
   public buttonColor: string = "rgb(100,100,100)";
@@ -149,35 +112,5 @@ export class EspalierConfig {
 
   public setView(name: string, view: ViewFactory) {
     compiledViews.set(name, view);
-  }
-
-  /**
-   * Parse a response into an IEspalierPage. The default expects your
-   * response to contain JSON in the following format:
-   * 
-   * <pre><code>{<br />  TotalRecords: number, // Total number or records matching the current filter.<br />  Results: any[] // The records in the page.<br />}</code></pre>
-   * @param instance The Espalier instance to get a page for.
-   * @param response The response from the Aurelia Fetch Client call to your API.
-   */
-  public getPage(instance: EspalierCustomElement<any>, data: any): Promise<IEspalierPage> {
-    const page: IEspalierPage = {
-      totalRecords: data.TotalRecords,
-      records: data.Results,
-      pageCount: Math.ceil(data.TotalRecords / instance.pageSize),
-      currentPage: instance.page
-    };
-
-    return Promise.resolve(page);
-  }
-
-  public buildPagingQueryString(page: number, pageSize: number, sortPropertyName: string, sortOrder: SortOrder | undefined): string {
-    const queryParts = [
-      `${this.pageParameterName}=${page}`,
-      `${this.pageSizeParameterName}=${pageSize}`,
-      `${this.sortOnParameterName}=${sortPropertyName}`,
-      `${this.sortOrderParameterName}=${(sortOrder == SortOrder.Descending ? this.descConst : this.ascConst)}`
-    ];
-
-    return queryParts.join("&");
   }
 }

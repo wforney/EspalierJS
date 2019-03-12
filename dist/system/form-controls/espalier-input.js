@@ -41,7 +41,7 @@ System.register(["aurelia-framework", "aurelia-validation", "aurelia-event-aggre
             if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
         }
     };
-    var aurelia_framework_1, aurelia_validation_1, aurelia_event_aggregator_1, isBlurCheck, EspalierInputCustomElement;
+    var aurelia_framework_1, aurelia_validation_1, aurelia_event_aggregator_1, isBlurCheck, EspalierInput;
     var __moduleName = context_1 && context_1.id;
     return {
         setters: [
@@ -57,18 +57,19 @@ System.register(["aurelia-framework", "aurelia-validation", "aurelia-event-aggre
         ],
         execute: function () {
             isBlurCheck = false;
-            EspalierInputCustomElement = /** @class */ (function () {
-                function EspalierInputCustomElement(controller, eventAggregator) {
+            EspalierInput = /** @class */ (function () {
+                function EspalierInput(controller, eventAggregator) {
                     this.controller = controller;
                     this.eventAggregator = eventAggregator;
+                    this.focused = false;
                     this.errors = [];
                     this.blurCheckForMe = false;
                     controller.addRenderer(this);
                 }
-                EspalierInputCustomElement.prototype.focus = function () {
+                EspalierInput.prototype.focus = function () {
                     this.input.focus();
                 };
-                EspalierInputCustomElement.prototype.render = function (instruction) {
+                EspalierInput.prototype.render = function (instruction) {
                     if (isBlurCheck && !this.blurCheckForMe) {
                         return;
                     }
@@ -101,10 +102,14 @@ System.register(["aurelia-framework", "aurelia-validation", "aurelia-event-aggre
                         }
                     }
                 };
-                EspalierInputCustomElement.prototype.doBlur = function () {
+                EspalierInput.prototype.hasFocus = function () {
+                    this.focused = true;
+                };
+                EspalierInput.prototype.doBlur = function () {
                     return __awaiter(this, void 0, void 0, function () {
                         var _this = this;
                         return __generator(this, function (_a) {
+                            this.focused = false;
                             setTimeout(function () { return __awaiter(_this, void 0, void 0, function () {
                                 return __generator(this, function (_a) {
                                     switch (_a.label) {
@@ -124,32 +129,32 @@ System.register(["aurelia-framework", "aurelia-validation", "aurelia-event-aggre
                         });
                     });
                 };
-                EspalierInputCustomElement.prototype.attached = function () {
+                EspalierInput.prototype.attached = function () {
                     var _this = this;
                     this.errorSub = this.eventAggregator.subscribe("error:espalier:" + this.controlid, function (errorMessage) { return _this.errors.push(errorMessage); });
                 };
-                EspalierInputCustomElement.prototype.detached = function () {
+                EspalierInput.prototype.detached = function () {
                     this.errorSub.dispose();
                 };
                 __decorate([
                     aurelia_framework_1.bindable()
-                ], EspalierInputCustomElement.prototype, "controlid", void 0);
+                ], EspalierInput.prototype, "controlid", void 0);
                 __decorate([
                     aurelia_framework_1.bindable({ defaultBindingMode: aurelia_framework_1.bindingMode.twoWay })
-                ], EspalierInputCustomElement.prototype, "value", void 0);
+                ], EspalierInput.prototype, "value", void 0);
                 __decorate([
                     aurelia_framework_1.bindable()
-                ], EspalierInputCustomElement.prototype, "type", void 0);
+                ], EspalierInput.prototype, "type", void 0);
                 __decorate([
                     aurelia_framework_1.bindable()
-                ], EspalierInputCustomElement.prototype, "label", void 0);
-                EspalierInputCustomElement = __decorate([
+                ], EspalierInput.prototype, "label", void 0);
+                EspalierInput = __decorate([
                     aurelia_framework_1.customElement("esp-input"),
                     aurelia_framework_1.inject(aurelia_validation_1.ValidationController, aurelia_event_aggregator_1.EventAggregator)
-                ], EspalierInputCustomElement);
-                return EspalierInputCustomElement;
+                ], EspalierInput);
+                return EspalierInput;
             }());
-            exports_1("EspalierInputCustomElement", EspalierInputCustomElement);
+            exports_1("EspalierInput", EspalierInput);
         }
     };
 });

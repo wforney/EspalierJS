@@ -2,14 +2,12 @@ import { EspalierConfig } from "./espalier-config";
 import { bindable, bindingMode, TaskQueue, customElement, ViewCompiler, ViewResources } from "aurelia-framework";
 import { inject } from "aurelia-dependency-injection";
 import { IColumnDefinition } from "./column-definition";
-import { HttpClient, HttpResponseMessage } from "aurelia-http-client";
 import { IEspalierSettings } from "./espalier-settings";
 import { PageInfo } from "./page-info";
 import { SortOrder, ColumnType } from "./enums";
 import { ITableButton } from "./table-button";
 export { PageInfo } from "./page-info";
 import { ToArray } from "./helpers";
-import { IEspalierPage } from "./espalier-page";
 import { CurrencyFormatter, DateFormatter, IntegerFormatter, NumberFormatter, TextFormatter } from "./formatters/formatters";
 import { IFilterToken } from "./espalier-filter";
 import tippy from "tippy.js";
@@ -21,9 +19,9 @@ const buttonStyleElementName = "espalier-button-styles";
  * makes it simple to work with server-side page-able, sort-able
  * datasets.
  */
-@customElement("espalier")
-@inject(HttpClient, TaskQueue, EspalierConfig, ViewCompiler, ViewResources)
-export class EspalierCustomElement<TRow> {
+@customElement("esp-grid")
+@inject(TaskQueue, EspalierConfig, ViewCompiler, ViewResources)
+export class EspalierGrid<TRow> {
   /**
    * The current page of records Espalier is displaying.
    */
@@ -44,13 +42,7 @@ export class EspalierCustomElement<TRow> {
    * The default filter if one is not otherwise specified.
    */
   @bindable({ defaultBindingMode: bindingMode.oneTime })
-  public defaultFilter: string;
-
-  /**
-   * The URL of the API endpoint to interact with.
-   */
-  @bindable({ defaultBindingMode: bindingMode.oneTime })
-  public url: string;
+  public defaultFilter: (applyTo: TRow[]) => Promise<TRow[]> | string[] | undefined;
 
   /**
    * The settings for this Espalier instance.
@@ -59,7 +51,7 @@ export class EspalierCustomElement<TRow> {
   public settings: IEspalierSettings<TRow>;
 
   protected recordCount: number;
-  protected filter: string;
+  protected filter: (applyTo: TRow[]) => Promise<TRow[]> | string[] | undefined;
   protected loading = true;
   protected pages: PageInfo[] = [];
   protected recordsFrom: number;
@@ -73,13 +65,13 @@ export class EspalierCustomElement<TRow> {
 
   /**
    * Create a new instance of Espalier.
-   * @param http The Aurelia Fetch Client HttpClient to use.
    * @param taskQueue The Aurelia TaskQueue.
    * @param config Global configuration for Espalier.
+   * @param viewCompiler ViewCompiler for compiling template strings for column types.
+   * @param viewResources ViewResources used by the ViewCompiler when compiling a view.
    */
-  constructor(private http: HttpClient, private taskQueue: TaskQueue,
-    private config: EspalierConfig, private viewCompiler: ViewCompiler,
-    private viewResources: ViewResources) { }
+  constructor(private taskQueue: TaskQueue, private config: EspalierConfig,
+    private viewCompiler: ViewCompiler, private viewResources: ViewResources) { }
 
   /**
    * The Aurelia attached lifecycle event.
@@ -94,7 +86,7 @@ export class EspalierCustomElement<TRow> {
    * Fetches records that match the filter, goes to the first page, and loads the first page into the grid.
    * @param filter A build-out query string to be appenended to any sorting and paging query parameters.
    */
-  public applyFilter(filter: string, appliedFilters: IFilterToken[]): Promise<any> {
+  public applyFilter(filter: (applyTo: TRow[]) => Promise<TRow[]> | string[] | undefined, appliedFilters: IFilterToken[]): Promise<any> {
     this.filter = filter;
     this.appliedFilters = appliedFilters ? appliedFilters : [];
     this.page = 1;
@@ -318,21 +310,6 @@ export class EspalierCustomElement<TRow> {
   }
 
   /**
-   * Check if the user has specified a filter.
-   */
-  private filterIsNotEmpty(): boolean {
-    if (!this.filter && this.defaultFilter) {
-      this.filter = this.defaultFilter;
-    }
-
-    if (typeof this.filter === "undefined" || this.filter == null) {
-      return true;
-    }
-
-    return !(this.filter.replace(/\s/g, "").length < 1);
-  }
-
-  /**
    * Add url encoded SVG image styles for sort, filter, and close icons. Espalier
    * does it this way so the button color is customizable by the consumer.
    */
@@ -386,92 +363,64 @@ export class EspalierCustomElement<TRow> {
   /**
    * Fetch a page of records from the server.
    */
-  private fetch(): Promise<any> {
+  private async fetch(): Promise<any> {
     this.loading = true;
-    const pagingExpression = this.config.buildPagingQueryString(
-      this.page, this.pageSize, this.getSortPropertyName(this.sortColumn), this.sortColumn ? this.sortColumn.sortOrder : SortOrder.NotSpecified
-    );
+    const page = await this.settings.dataSource.GetPage(this.page, this.pageSize,
+      this.getSortPropertyName(this.sortColumn),
+      this.sortColumn ? this.sortColumn.sortOrder : SortOrder.NotSpecified, this.filter);
+    this.recordCount = page.totalRecords;
+    this.records = this.settings.postFetch ? this.settings.postFetch(page.records) : page.records;
+    this.recordsFrom = (this.page - 1) * this.pageSize + 1;
+    this.recordsTo = Math.min(this.recordCount, this.page * this.pageSize);
+    const startAtPage = Math.max(1, this.page - 3);
+    const endAtPage = Math.min(page.pageCount, this.page + 3 + Math.max(3 - this.page, 1));
+    const nextPage = (this.page + 1);
+    const pages: PageInfo[] = [];
 
-    const queryParts = [
-      pagingExpression
-    ];
-
-    if (this.filterIsNotEmpty()) {
-      queryParts.push(this.filter);
+    if (this.page > 2) {
+      pages.push(new PageInfo(false, false, "&laquo;", 1));
     }
 
-    const urlParts = this.url.split("?");
-
-    if (urlParts.length > 1) {
-      queryParts.push(urlParts[1]);
+    if (this.page > 1) {
+      pages.push(new PageInfo(false, false, "&lsaquo;", this.page - 1));
     }
 
-    const queryString = queryParts.join("&");
-    const url = this.config.rootUrl ? `${this.config.rootUrl}${urlParts[0]}?${queryString}` : `${urlParts[0]}?${queryString}`;
+    for (let i = startAtPage; i <= endAtPage; i++) {
+      pages.push(new PageInfo(false, i === this.page, i.toString(), i));
+    }
 
-    return this.http.get(url)
-      .then((responseMessage: HttpResponseMessage) => {
-        if (responseMessage.statusCode !== 200) {
-          throw responseMessage;
+    if ((page.pageCount + 1) > nextPage) {
+      pages.push(new PageInfo(false, false, "&rsaquo;", nextPage));
+    }
+
+    if ((page.pageCount - 1) > this.page) {
+      pages.push(new PageInfo(false, false, "&raquo;", page.pageCount));
+    }
+
+    this.pages = pages;
+
+    if (this.filterShowing) {
+      this.closeFilter();
+    }
+
+    this.taskQueue.queueMicroTask(() => {
+      const columnHeads = ToArray(this.tableHeader.querySelectorAll("th"));
+
+      for (const columnHead of columnHeads) {
+        if (!columnHead.title) {
+          continue;
         }
 
-        return this.config.getPage(this, responseMessage.content);
-      })
-      .then((page: IEspalierPage) => {
-        this.recordCount = page.totalRecords;
-        this.records = this.settings.postFetch ? this.settings.postFetch(page.records) : page.records;
-        this.recordsFrom = (this.page - 1) * this.pageSize + 1;
-        this.recordsTo = Math.min(this.recordCount, this.page * this.pageSize);
-        const startAtPage = Math.max(1, this.page - 3);
-        const endAtPage = Math.min(page.pageCount, this.page + 3 + Math.max(3 - this.page, 1));
-        const nextPage = (this.page + 1);
-        const pages: PageInfo[] = [];
-
-        if (this.page > 2) {
-          pages.push(new PageInfo(false, false, "&laquo;", 1));
-        }
-
-        if (this.page > 1) {
-          pages.push(new PageInfo(false, false, "&lsaquo;", this.page - 1));
-        }
-
-        for (let i = startAtPage; i <= endAtPage; i++) {
-          pages.push(new PageInfo(false, i === this.page, i.toString(), i));
-        }
-
-        if ((page.pageCount + 1) > nextPage) {
-          pages.push(new PageInfo(false, false, "&rsaquo;", nextPage));
-        }
-
-        if ((page.pageCount - 1) > this.page) {
-          pages.push(new PageInfo(false, false, "&raquo;", page.pageCount));
-        }
-
-        this.pages = pages;
-      }).then(() => {
-        if (this.filterShowing) {
-          this.closeFilter();
-        }
-
-        this.taskQueue.queueMicroTask(() => {
-          const columnHeads = ToArray(this.tableHeader.querySelectorAll("th"));
-
-          for (const columnHead of columnHeads) {
-            if (!columnHead.title) {
-              continue;
-            }
-
-            tippy(columnHead, {
-              placement: "bottom",
-              arrow: true,
-              size: "large",
-              followCursor: true,
-              content: columnHead.title
-            });
-          }
+        tippy(columnHead, {
+          placement: "bottom",
+          arrow: true,
+          size: "large",
+          followCursor: true,
+          content: columnHead.title
         });
+      }
+    });
 
-        this.loading = false;
-      });
+    this.loading = false;
   }
 }

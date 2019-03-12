@@ -1,4 +1,3 @@
-import { SortOrder } from "./enums";
 const viewMap = new Map();
 const compiledViews = new Map();
 viewMap.set("default", `<template>
@@ -74,34 +73,6 @@ export class EspalierConfig {
          */
         this.rootUrl = "";
         /**
-         * The name of the query string parameter for the 1-based
-         * page number to return.
-         */
-        this.pageParameterName = "Page";
-        /**
-         * The name of the query string parameter that specifies
-         * the number of records to return.
-         */
-        this.pageSizeParameterName = "PageSize";
-        /**
-         * The name of the query string parameter that specifies
-         * the name of the  column to sort on.
-         */
-        this.sortOnParameterName = "SortOn";
-        /**
-         * The name of the query string parameter that specified
-         * the order to sort in, either ascending or descending.
-         */
-        this.sortOrderParameterName = "SortOrder";
-        /**
-         * The constant value indicating a descending sort order.
-         */
-        this.descConst = "desc";
-        /**
-         * The constant value indicating an ascending sort order.
-         */
-        this.ascConst = "asc";
-        /**
          * The color to use for the sort and filter icons.
          */
         this.buttonColor = "rgb(100,100,100)";
@@ -124,31 +95,5 @@ export class EspalierConfig {
     }
     setView(name, view) {
         compiledViews.set(name, view);
-    }
-    /**
-     * Parse a response into an IEspalierPage. The default expects your
-     * response to contain JSON in the following format:
-     *
-     * <pre><code>{<br />  TotalRecords: number, // Total number or records matching the current filter.<br />  Results: any[] // The records in the page.<br />}</code></pre>
-     * @param instance The Espalier instance to get a page for.
-     * @param response The response from the Aurelia Fetch Client call to your API.
-     */
-    getPage(instance, data) {
-        const page = {
-            totalRecords: data.TotalRecords,
-            records: data.Results,
-            pageCount: Math.ceil(data.TotalRecords / instance.pageSize),
-            currentPage: instance.page
-        };
-        return Promise.resolve(page);
-    }
-    buildPagingQueryString(page, pageSize, sortPropertyName, sortOrder) {
-        const queryParts = [
-            `${this.pageParameterName}=${page}`,
-            `${this.pageSizeParameterName}=${pageSize}`,
-            `${this.sortOnParameterName}=${sortPropertyName}`,
-            `${this.sortOrderParameterName}=${(sortOrder == SortOrder.Descending ? this.descConst : this.ascConst)}`
-        ];
-        return queryParts.join("&");
     }
 }

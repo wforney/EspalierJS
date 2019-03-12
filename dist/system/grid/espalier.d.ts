@@ -1,7 +1,6 @@
 import { EspalierConfig } from "./espalier-config";
 import { TaskQueue, ViewCompiler, ViewResources } from "aurelia-framework";
 import { IColumnDefinition } from "./column-definition";
-import { HttpClient } from "aurelia-http-client";
 import { IEspalierSettings } from "./espalier-settings";
 import { PageInfo } from "./page-info";
 import { ITableButton } from "./table-button";
@@ -12,8 +11,7 @@ import { IFilterToken } from "./espalier-filter";
  * makes it simple to work with server-side page-able, sort-able
  * datasets.
  */
-export declare class EspalierCustomElement<TRow> {
-    private http;
+export declare class EspalierGrid<TRow> {
     private taskQueue;
     private config;
     private viewCompiler;
@@ -33,17 +31,13 @@ export declare class EspalierCustomElement<TRow> {
     /**
      * The default filter if one is not otherwise specified.
      */
-    defaultFilter: string;
-    /**
-     * The URL of the API endpoint to interact with.
-     */
-    url: string;
+    defaultFilter: (applyTo: TRow[]) => Promise<TRow[]> | string[] | undefined;
     /**
      * The settings for this Espalier instance.
      */
     settings: IEspalierSettings<TRow>;
     protected recordCount: number;
-    protected filter: string;
+    protected filter: (applyTo: TRow[]) => Promise<TRow[]> | string[] | undefined;
     protected loading: boolean;
     protected pages: PageInfo[];
     protected recordsFrom: number;
@@ -56,11 +50,12 @@ export declare class EspalierCustomElement<TRow> {
     protected appliedFilters: IFilterToken[];
     /**
      * Create a new instance of Espalier.
-     * @param http The Aurelia Fetch Client HttpClient to use.
      * @param taskQueue The Aurelia TaskQueue.
      * @param config Global configuration for Espalier.
+     * @param viewCompiler ViewCompiler for compiling template strings for column types.
+     * @param viewResources ViewResources used by the ViewCompiler when compiling a view.
      */
-    constructor(http: HttpClient, taskQueue: TaskQueue, config: EspalierConfig, viewCompiler: ViewCompiler, viewResources: ViewResources);
+    constructor(taskQueue: TaskQueue, config: EspalierConfig, viewCompiler: ViewCompiler, viewResources: ViewResources);
     /**
      * The Aurelia attached lifecycle event.
      */
@@ -69,7 +64,7 @@ export declare class EspalierCustomElement<TRow> {
      * Fetches records that match the filter, goes to the first page, and loads the first page into the grid.
      * @param filter A build-out query string to be appenended to any sorting and paging query parameters.
      */
-    applyFilter(filter: string, appliedFilters: IFilterToken[]): Promise<any>;
+    applyFilter(filter: (applyTo: TRow[]) => Promise<TRow[]> | string[] | undefined, appliedFilters: IFilterToken[]): Promise<any>;
     /**
      * Reset the filter back to the default specified for this Espalier
      * instance.
@@ -118,10 +113,6 @@ export declare class EspalierCustomElement<TRow> {
      * @param column The column to figure out the sort property name of.
      */
     protected getSortPropertyName(column: IColumnDefinition<TRow>): string;
-    /**
-     * Check if the user has specified a filter.
-     */
-    private filterIsNotEmpty;
     /**
      * Add url encoded SVG image styles for sort, filter, and close icons. Espalier
      * does it this way so the button color is customizable by the consumer.

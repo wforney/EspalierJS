@@ -16,10 +16,11 @@ import { bindable, customElement, bindingMode, inject } from "aurelia-framework"
 import { ValidationController } from "aurelia-validation";
 import { EventAggregator } from "aurelia-event-aggregator";
 let isBlurCheck = false;
-let EspalierInputCustomElement = class EspalierInputCustomElement {
+let EspalierInput = class EspalierInput {
     constructor(controller, eventAggregator) {
         this.controller = controller;
         this.eventAggregator = eventAggregator;
+        this.focused = false;
         this.errors = [];
         this.blurCheckForMe = false;
         controller.addRenderer(this);
@@ -56,8 +57,12 @@ let EspalierInputCustomElement = class EspalierInputCustomElement {
             }
         }
     }
+    hasFocus() {
+        this.focused = true;
+    }
     doBlur() {
         return __awaiter(this, void 0, void 0, function* () {
+            this.focused = false;
             setTimeout(() => __awaiter(this, void 0, void 0, function* () {
                 isBlurCheck = true;
                 this.blurCheckForMe = true;
@@ -76,18 +81,18 @@ let EspalierInputCustomElement = class EspalierInputCustomElement {
 };
 __decorate([
     bindable()
-], EspalierInputCustomElement.prototype, "controlid", void 0);
+], EspalierInput.prototype, "controlid", void 0);
 __decorate([
     bindable({ defaultBindingMode: bindingMode.twoWay })
-], EspalierInputCustomElement.prototype, "value", void 0);
+], EspalierInput.prototype, "value", void 0);
 __decorate([
     bindable()
-], EspalierInputCustomElement.prototype, "type", void 0);
+], EspalierInput.prototype, "type", void 0);
 __decorate([
     bindable()
-], EspalierInputCustomElement.prototype, "label", void 0);
-EspalierInputCustomElement = __decorate([
+], EspalierInput.prototype, "label", void 0);
+EspalierInput = __decorate([
     customElement("esp-input"),
     inject(ValidationController, EventAggregator)
-], EspalierInputCustomElement);
-export { EspalierInputCustomElement };
+], EspalierInput);
+export { EspalierInput };

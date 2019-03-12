@@ -28,7 +28,7 @@ System.register(["aurelia-framework", "./grid/enums", "./grid/espalier-filter", 
             },
             function (espalier_1_1) {
                 exports_1({
-                    "EspalierCustomElement": espalier_1_1["EspalierCustomElement"]
+                    "EspalierGrid": espalier_1_1["EspalierGrid"]
                 });
             },
             function (espalier_config_1_1) {
@@ -73,7 +73,7 @@ System.register(["aurelia-framework", "./grid/enums", "./grid/espalier-filter", 
             },
             function (espalier_input_1_1) {
                 exports_1({
-                    "EspalierInputCustomElement": espalier_input_1_1["EspalierInputCustomElement"]
+                    "EspalierInput": espalier_input_1_1["EspalierInput"]
                 });
             },
             function (espalier_checkbox_1_1) {

@@ -46,12 +46,13 @@
           <td colspan="${settings.columns.length + 1}">
             <div>
               <h3>
-                  ${settings.noRecordsMessage}
+                ${settings.noRecordsMessage}
               </h3>
             </div>
           </td>
         </tr>
-        <tr id="row-${(record.Id ? record.Id : record.id ? record.id : $index)}" if.bind="(records.length || !settings.noRecordsMessage) && !loading" repeat.for="record of records" class.one-time="record.rowClass">
+        <tr id="row-${(record.Id ? record.Id : record.id ? record.id : $index)}" if.bind="(records.length || !settings.noRecordsMessage) && !loading"
+          repeat.for="record of records" class.one-time="record.rowClass">
           <td colspan="${(!settings.getButtons && $index == (settings.columns.length - 1)) ? 2 : 1}" repeat.for="column of settings.columns & oneTime">
             <espalier-cell column.bind="column" view.bind="column.view" record.bind="record"></espalier-cell>
           </td>
@@ -63,18 +64,20 @@
       <tfoot if.bind="records.length || !settings.noRecordsMessage">
         <tr>
           <td class="espalier-nav" if.bind="pages.length > 1" colspan="${settings.columns.length + 1}">
-            <nav>
-              <ul class="pagination">
-                <li repeat.for="page of pages" class="page-item ${page.disabled ? 'disabled' : ''} ${page.active ? 'active' : ''}">
-                  <a class="page-link" click.delegate="goto(page.page)" href="javascript: void(0);">
-                    <span aria-hidden="true" innerhtml.bind="page.text"></span>
-                  </a>
-                </li>
-              </ul>
-            </nav>
-            <div class="text-right">
-              Showing ${recordsFrom} - ${recordsTo} of ${recordCount} records
-            </div>
+            <footer>
+              <nav>
+                <ul class="pagination">
+                  <li repeat.for="page of pages" class="page-item ${page.disabled ? 'disabled' : ''} ${page.active ? 'active' : ''}">
+                    <a class="page-link" click.delegate="goto(page.page)" href="javascript: void(0);">
+                      <span aria-hidden="true" innerhtml.bind="page.text"></span>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+              <label>
+                Showing ${recordsFrom} - ${recordsTo} of ${recordCount} records
+              </label>
+            </footer>
           </td>
         </tr>
       </tfoot>

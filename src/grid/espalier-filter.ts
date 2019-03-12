@@ -1,4 +1,4 @@
-import { EspalierCustomElement } from "./espalier";
+import { EspalierGrid } from "./espalier";
 import * as clone from "clone";
 
 /**
@@ -21,7 +21,7 @@ export interface IFilterToken {
  * EspalierFilter is an abstract class that should be implemented
  * by a custom control that represents the filter for your grid.
  */
-export abstract class EspalierFilter {
+export abstract class EspalierFilter<TData> {
   /**
    * The HTML element that contains the user interface for the filter.
    * Espalier will open this when the filter button is clicked in the
@@ -35,14 +35,8 @@ export abstract class EspalierFilter {
    */
   protected abstract model: any;
 
-  private espalier: EspalierCustomElement<any>;
+  private espalier: EspalierGrid<any>;
   private lastAppliedState: any;
-
-  /**
-   * Return a query string that will be appended to the query string
-   * Espalier generates for paging and sorting.
-   */
-  protected abstract get filterAsQueryString(): string;
 
   /**
    * Return an array of the currently applied filters with a description
@@ -53,8 +47,8 @@ export abstract class EspalierFilter {
   /**
    * Reset the filter to the default state and apply it to the grid.
    */
-  public reset(): Promise<any> {
-    return this.clearFilter()
+  public async reset(): Promise<any> {
+    await this.clearFilter()
       .then(() => {
         return this.applyFilter();
       });
@@ -84,8 +78,14 @@ export abstract class EspalierFilter {
       };
     }
 
-    return this.espalier.applyFilter(this.filterAsQueryString, appliedFilters);
+    return this.espalier.applyFilter(this.getFilter(), appliedFilters);
   }
+
+  /**
+   * Apply the filter, either appended to a string as URL parameters,
+   * or directly to an array of all available results.
+   */
+  protected abstract getFilter(): (applyTo: TData[]) => Promise<TData[]> | string[] | undefined;
 
   /**
    * The user would like to clear the filter. Reset the filter model to

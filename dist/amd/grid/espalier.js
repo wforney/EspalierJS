@@ -4,7 +4,42 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-define(["require", "exports", "./espalier-config", "aurelia-framework", "aurelia-dependency-injection", "aurelia-http-client", "./page-info", "./enums", "./page-info", "./helpers", "./formatters/formatters", "tippy.js"], function (require, exports, espalier_config_1, aurelia_framework_1, aurelia_dependency_injection_1, aurelia_http_client_1, page_info_1, enums_1, page_info_2, helpers_1, formatters_1, tippy_js_1) {
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+define(["require", "exports", "./espalier-config", "aurelia-framework", "aurelia-dependency-injection", "./page-info", "./enums", "./page-info", "./helpers", "./formatters/formatters", "tippy.js"], function (require, exports, espalier_config_1, aurelia_framework_1, aurelia_dependency_injection_1, page_info_1, enums_1, page_info_2, helpers_1, formatters_1, tippy_js_1) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.PageInfo = page_info_2.PageInfo;
@@ -14,15 +49,15 @@ define(["require", "exports", "./espalier-config", "aurelia-framework", "aurelia
      * makes it simple to work with server-side page-able, sort-able
      * datasets.
      */
-    var EspalierCustomElement = /** @class */ (function () {
+    var EspalierGrid = /** @class */ (function () {
         /**
          * Create a new instance of Espalier.
-         * @param http The Aurelia Fetch Client HttpClient to use.
          * @param taskQueue The Aurelia TaskQueue.
          * @param config Global configuration for Espalier.
+         * @param viewCompiler ViewCompiler for compiling template strings for column types.
+         * @param viewResources ViewResources used by the ViewCompiler when compiling a view.
          */
-        function EspalierCustomElement(http, taskQueue, config, viewCompiler, viewResources) {
-            this.http = http;
+        function EspalierGrid(taskQueue, config, viewCompiler, viewResources) {
             this.taskQueue = taskQueue;
             this.config = config;
             this.viewCompiler = viewCompiler;
@@ -39,7 +74,7 @@ define(["require", "exports", "./espalier-config", "aurelia-framework", "aurelia
         /**
          * The Aurelia attached lifecycle event.
          */
-        EspalierCustomElement.prototype.attached = function () {
+        EspalierGrid.prototype.attached = function () {
             if (!document.querySelectorAll("#" + buttonStyleElementName).length) {
                 this.addButtonStyles();
             }
@@ -48,7 +83,7 @@ define(["require", "exports", "./espalier-config", "aurelia-framework", "aurelia
          * Fetches records that match the filter, goes to the first page, and loads the first page into the grid.
          * @param filter A build-out query string to be appenended to any sorting and paging query parameters.
          */
-        EspalierCustomElement.prototype.applyFilter = function (filter, appliedFilters) {
+        EspalierGrid.prototype.applyFilter = function (filter, appliedFilters) {
             this.filter = filter;
             this.appliedFilters = appliedFilters ? appliedFilters : [];
             this.page = 1;
@@ -58,7 +93,7 @@ define(["require", "exports", "./espalier-config", "aurelia-framework", "aurelia
          * Reset the filter back to the default specified for this Espalier
          * instance.
          */
-        EspalierCustomElement.prototype.clearFilter = function () {
+        EspalierGrid.prototype.clearFilter = function () {
             if (!this.settings.filter) {
                 this.filter = this.defaultFilter;
                 return this.fetch();
@@ -68,14 +103,14 @@ define(["require", "exports", "./espalier-config", "aurelia-framework", "aurelia
         /**
          * Fetch the current page and load it into the grid.
          */
-        EspalierCustomElement.prototype.reload = function () {
+        EspalierGrid.prototype.reload = function () {
             return this.fetch();
         };
         /**
          * Fetches records on the given page number and loads them into the grid.
          * @param pageNumber The page number to fetch.
          */
-        EspalierCustomElement.prototype.goto = function (pageNumber) {
+        EspalierGrid.prototype.goto = function (pageNumber) {
             this.page = pageNumber;
             return this.fetch();
         };
@@ -83,7 +118,7 @@ define(["require", "exports", "./espalier-config", "aurelia-framework", "aurelia
          * Sort by a given column. It toggles through Ascending > Descending > Not sorted on
          * @param column The column to sort on.
          */
-        EspalierCustomElement.prototype.sortBy = function (column) {
+        EspalierGrid.prototype.sortBy = function (column) {
             var sortProperty = this.getSortPropertyName(column);
             if (!sortProperty) {
                 return Promise.resolve();
@@ -116,7 +151,7 @@ define(["require", "exports", "./espalier-config", "aurelia-framework", "aurelia
          * Used to figure out which buttons to show.
          * @param record Calculate which buttons should be available for the given record.
          */
-        EspalierCustomElement.prototype.getButtons = function (record) {
+        EspalierGrid.prototype.getButtons = function (record) {
             return this.settings.getButtons ? this.settings.getButtons(record) : [];
         };
         /**
@@ -124,13 +159,13 @@ define(["require", "exports", "./espalier-config", "aurelia-framework", "aurelia
          * @param button The TableButton that was clicked.
          * @param record The record associated with the row the button is in.
          */
-        EspalierCustomElement.prototype.buttonClicked = function (button, record) {
+        EspalierGrid.prototype.buttonClicked = function (button, record) {
             button.onClick(record);
         };
         /**
          * Open the filter if this instance has one.
          */
-        EspalierCustomElement.prototype.openFilter = function () {
+        EspalierGrid.prototype.openFilter = function () {
             if (!this.settings || !this.settings.filter) {
                 return;
             }
@@ -141,7 +176,7 @@ define(["require", "exports", "./espalier-config", "aurelia-framework", "aurelia
         /**
          * Close the filter if it's open.
          */
-        EspalierCustomElement.prototype.closeFilter = function () {
+        EspalierGrid.prototype.closeFilter = function () {
             if (!this.settings || !this.settings.filter) {
                 return;
             }
@@ -152,7 +187,7 @@ define(["require", "exports", "./espalier-config", "aurelia-framework", "aurelia
          * Aurelia calls this when the settings are changed. Espalier figures out
          * if the settings are valid, then queues a task to load the grid.
          */
-        EspalierCustomElement.prototype.settingsChanged = function () {
+        EspalierGrid.prototype.settingsChanged = function () {
             var _this = this;
             if (!this.settings) {
                 return;
@@ -236,29 +271,17 @@ define(["require", "exports", "./espalier-config", "aurelia-framework", "aurelia
          * Figure out out the sort property name of a given column.
          * @param column The column to figure out the sort property name of.
          */
-        EspalierCustomElement.prototype.getSortPropertyName = function (column) {
+        EspalierGrid.prototype.getSortPropertyName = function (column) {
             if (!column || column.disableSort) {
                 return "";
             }
             return column.sortPropertyName ? column.sortPropertyName : column.propertyName;
         };
         /**
-         * Check if the user has specified a filter.
-         */
-        EspalierCustomElement.prototype.filterIsNotEmpty = function () {
-            if (!this.filter && this.defaultFilter) {
-                this.filter = this.defaultFilter;
-            }
-            if (typeof this.filter === "undefined" || this.filter == null) {
-                return true;
-            }
-            return !(this.filter.replace(/\s/g, "").length < 1);
-        };
-        /**
          * Add url encoded SVG image styles for sort, filter, and close icons. Espalier
          * does it this way so the button color is customizable by the consumer.
          */
-        EspalierCustomElement.prototype.addButtonStyles = function () {
+        EspalierGrid.prototype.addButtonStyles = function () {
             var encodedColor = encodeURIComponent(this.config.buttonColor);
             var red = encodeURIComponent("rgb(217,83,79)");
             var white = encodeURIComponent("rgb(255,255,255)");
@@ -278,94 +301,80 @@ define(["require", "exports", "./espalier-config", "aurelia-framework", "aurelia
         /**
          * Fetch a page of records from the server.
          */
-        EspalierCustomElement.prototype.fetch = function () {
-            var _this = this;
-            this.loading = true;
-            var pagingExpression = this.config.buildPagingQueryString(this.page, this.pageSize, this.getSortPropertyName(this.sortColumn), this.sortColumn ? this.sortColumn.sortOrder : enums_1.SortOrder.NotSpecified);
-            var queryParts = [
-                pagingExpression
-            ];
-            if (this.filterIsNotEmpty()) {
-                queryParts.push(this.filter);
-            }
-            var urlParts = this.url.split("?");
-            if (urlParts.length > 1) {
-                queryParts.push(urlParts[1]);
-            }
-            var queryString = queryParts.join("&");
-            var url = this.config.rootUrl ? "" + this.config.rootUrl + urlParts[0] + "?" + queryString : urlParts[0] + "?" + queryString;
-            return this.http.get(url)
-                .then(function (responseMessage) {
-                if (responseMessage.statusCode !== 200) {
-                    throw responseMessage;
-                }
-                return _this.config.getPage(_this, responseMessage.content);
-            })
-                .then(function (page) {
-                _this.recordCount = page.totalRecords;
-                _this.records = _this.settings.postFetch ? _this.settings.postFetch(page.records) : page.records;
-                _this.recordsFrom = (_this.page - 1) * _this.pageSize + 1;
-                _this.recordsTo = Math.min(_this.recordCount, _this.page * _this.pageSize);
-                var startAtPage = Math.max(1, _this.page - 3);
-                var endAtPage = Math.min(page.pageCount, _this.page + 3 + Math.max(3 - _this.page, 1));
-                var nextPage = (_this.page + 1);
-                var pages = [];
-                if (_this.page > 2) {
-                    pages.push(new page_info_1.PageInfo(false, false, "&laquo;", 1));
-                }
-                if (_this.page > 1) {
-                    pages.push(new page_info_1.PageInfo(false, false, "&lsaquo;", _this.page - 1));
-                }
-                for (var i = startAtPage; i <= endAtPage; i++) {
-                    pages.push(new page_info_1.PageInfo(false, i === _this.page, i.toString(), i));
-                }
-                if ((page.pageCount + 1) > nextPage) {
-                    pages.push(new page_info_1.PageInfo(false, false, "&rsaquo;", nextPage));
-                }
-                if ((page.pageCount - 1) > _this.page) {
-                    pages.push(new page_info_1.PageInfo(false, false, "&raquo;", page.pageCount));
-                }
-                _this.pages = pages;
-            }).then(function () {
-                if (_this.filterShowing) {
-                    _this.closeFilter();
-                }
-                _this.taskQueue.queueMicroTask(function () {
-                    var columnHeads = helpers_1.ToArray(_this.tableHeader.querySelectorAll("th"));
-                    for (var _i = 0, columnHeads_1 = columnHeads; _i < columnHeads_1.length; _i++) {
-                        var columnHead = columnHeads_1[_i];
-                        if (!columnHead.title) {
-                            continue;
-                        }
-                        tippy_js_1.default(columnHead, {
-                            placement: "bottom",
-                            arrow: true,
-                            size: "large",
-                            followCursor: true,
-                            content: columnHead.title
-                        });
+        EspalierGrid.prototype.fetch = function () {
+            return __awaiter(this, void 0, void 0, function () {
+                var page, startAtPage, endAtPage, nextPage, pages, i;
+                var _this = this;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            this.loading = true;
+                            return [4 /*yield*/, this.settings.dataSource.GetPage(this.page, this.pageSize, this.getSortPropertyName(this.sortColumn), this.sortColumn ? this.sortColumn.sortOrder : enums_1.SortOrder.NotSpecified, this.filter)];
+                        case 1:
+                            page = _a.sent();
+                            this.recordCount = page.totalRecords;
+                            this.records = this.settings.postFetch ? this.settings.postFetch(page.records) : page.records;
+                            this.recordsFrom = (this.page - 1) * this.pageSize + 1;
+                            this.recordsTo = Math.min(this.recordCount, this.page * this.pageSize);
+                            startAtPage = Math.max(1, this.page - 3);
+                            endAtPage = Math.min(page.pageCount, this.page + 3 + Math.max(3 - this.page, 1));
+                            nextPage = (this.page + 1);
+                            pages = [];
+                            if (this.page > 2) {
+                                pages.push(new page_info_1.PageInfo(false, false, "&laquo;", 1));
+                            }
+                            if (this.page > 1) {
+                                pages.push(new page_info_1.PageInfo(false, false, "&lsaquo;", this.page - 1));
+                            }
+                            for (i = startAtPage; i <= endAtPage; i++) {
+                                pages.push(new page_info_1.PageInfo(false, i === this.page, i.toString(), i));
+                            }
+                            if ((page.pageCount + 1) > nextPage) {
+                                pages.push(new page_info_1.PageInfo(false, false, "&rsaquo;", nextPage));
+                            }
+                            if ((page.pageCount - 1) > this.page) {
+                                pages.push(new page_info_1.PageInfo(false, false, "&raquo;", page.pageCount));
+                            }
+                            this.pages = pages;
+                            if (this.filterShowing) {
+                                this.closeFilter();
+                            }
+                            this.taskQueue.queueMicroTask(function () {
+                                var columnHeads = helpers_1.ToArray(_this.tableHeader.querySelectorAll("th"));
+                                for (var _i = 0, columnHeads_1 = columnHeads; _i < columnHeads_1.length; _i++) {
+                                    var columnHead = columnHeads_1[_i];
+                                    if (!columnHead.title) {
+                                        continue;
+                                    }
+                                    tippy_js_1.default(columnHead, {
+                                        placement: "bottom",
+                                        arrow: true,
+                                        size: "large",
+                                        followCursor: true,
+                                        content: columnHead.title
+                                    });
+                                }
+                            });
+                            this.loading = false;
+                            return [2 /*return*/];
                     }
                 });
-                _this.loading = false;
             });
         };
         __decorate([
             aurelia_framework_1.bindable({ defaultBindingMode: aurelia_framework_1.bindingMode.oneTime })
-        ], EspalierCustomElement.prototype, "pageSize", void 0);
+        ], EspalierGrid.prototype, "pageSize", void 0);
         __decorate([
             aurelia_framework_1.bindable({ defaultBindingMode: aurelia_framework_1.bindingMode.oneTime })
-        ], EspalierCustomElement.prototype, "defaultFilter", void 0);
-        __decorate([
-            aurelia_framework_1.bindable({ defaultBindingMode: aurelia_framework_1.bindingMode.oneTime })
-        ], EspalierCustomElement.prototype, "url", void 0);
+        ], EspalierGrid.prototype, "defaultFilter", void 0);
         __decorate([
             aurelia_framework_1.bindable()
-        ], EspalierCustomElement.prototype, "settings", void 0);
-        EspalierCustomElement = __decorate([
-            aurelia_framework_1.customElement("espalier"),
-            aurelia_dependency_injection_1.inject(aurelia_http_client_1.HttpClient, aurelia_framework_1.TaskQueue, espalier_config_1.EspalierConfig, aurelia_framework_1.ViewCompiler, aurelia_framework_1.ViewResources)
-        ], EspalierCustomElement);
-        return EspalierCustomElement;
+        ], EspalierGrid.prototype, "settings", void 0);
+        EspalierGrid = __decorate([
+            aurelia_framework_1.customElement("esp-grid"),
+            aurelia_dependency_injection_1.inject(aurelia_framework_1.TaskQueue, espalier_config_1.EspalierConfig, aurelia_framework_1.ViewCompiler, aurelia_framework_1.ViewResources)
+        ], EspalierGrid);
+        return EspalierGrid;
     }());
-    exports.EspalierCustomElement = EspalierCustomElement;
+    exports.EspalierGrid = EspalierGrid;
 });

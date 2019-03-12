@@ -7,12 +7,11 @@ let currentOpenCell: ButtonsCell | null;
 
 @customElement("buttons-cell")
 export class ButtonsCell {
-  @bindable
+  @bindable()
   public buttons: ITableButton<any>[];
 
-  @bindable
+  @bindable()
   public record: any;
-
   protected menuContainer: HTMLDivElement;
   protected opened: boolean = false;
 

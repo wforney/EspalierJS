@@ -51,7 +51,7 @@ export interface IColumnDefinition<TRow> {
   type?: ColumnType;
 
   /**
-   * If you do not want this columb to be sortable, set this
+   * If you do not want this column to be sortable, set this
    * to true.
    */
   disableSort?: boolean;

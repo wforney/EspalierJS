@@ -7,7 +7,7 @@ exports.ColumnType = enums_1.ColumnType;
 var espalier_filter_1 = require("./grid/espalier-filter");
 exports.EspalierFilter = espalier_filter_1.EspalierFilter;
 var espalier_1 = require("./grid/espalier");
-exports.EspalierCustomElement = espalier_1.EspalierCustomElement;
+exports.EspalierGrid = espalier_1.EspalierGrid;
 var espalier_config_1 = require("./grid/espalier-config");
 exports.EspalierConfig = espalier_config_1.EspalierConfig;
 var espalier_cell_1 = require("./grid/espalier-cell");
@@ -25,7 +25,7 @@ exports.NumberFormatter = number_formatter_1.NumberFormatter;
 var text_formatter_1 = require("./grid/formatters/text-formatter");
 exports.TextFormatter = text_formatter_1.TextFormatter;
 var espalier_input_1 = require("./form-controls/espalier-input");
-exports.EspalierInputCustomElement = espalier_input_1.EspalierInputCustomElement;
+exports.EspalierInput = espalier_input_1.EspalierInput;
 var espalier_checkbox_1 = require("./form-controls/espalier-checkbox");
 exports.EspalierCheckboxCustomElement = espalier_checkbox_1.EspalierCheckboxCustomElement;
 function configure(config) {

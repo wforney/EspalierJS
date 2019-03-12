@@ -7,7 +7,7 @@ let isBlurCheck = false;
 
 @customElement("esp-input")
 @inject(ValidationController, EventAggregator)
-export class EspalierInputCustomElement implements IEspalierFormControl, ValidationRenderer {
+export class EspalierInput implements IEspalierFormControl, ValidationRenderer {
   @bindable()
   public controlid: string;
 
@@ -20,6 +20,7 @@ export class EspalierInputCustomElement implements IEspalierFormControl, Validat
   @bindable()
   public label: string;
   protected input: HTMLInputElement;
+  protected focused = false;
   protected errors: string[] = [];
   private blurCheckForMe = false;
   private errorSub: Subscription;
@@ -55,7 +56,13 @@ export class EspalierInputCustomElement implements IEspalierFormControl, Validat
     }
   }
 
+  protected hasFocus() {
+    this.focused = true;
+  }
+
   protected async doBlur() {
+    this.focused = false;
+
     setTimeout(async () => {
       isBlurCheck = true;
       this.blurCheckForMe = true;

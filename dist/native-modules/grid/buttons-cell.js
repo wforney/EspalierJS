@@ -54,10 +54,10 @@ var ButtonsCell = /** @class */ (function () {
         }
     };
     __decorate([
-        bindable
+        bindable()
     ], ButtonsCell.prototype, "buttons", void 0);
     __decorate([
-        bindable
+        bindable()
     ], ButtonsCell.prototype, "record", void 0);
     ButtonsCell = __decorate([
         customElement("buttons-cell")

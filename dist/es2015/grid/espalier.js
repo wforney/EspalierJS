@@ -4,10 +4,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 import { EspalierConfig } from "./espalier-config";
 import { bindable, bindingMode, TaskQueue, customElement, ViewCompiler, ViewResources } from "aurelia-framework";
 import { inject } from "aurelia-dependency-injection";
-import { HttpClient } from "aurelia-http-client";
 import { PageInfo } from "./page-info";
 import { SortOrder, ColumnType } from "./enums";
 export { PageInfo } from "./page-info";
@@ -20,15 +27,15 @@ const buttonStyleElementName = "espalier-button-styles";
  * makes it simple to work with server-side page-able, sort-able
  * datasets.
  */
-let EspalierCustomElement = class EspalierCustomElement {
+let EspalierGrid = class EspalierGrid {
     /**
      * Create a new instance of Espalier.
-     * @param http The Aurelia Fetch Client HttpClient to use.
      * @param taskQueue The Aurelia TaskQueue.
      * @param config Global configuration for Espalier.
+     * @param viewCompiler ViewCompiler for compiling template strings for column types.
+     * @param viewResources ViewResources used by the ViewCompiler when compiling a view.
      */
-    constructor(http, taskQueue, config, viewCompiler, viewResources) {
-        this.http = http;
+    constructor(taskQueue, config, viewCompiler, viewResources) {
         this.taskQueue = taskQueue;
         this.config = config;
         this.viewCompiler = viewCompiler;
@@ -246,18 +253,6 @@ let EspalierCustomElement = class EspalierCustomElement {
         return column.sortPropertyName ? column.sortPropertyName : column.propertyName;
     }
     /**
-     * Check if the user has specified a filter.
-     */
-    filterIsNotEmpty() {
-        if (!this.filter && this.defaultFilter) {
-            this.filter = this.defaultFilter;
-        }
-        if (typeof this.filter === "undefined" || this.filter == null) {
-            return true;
-        }
-        return !(this.filter.replace(/\s/g, "").length < 1);
-    }
-    /**
      * Add url encoded SVG image styles for sort, filter, and close icons. Espalier
      * does it this way so the button color is customizable by the consumer.
      */
@@ -310,28 +305,9 @@ let EspalierCustomElement = class EspalierCustomElement {
      * Fetch a page of records from the server.
      */
     fetch() {
-        this.loading = true;
-        const pagingExpression = this.config.buildPagingQueryString(this.page, this.pageSize, this.getSortPropertyName(this.sortColumn), this.sortColumn ? this.sortColumn.sortOrder : SortOrder.NotSpecified);
-        const queryParts = [
-            pagingExpression
-        ];
-        if (this.filterIsNotEmpty()) {
-            queryParts.push(this.filter);
-        }
-        const urlParts = this.url.split("?");
-        if (urlParts.length > 1) {
-            queryParts.push(urlParts[1]);
-        }
-        const queryString = queryParts.join("&");
-        const url = this.config.rootUrl ? `${this.config.rootUrl}${urlParts[0]}?${queryString}` : `${urlParts[0]}?${queryString}`;
-        return this.http.get(url)
-            .then((responseMessage) => {
-            if (responseMessage.statusCode !== 200) {
-                throw responseMessage;
-            }
-            return this.config.getPage(this, responseMessage.content);
-        })
-            .then((page) => {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.loading = true;
+            const page = yield this.settings.dataSource.GetPage(this.page, this.pageSize, this.getSortPropertyName(this.sortColumn), this.sortColumn ? this.sortColumn.sortOrder : SortOrder.NotSpecified, this.filter);
             this.recordCount = page.totalRecords;
             this.records = this.settings.postFetch ? this.settings.postFetch(page.records) : page.records;
             this.recordsFrom = (this.page - 1) * this.pageSize + 1;
@@ -356,7 +332,6 @@ let EspalierCustomElement = class EspalierCustomElement {
                 pages.push(new PageInfo(false, false, "&raquo;", page.pageCount));
             }
             this.pages = pages;
-        }).then(() => {
             if (this.filterShowing) {
                 this.closeFilter();
             }
@@ -381,18 +356,15 @@ let EspalierCustomElement = class EspalierCustomElement {
 };
 __decorate([
     bindable({ defaultBindingMode: bindingMode.oneTime })
-], EspalierCustomElement.prototype, "pageSize", void 0);
+], EspalierGrid.prototype, "pageSize", void 0);
 __decorate([
     bindable({ defaultBindingMode: bindingMode.oneTime })
-], EspalierCustomElement.prototype, "defaultFilter", void 0);
-__decorate([
-    bindable({ defaultBindingMode: bindingMode.oneTime })
-], EspalierCustomElement.prototype, "url", void 0);
+], EspalierGrid.prototype, "defaultFilter", void 0);
 __decorate([
     bindable()
-], EspalierCustomElement.prototype, "settings", void 0);
-EspalierCustomElement = __decorate([
-    customElement("espalier"),
-    inject(HttpClient, TaskQueue, EspalierConfig, ViewCompiler, ViewResources)
-], EspalierCustomElement);
-export { EspalierCustomElement };
+], EspalierGrid.prototype, "settings", void 0);
+EspalierGrid = __decorate([
+    customElement("esp-grid"),
+    inject(TaskQueue, EspalierConfig, ViewCompiler, ViewResources)
+], EspalierGrid);
+export { EspalierGrid };

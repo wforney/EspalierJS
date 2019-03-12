@@ -4,7 +4,7 @@ define(["require", "exports", "aurelia-framework", "./grid/enums", "./grid/espal
     exports.SortOrder = enums_1.SortOrder;
     exports.ColumnType = enums_1.ColumnType;
     exports.EspalierFilter = espalier_filter_1.EspalierFilter;
-    exports.EspalierCustomElement = espalier_1.EspalierCustomElement;
+    exports.EspalierGrid = espalier_1.EspalierGrid;
     exports.EspalierConfig = espalier_config_1.EspalierConfig;
     exports.EspalierCell = espalier_cell_1.EspalierCell;
     exports.ButtonsCell = buttons_cell_1.ButtonsCell;
@@ -13,7 +13,7 @@ define(["require", "exports", "aurelia-framework", "./grid/enums", "./grid/espal
     exports.IntegerFormatter = integer_formatter_1.IntegerFormatter;
     exports.NumberFormatter = number_formatter_1.NumberFormatter;
     exports.TextFormatter = text_formatter_1.TextFormatter;
-    exports.EspalierInputCustomElement = espalier_input_1.EspalierInputCustomElement;
+    exports.EspalierInput = espalier_input_1.EspalierInput;
     exports.EspalierCheckboxCustomElement = espalier_checkbox_1.EspalierCheckboxCustomElement;
     function configure(config) {
         config.globalResources([

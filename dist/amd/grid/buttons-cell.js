@@ -54,10 +54,10 @@ define(["require", "exports", "aurelia-framework", "./helpers", "tippy.js"], fun
             }
         };
         __decorate([
-            aurelia_framework_1.bindable
+            aurelia_framework_1.bindable()
         ], ButtonsCell.prototype, "buttons", void 0);
         __decorate([
-            aurelia_framework_1.bindable
+            aurelia_framework_1.bindable()
         ], ButtonsCell.prototype, "record", void 0);
         ButtonsCell = __decorate([
             aurelia_framework_1.customElement("buttons-cell")

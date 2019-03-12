@@ -1,10 +1,15 @@
 import { ITableButton } from "./table-button";
 import { IColumnDefinition } from "./column-definition";
 import { EspalierFilter } from "./espalier-filter";
+import { IGridDataSource } from "./data-sources/grid-data-source";
 /**
  * The settings to be applied to an Espalier instance.
  */
 export interface IEspalierSettings<TRow> {
+    /**
+     * The data source for the grid.
+     */
+    dataSource: IGridDataSource<TRow>;
     /**
      * The columns to show in the grid.
      */
@@ -14,7 +19,7 @@ export interface IEspalierSettings<TRow> {
      * removing filters, as well as the user interface for
      * the filter.
      */
-    filter?: EspalierFilter;
+    filter?: EspalierFilter<TRow>;
     /**
      * Build buttons to show for a given row of data. These
      * will appear in the far-right column.
