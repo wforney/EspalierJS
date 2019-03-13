@@ -2,7 +2,6 @@ import { bindable, customElement, bindingMode, inject, TaskQueue } from "aurelia
 import { IEspalierFormControl } from "./espalier-form-control";
 import { ValidationController, ValidationRenderer, RenderInstruction } from "aurelia-validation";
 import { EventAggregator, Subscription } from "aurelia-event-aggregator";
-import { valueConverter } from "aurelia-binding";
 
 let isBlurCheck = false;
 const alphaNumericRegex = new RegExp("^[a-zA-Z0-9]$");
