@@ -1,12 +1,16 @@
-import { bindable, customElement, bindingMode, inject } from "aurelia-framework";
+import { bindable, customElement, bindingMode, inject, TaskQueue } from "aurelia-framework";
 import { IEspalierFormControl } from "./espalier-form-control";
 import { ValidationController, ValidationRenderer, RenderInstruction } from "aurelia-validation";
 import { EventAggregator, Subscription } from "aurelia-event-aggregator";
+import { valueConverter } from "aurelia-binding";
 
 let isBlurCheck = false;
+const alphaNumericRegex = new RegExp("^[a-zA-Z0-9]$");
+const alphaRegex = new RegExp("^[a-zA-Z]$");
+const numericRegex = new RegExp("^[0-9]$");
 
 @customElement("esp-input")
-@inject(ValidationController, EventAggregator)
+@inject(ValidationController, EventAggregator, TaskQueue)
 export class EspalierInput implements IEspalierFormControl, ValidationRenderer {
   @bindable()
   public controlid: string;
@@ -18,14 +22,19 @@ export class EspalierInput implements IEspalierFormControl, ValidationRenderer {
   public type: string;
 
   @bindable()
+  public mask: string;
+
+  @bindable()
   public label: string;
   protected input: HTMLInputElement;
   protected focused = false;
   protected errors: string[] = [];
   private blurCheckForMe = false;
   private errorSub: Subscription;
+  private maskNonces: Array<string | RegExp> | undefined = undefined;
 
-  constructor(private controller: ValidationController, private eventAggregator: EventAggregator) {
+  constructor(private controller: ValidationController, private eventAggregator: EventAggregator,
+    private queue: TaskQueue) {
     controller.addRenderer(this);
   }
 
@@ -58,6 +67,12 @@ export class EspalierInput implements IEspalierFormControl, ValidationRenderer {
 
   protected hasFocus() {
     this.focused = true;
+
+    // if (this.maskNonces) {
+
+    // }
+
+    this.input.setSelectionRange(0, this.input.value.length);
   }
 
   protected async doBlur() {
@@ -73,12 +88,186 @@ export class EspalierInput implements IEspalierFormControl, ValidationRenderer {
   }
 
   protected attached() {
+    this.input.addEventListener("keydown", (ev: KeyboardEvent) => this.keydown(ev));
     this.errorSub = this.eventAggregator.subscribe(
       `error:espalier:${this.controlid}`,
       (errorMessage: string) => this.errors.push(errorMessage));
+
+    if (this.mask) {
+      if (!this.maskNonces) {
+        this.maskNonces = [];
+
+        for (const char of this.mask/*.split("")*/) {
+          switch (char) {
+            case "A":
+              this.maskNonces.push(alphaRegex);
+              continue;
+            case "0":
+              this.maskNonces.push(numericRegex);
+              continue;
+            case "W":
+              this.maskNonces.push(alphaNumericRegex);
+              continue;
+            default:
+              this.maskNonces.push(char);
+              continue;
+          }
+        }
+      }
+    }
   }
 
   protected detached() {
     this.errorSub.dispose();
+    // this.input.removeEventListener("keydown");
+  }
+
+  protected keydown(e: KeyboardEvent) {
+    if (!this.maskNonces || this.maskNonces.length == 0) {
+      return;
+    }
+
+    const ctrlDown = e.getModifierState("Control");
+    const shiftDown = e.getModifierState("Shift");
+
+    if (ctrlDown || shiftDown
+      || e.keyCode == 9 || e.key == "Tab"
+      || e.keyCode == 16 || e.key == "Shift"
+      || e.keyCode == 17 || e.key == "Control") {
+      return;
+    }
+
+    let cursorPosition = this.input.selectionStart ? this.input.selectionStart : 0;
+
+    if (e.keyCode == 37 || e.key == "ArrowLeft") {
+      do {
+        cursorPosition--;
+      } while (!(this.maskNonces[cursorPosition] instanceof RegExp) && cursorPosition > 0);
+
+      while (!(this.maskNonces[cursorPosition] instanceof RegExp) && cursorPosition < this.maskNonces.length) {
+        cursorPosition++;
+      }
+
+      this.goToCursor(cursorPosition + 1);
+      return;
+    }
+
+    if (e.keyCode == 39 || e.key == "ArrowRight") {
+      do {
+        cursorPosition++;
+      } while (!(this.maskNonces[cursorPosition] instanceof RegExp) && cursorPosition < this.value.length);
+
+      this.goToCursor(cursorPosition - 1);
+      return;
+    }
+
+    let chars: string[] = [];
+    let maskedCharPosition = 0;
+    let selectionLength = 0;
+
+    for (let i = cursorPosition; i < (this.input.selectionEnd ? this.input.selectionEnd : cursorPosition); i++) {
+      if (this.maskNonces[i] instanceof RegExp) {
+        selectionLength++;
+      }
+    }
+
+    while (this.maskNonces.length < cursorPosition + selectionLength
+      && !(this.maskNonces[cursorPosition + selectionLength] instanceof RegExp)
+      && (cursorPosition + selectionLength) <= this.value.length) {
+      // Characters that are part of the mask will always be "selected" if they are after the cursor.
+      selectionLength++;
+    }
+
+    for (let i = 0; i < this.maskNonces.length; i++) {
+      if (this.maskNonces[i] instanceof RegExp /* This is a character set by the user. */
+        && this.value.length > i /* The user has set this character. */
+        /*&& (i < cursorPosition || i >= cursorPosition + selectionLength)*/) {
+        chars.push(this.value.substring(i, i + 1));
+
+        if (i < cursorPosition) {
+          maskedCharPosition++;
+        }
+      }
+    }
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
+    if (e.keyCode == 8 || e.key == "Backspace") {
+      if (selectionLength > 0) {
+        chars.splice(maskedCharPosition, selectionLength);
+      } else {
+        do {
+          cursorPosition--;
+        } while (!(this.maskNonces[cursorPosition] instanceof RegExp));
+        maskedCharPosition--;
+        chars.splice(maskedCharPosition, 1);
+      }
+      cursorPosition--;
+    } else if (e.keyCode == 46 || e.key == "Delete") {
+      chars.splice(maskedCharPosition, selectionLength ? selectionLength : 1);
+      cursorPosition--;
+    } else {
+      if (cursorPosition >= this.maskNonces.length) {
+        return;
+      }
+
+      if (this.value.length >= this.maskNonces.length && selectionLength == 0) {
+        // The value is full, so we need to replace instead of insert.
+        selectionLength = 1;
+      }
+
+      let nonce: string | RegExp;
+
+      do {
+        nonce = this.maskNonces[cursorPosition];
+
+        if (!(nonce instanceof RegExp)) {
+          cursorPosition++;
+        }
+      } while (!(nonce instanceof RegExp) && cursorPosition < this.maskNonces.length);
+
+      if (!(nonce instanceof RegExp) || !nonce.test(e.key)) {
+        return;
+      }
+
+      chars.splice(maskedCharPosition, selectionLength, e.key);
+    }
+
+    let newVal = "";
+    let noUserEnteredChars = true;
+    chars = chars.reverse();
+
+    for (const nonce of this.maskNonces) {
+      if (nonce instanceof RegExp) {
+        const potentialVal = chars.pop();
+
+        if (!potentialVal) {
+          break;
+        }
+
+        if (nonce.test(potentialVal)) {
+          noUserEnteredChars = false;
+          newVal += potentialVal;
+        }
+        continue;
+      }
+
+      newVal += nonce;
+    }
+
+    this.value = noUserEnteredChars ? "" : newVal;
+
+    do {
+      cursorPosition++;
+    } while (!(this.maskNonces[cursorPosition] instanceof RegExp) && cursorPosition <= this.value.length);
+
+    this.goToCursor(cursorPosition);
+  }
+
+  private goToCursor(pos: number) {
+    this.queue.queueMicroTask(() => {
+      this.input.setSelectionRange(pos, pos);
+    });
   }
 }
