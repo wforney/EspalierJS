@@ -127,11 +127,10 @@ export class EspalierInput implements IEspalierFormControl, ValidationRenderer {
     }
 
     const ctrlDown = e.getModifierState("Control");
-    const shiftDown = e.getModifierState("Shift");
 
-    if (ctrlDown || shiftDown
+    if (ctrlDown
       || e.keyCode == 9 || e.key == "Tab"
-      || e.keyCode == 16 || e.key == "Shift"
+      || ((e.keyCode == 16 || e.key == "Shift") && !e.getModifierState("Shift"))
       || e.keyCode == 17 || e.key == "Control") {
       return;
     }
@@ -196,9 +195,13 @@ export class EspalierInput implements IEspalierFormControl, ValidationRenderer {
       if (selectionLength > 0) {
         chars.splice(maskedCharPosition, selectionLength);
       } else {
+        if (maskedCharPosition == 0) {
+          return;
+        }
+
         do {
           cursorPosition--;
-        } while (!(this.maskNonces[cursorPosition] instanceof RegExp));
+        } while (!(this.maskNonces[cursorPosition] instanceof RegExp) && cursorPosition > 0);
         maskedCharPosition--;
         chars.splice(maskedCharPosition, 1);
       }
