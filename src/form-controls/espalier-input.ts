@@ -118,7 +118,6 @@ export class EspalierInput implements IEspalierFormControl, ValidationRenderer {
 
   protected detached() {
     this.errorSub.dispose();
-    // this.input.removeEventListener("keydown");
   }
 
   protected keydown(e: KeyboardEvent) {
@@ -126,12 +125,14 @@ export class EspalierInput implements IEspalierFormControl, ValidationRenderer {
       return;
     }
 
-    const ctrlDown = e.getModifierState("Control");
+    const shiftModified = e.getModifierState("Shift");
 
-    if (ctrlDown
+    if (e.getModifierState("Control")
+      || e.keyCode == 13 || e.key == "Enter"
+      || e.keyCode == 17 || e.key == "Control"
       || e.keyCode == 9 || e.key == "Tab"
-      || ((e.keyCode == 16 || e.key == "Shift") && !e.getModifierState("Shift"))
-      || e.keyCode == 17 || e.key == "Control") {
+      || ((e.keyCode == 37 || e.key == "ArrowLeft") && shiftModified)
+      || ((e.keyCode == 39 || e.key == "ArrowRight") && shiftModified)) {
       return;
     }
 
@@ -159,6 +160,15 @@ export class EspalierInput implements IEspalierFormControl, ValidationRenderer {
       return;
     }
 
+    if ((e.keyCode == 16 || e.key == "Shift") && !shiftModified) {
+      /* We don't care if they just pushed the shift key. No input 
+      /* changes are necessary. */
+      return;
+    }
+
+    e.preventDefault();
+    e.stopImmediatePropagation();
+
     let chars: string[] = [];
     let maskedCharPosition = 0;
     let selectionLength = 0;
@@ -178,8 +188,7 @@ export class EspalierInput implements IEspalierFormControl, ValidationRenderer {
 
     for (let i = 0; i < this.maskNonces.length; i++) {
       if (this.maskNonces[i] instanceof RegExp /* This is a character set by the user. */
-        && this.value.length > i /* The user has set this character. */
-        /*&& (i < cursorPosition || i >= cursorPosition + selectionLength)*/) {
+        && this.value.length > i) {
         chars.push(this.value.substring(i, i + 1));
 
         if (i < cursorPosition) {
@@ -187,9 +196,6 @@ export class EspalierInput implements IEspalierFormControl, ValidationRenderer {
         }
       }
     }
-
-    e.preventDefault();
-    e.stopImmediatePropagation();
 
     if (e.keyCode == 8 || e.key == "Backspace") {
       if (selectionLength > 0) {
