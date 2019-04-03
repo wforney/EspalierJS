@@ -2,7 +2,7 @@ import { bindable, customElement, bindingMode } from "aurelia-framework";
 import { IEspalierFormControl } from "./espalier-form-control";
 
 @customElement("esp-checkbox")
-export class EspalierCheckboxCustomElement implements IEspalierFormControl {
+export class EspalierCheckbox implements IEspalierFormControl {
   @bindable()
   public controlid: string;
 
@@ -17,6 +17,10 @@ export class EspalierCheckboxCustomElement implements IEspalierFormControl {
 
   protected input: HTMLInputElement;
   protected errors: string[] = [];
+
+  public getControlId(): string {
+    return this.controlid;
+  }
 
   public focus() {
     this.input.focus();

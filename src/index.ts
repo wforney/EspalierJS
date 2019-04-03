@@ -1,4 +1,5 @@
 import { FrameworkConfiguration, PLATFORM } from "aurelia-framework";
+import { Polyfills } from "./polyfills";
 
 export { IColumnDefinition } from "./grid/column-definition";
 export { SortOrder, ColumnType } from "./grid/enums";
@@ -17,12 +18,17 @@ export { IntegerFormatter } from "./grid/formatters/integer-formatter";
 export { NumberFormatter } from "./grid/formatters/number-formatter";
 export { TextFormatter } from "./grid/formatters/text-formatter";
 export { EspalierInput } from "./form-controls/espalier-input";
-export { EspalierCheckboxCustomElement } from "./form-controls/espalier-checkbox";
+export { EspalierCheckbox } from "./form-controls/espalier-checkbox";
+export { EspalierDate } from "./form-controls/espalier-date";
 
 export function configure(config: FrameworkConfiguration) {
+  new Polyfills().apply();
+
   config.globalResources([
     PLATFORM.moduleName("./grid/espalier"),
     PLATFORM.moduleName("./form-controls/espalier-checkbox"),
-    PLATFORM.moduleName("./form-controls/espalier-input")
+    PLATFORM.moduleName("./form-controls/espalier-input"),
+    PLATFORM.moduleName("./form-controls/espalier-date"),
+    PLATFORM.moduleName("./form-controls/espalier-select")
   ]);
 }

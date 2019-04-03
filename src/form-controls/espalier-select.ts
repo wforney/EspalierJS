@@ -2,40 +2,28 @@ import { bindable, customElement, bindingMode, inject } from "aurelia-framework"
 import { IEspalierFormControl } from "./espalier-form-control";
 import { ValidationController } from "aurelia-validation";
 import { EventAggregator, Subscription } from "aurelia-event-aggregator";
-import { MaskController } from "./mask-controller";
 import { EspalierValidationRenderer } from "./espalier-validation-renderer";
 
-@customElement("esp-input")
+@customElement("esp-select")
 @inject(ValidationController, EventAggregator, EspalierValidationRenderer)
-export class EspalierInput implements IEspalierFormControl {
+export class EspalierSelect implements IEspalierFormControl {
   @bindable()
   public controlid: string;
 
   @bindable({ defaultBindingMode: bindingMode.twoWay })
-  public value: string;
-
-  @bindable()
-  public type: string;
-
-  @bindable()
-  public mask: string;
+  public value: any;
 
   @bindable()
   public label: string;
 
   @bindable()
-  public autocomplete: (value: string) => Promise<[string, any][]>;
+  public selectOptions: [string, any][];
 
-  @bindable()
-  public autocompleteSelected: (value: any) => Promise<void>;
-  
-  protected input: HTMLInputElement;
-  protected selectedValue = "";
+  protected select: HTMLSelectElement;
   protected focused = false;
   protected errors: string[] = [];
   private errorSub: Subscription;
   private removeErrorSub: Subscription;
-  private maskController: MaskController;
 
   constructor(private controller: ValidationController, private eventAggregator: EventAggregator,
     private renderer: EspalierValidationRenderer) {
@@ -49,7 +37,7 @@ export class EspalierInput implements IEspalierFormControl {
 
   public focus() {
     this.focused = true;
-    this.input.focus();
+    this.select.focus();
   }
 
   protected attached() {
@@ -62,30 +50,19 @@ export class EspalierInput implements IEspalierFormControl {
         this.errors.splice(index, 1);
       }
     );
-    this.input.addEventListener("focus", this.onFocus);
-    this.input.addEventListener("blur", this.onBlur);
-
-    if (this.mask || this.autocomplete) {
-      this.maskController = new MaskController(this.input, this.mask, this.autocomplete, this.autocompleteSelected);
-    }
+    this.select.addEventListener("focus", this.onFocus);
+    this.select.addEventListener("blur", this.onBlur);
   }
 
   protected detached() {
-    this.input.removeEventListener("focus", this.onFocus);
-    this.input.removeEventListener("blur", this.onBlur);
+    this.select.removeEventListener("focus", this.onFocus);
+    this.select.removeEventListener("blur", this.onBlur);
     this.errorSub.dispose();
     this.removeErrorSub.dispose();
-    if (this.maskController) {
-      this.maskController.dispose();
-    }
   }
 
   private onBlur = async () => {
     this.focused = false;
-
-    if (this.maskController) {
-      this.value = this.input.value;
-    }
 
     setTimeout(async () => {
       this.renderer.specificElement = this;
@@ -96,6 +73,5 @@ export class EspalierInput implements IEspalierFormControl {
 
   private onFocus = () => {
     this.focused = true;
-    this.input.setSelectionRange(0, this.input.value.length);
   }
 }

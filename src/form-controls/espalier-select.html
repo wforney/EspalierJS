@@ -1,0 +1,13 @@
+<template>
+  <require from="./espalier-input.css"></require>
+
+  <div class="espalier-control has-value ${focused ? 'has-focus' : ''} ${errors.length ? 'has-error' : ''}">
+    <label if.bind="label" for.one-time="controlid">${label}</label>
+    <select ref="select" id.one-time="controlid" value.bind="value">
+      <option repeat.for="option of selectOptions" model.bind="option[1]">${option[0]}</option>
+    </select>
+    <span repeat.for="error of errors" class="error">
+      ${error}
+    </span>
+  </div>
+</template>

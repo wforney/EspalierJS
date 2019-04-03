@@ -1,6 +1,6 @@
 {
   "name": "espalier-js",
-  "version": "2.0.11",
+  "version": "2.0.13",
   "description": "An easy-to-use grid component for Aurelia.",
   "keywords": [
     "aurelia",
@@ -57,7 +57,8 @@
     "aurelia-http-client": "^1.3.0",
     "aurelia-validation": "^1.3.3",
     "clone": "^2.1.2",
-    "tippy.js": "^3.2.0"
+    "tippy.js": "^3.2.0",
+    "flatpickr": "^4.5.7"
   },
   "devDependencies": {
     "@types/clone": "^0.1.30",

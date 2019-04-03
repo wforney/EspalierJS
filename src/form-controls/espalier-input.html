@@ -1,10 +1,10 @@
 <template>
   <require from="./espalier-input.css"></require>
 
-  <div class="espalier-control ${focused ? 'has-focus' : ''} ${value.length > 0 ? 'has-value' : ''} ${errors.length ? 'has-error' : ''}">
+  <div
+    class="espalier-control ${focused ? 'has-focus' : ''} ${value.length > 0 ? 'has-value' : ''} ${errors.length ? 'has-error' : ''}">
     <label if.bind="label" for.one-time="controlid">${label}</label>
-    <input ref="input" id.one-time="controlid" focus.trigger="hasFocus()" blur.trigger="doBlur()" type.one-time="type || 'text'"
-      value.bind="value & validate" autocomplete="off">
+    <input ref="input" id.one-time="controlid" type.one-time="type || 'text'" value.bind="value" autocomplete="off">
     <span repeat.for="error of errors" class="error">
       ${error}
     </span>
