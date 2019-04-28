@@ -20,6 +20,7 @@ export { TextFormatter } from "./grid/formatters/text-formatter";
 export { EspalierInput } from "./form-controls/espalier-input";
 export { EspalierCheckbox } from "./form-controls/espalier-checkbox";
 export { EspalierDate } from "./form-controls/espalier-date";
+export { DataSourceFactory } from "./grid/data-sources/data-source-factory";
 
 export function configure(config: FrameworkConfiguration) {
   new Polyfills().apply();
