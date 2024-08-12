@@ -63,10 +63,10 @@
   "devDependencies": {
     "@types/clone": "^0.1.30",
     "@types/luxon": "^1.4.1",
-    "concurrently": "^4.1.0",
+    "concurrently": "^8.2.2",
     "copyfiles": "^2.1.0",
     "cross-env": "^5.2.0",
-    "node-sass": "^7.0.0",
+    "node-sass": "^9.0.0",
     "rimraf": "^2.6.2",
     "tslint": "^5.11.0",
     "typescript": "^3.3.3333"
